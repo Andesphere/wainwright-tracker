@@ -1,3 +1,289 @@
-html { scroll-behavior: smooth; }
-body { min-width: 320px; }
-::selection { background: #2fbf71; color: #fffaf0; }
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant data-open {
+  &:where([data-state="open"]),
+  &:where([data-open]:not([data-open="false"])) {
+    @slot;
+  }
+}
+@custom-variant data-closed {
+  &:where([data-state="closed"]),
+  &:where([data-closed]:not([data-closed="false"])) {
+    @slot;
+  }
+}
+@custom-variant data-active {
+  &:where([data-state="active"]),
+  &:where([data-active]:not([data-active="false"])) {
+    @slot;
+  }
+}
+@custom-variant data-horizontal {
+  &:where([data-orientation="horizontal"]) {
+    @slot;
+  }
+}
+@custom-variant data-vertical {
+  &:where([data-orientation="vertical"]) {
+    @slot;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Fells Journal · custom theme on top of shadcn nova preset (b1zVce)
+ * -------------------------------------------------------------------------*/
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  min-width: 320px;
+  -webkit-font-smoothing: antialiased;
+}
+::selection {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+/* Force sentence-case everywhere — no uppercase titles, per design brief. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.shadcn-no-upper {
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+
+@theme inline {
+  --font-heading: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  --color-parchment: var(--parchment);
+  --color-ink: var(--ink);
+  --color-moss: var(--moss);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Editorial-cream background — like aged map paper. */
+  --background: oklch(0.985 0.012 95);
+  --foreground: oklch(0.21 0.022 165);
+  --card: oklch(0.995 0.008 92);
+  --card-foreground: oklch(0.21 0.022 165);
+  --popover: oklch(0.995 0.008 92);
+  --popover-foreground: oklch(0.21 0.022 165);
+  --primary: oklch(0.508 0.118 165.612);
+  --primary-foreground: oklch(0.979 0.021 166.113);
+  --secondary: oklch(0.95 0.01 95);
+  --secondary-foreground: oklch(0.27 0.018 160);
+  --muted: oklch(0.955 0.012 92);
+  --muted-foreground: oklch(0.46 0.014 160);
+  --accent: oklch(0.93 0.022 95);
+  --accent-foreground: oklch(0.27 0.018 160);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.9 0.012 95);
+  --input: oklch(0.9 0.012 95);
+  --ring: oklch(0.6 0.08 165);
+
+  --chart-1: oklch(0.508 0.118 165.612);
+  --chart-2: oklch(0.65 0.1 162);
+  --chart-3: oklch(0.78 0.075 90);
+  --chart-4: oklch(0.55 0.05 70);
+  --chart-5: oklch(0.35 0.04 162);
+
+  --radius: 0.625rem;
+
+  --sidebar: oklch(0.99 0.008 90);
+  --sidebar-foreground: oklch(0.21 0.022 165);
+  --sidebar-primary: oklch(0.508 0.118 165.612);
+  --sidebar-primary-foreground: oklch(0.979 0.021 166.113);
+  --sidebar-accent: oklch(0.93 0.022 95);
+  --sidebar-accent-foreground: oklch(0.27 0.018 160);
+  --sidebar-border: oklch(0.9 0.012 95);
+  --sidebar-ring: oklch(0.6 0.08 165);
+
+  /* Custom journal tokens. */
+  --parchment: oklch(0.97 0.018 90);
+  --ink: oklch(0.21 0.022 165);
+  --moss: oklch(0.508 0.118 165.612);
+}
+
+.dark {
+  --background: oklch(0.16 0.014 165);
+  --foreground: oklch(0.96 0.012 90);
+  --card: oklch(0.205 0.018 165);
+  --card-foreground: oklch(0.96 0.012 90);
+  --popover: oklch(0.205 0.018 165);
+  --popover-foreground: oklch(0.96 0.012 90);
+  --primary: oklch(0.66 0.135 162);
+  --primary-foreground: oklch(0.14 0.04 165);
+  --secondary: oklch(0.26 0.018 165);
+  --secondary-foreground: oklch(0.96 0.012 90);
+  --muted: oklch(0.24 0.014 165);
+  --muted-foreground: oklch(0.72 0.018 90);
+  --accent: oklch(0.27 0.022 162);
+  --accent-foreground: oklch(0.96 0.012 90);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.56 0.08 165);
+
+  --chart-1: oklch(0.66 0.135 162);
+  --chart-2: oklch(0.78 0.09 165);
+  --chart-3: oklch(0.55 0.07 90);
+  --chart-4: oklch(0.4 0.05 70);
+  --chart-5: oklch(0.86 0.06 90);
+
+  --sidebar: oklch(0.205 0.018 165);
+  --sidebar-foreground: oklch(0.96 0.012 90);
+  --sidebar-primary: oklch(0.66 0.135 162);
+  --sidebar-primary-foreground: oklch(0.14 0.04 165);
+  --sidebar-accent: oklch(0.27 0.022 162);
+  --sidebar-accent-foreground: oklch(0.96 0.012 90);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.56 0.08 165);
+
+  --parchment: oklch(0.22 0.018 90);
+  --ink: oklch(0.96 0.012 90);
+  --moss: oklch(0.66 0.135 162);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(
+        1200px 700px at 0% -10%,
+        color-mix(in oklab, var(--moss) 9%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 500px at 110% 110%,
+        color-mix(in oklab, var(--moss) 6%, transparent),
+        transparent 55%
+      ),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'><g fill='none' stroke='%231f2d23' stroke-opacity='0.05' stroke-width='1'><path d='M0 240 Q80 200 160 230 T320 220'/><path d='M0 200 Q80 160 160 190 T320 180'/><path d='M0 160 Q80 120 160 150 T320 140'/><path d='M0 120 Q80 80 160 110 T320 100'/><path d='M0 80 Q80 40 160 70 T320 60'/></g></svg>");
+    background-attachment: fixed;
+    background-size:
+      auto,
+      auto,
+      480px 480px;
+  }
+  html {
+    @apply font-sans;
+  }
+  .font-display {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+  }
+}
+
+.contour-texture {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'><g fill='none' stroke='%231f2d23' stroke-width='1'><path d='M0 220 Q80 180 160 210 T320 200'/><path d='M0 180 Q80 140 160 170 T320 160'/><path d='M0 140 Q80 100 160 130 T320 120'/><path d='M0 100 Q80 60 160 90 T320 80'/></g></svg>");
+  background-size: 420px 420px;
+}
+
+/* MapLibre tweaks so the map feels at home inside the journal. */
+.maplibregl-ctrl-group {
+  border-radius: 14px !important;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(20, 28, 18, 0.18) !important;
+  border: 1px solid color-mix(in oklab, var(--moss) 14%, white) !important;
+}
+.maplibregl-ctrl-group button {
+  background: var(--parchment) !important;
+}
+.peak-popup .maplibregl-popup-content {
+  border-radius: 14px;
+  padding: 10px 14px;
+  background: var(--parchment);
+  border: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
+  box-shadow: 0 16px 40px rgba(20, 28, 18, 0.22);
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+.peak-popup .maplibregl-popup-content strong {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  display: block;
+}
+.peak-popup .maplibregl-popup-content span {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: color-mix(in oklab, var(--ink) 60%, transparent);
+}
+.peak-popup .maplibregl-popup-tip {
+  border-top-color: var(--parchment) !important;
+}
+.maplibregl-ctrl-attrib {
+  background: color-mix(in oklab, var(--parchment) 85%, transparent) !important;
+  border-radius: 10px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+}
+
+/* Soft scrollbar in the journal column. */
+.journal-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.journal-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--moss) 30%, transparent);
+  border-radius: 999px;
+}
+.journal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}

@@ -1,38 +1,47 @@
-import { Component, type ErrorInfo, type ReactNode, StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { Component, type ErrorInfo, type ReactNode, StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { registerSW } from "virtual:pwa-register";
+import "./index.css";
+import App from "./App.tsx";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-type ErrorBoundaryState = { error: Error | null }
+type ErrorBoundaryState = { error: Error | null };
 
-class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
-  state: ErrorBoundaryState = { error: null }
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  ErrorBoundaryState
+> {
+  state: ErrorBoundaryState = { error: null };
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { error }
+    return { error };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('App render failed', error, info.componentStack)
+    console.error("App render failed", error, info.componentStack);
   }
 
   render() {
-    const { error } = this.state
+    const { error } = this.state;
     if (error) {
       return (
-        <pre style={{ color: '#fff', padding: 24, whiteSpace: 'pre-wrap' }}>
+        <pre style={{ color: "#fff", padding: 24, whiteSpace: "pre-wrap" }}>
           {error.name}: {error.message}\n{error.stack}
         </pre>
-      )
+      );
     }
-    return this.props.children
+    return this.props.children;
   }
 }
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <TooltipProvider delayDuration={200}>
+        <App />
+      </TooltipProvider>
     </ErrorBoundary>
   </StrictMode>,
-)
+);
+
+registerSW({ immediate: true });
