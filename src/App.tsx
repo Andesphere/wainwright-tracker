@@ -127,6 +127,7 @@ function App() {
   const [showOnly, setShowOnly] = useState<ShowOnly>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapError, setMapError] = useState(false);
   const [topoEnabled, setTopoEnabled] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -183,15 +184,22 @@ function App() {
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
 
-    const map = new maplibregl.Map({
-      container: mapContainer.current,
-      style: MAP_STYLE,
-      center: [-3.12, 54.52],
-      zoom: 8.8,
-      maxZoom: 16,
-      minZoom: 7,
-      attributionControl: false,
-    });
+    let map: Map;
+    try {
+      map = new maplibregl.Map({
+        container: mapContainer.current,
+        style: MAP_STYLE,
+        center: [-3.12, 54.52],
+        zoom: 8.8,
+        maxZoom: 16,
+        minZoom: 7,
+        attributionControl: false,
+      });
+    } catch (error) {
+      console.warn("Map failed to initialise", error);
+      queueMicrotask(() => setMapError(true));
+      return;
+    }
 
     map.addControl(
       new maplibregl.NavigationControl({ visualizePitch: true }),
@@ -500,6 +508,23 @@ function App() {
           ref={mapContainer}
           className="h-full w-full overflow-hidden rounded-[1.35rem] bg-[#d8dcc8] shadow-[0_30px_90px_-30px_rgba(20,28,18,0.55)] ring-1 ring-black/5 sm:rounded-3xl"
         />
+        {mapError && (
+          <div className="absolute inset-2.5 grid place-items-center rounded-[1.35rem] bg-parchment/95 p-6 text-center shadow-inner sm:inset-4 sm:rounded-3xl lg:inset-5">
+            <div className="max-w-sm">
+              <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
+                <HugeiconsIcon icon={MountainIcon} strokeWidth={1.6} />
+              </span>
+              <h2 className="mt-4 font-display text-3xl italic text-ink">
+                map unavailable
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                This browser could not start the interactive map, but your
+                journal, search, filters, import, export, and progress tracking
+                still work.
+              </p>
+            </div>
+          </div>
+        )}
         {/* Decorative inner frame */}
         <div className="pointer-events-none absolute inset-2.5 rounded-[1.35rem] ring-1 ring-white/30 sm:inset-4 sm:rounded-3xl lg:inset-5" />
 
@@ -589,7 +614,7 @@ function App() {
             </SheetTrigger>
             <SheetContent
               side="bottom"
-              className="h-[min(92dvh,760px)] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl"
+              className="h-[92dvh] max-h-[760px] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl"
             >
               <SheetTitle className="sr-only">fells journal</SheetTitle>
               <SheetDescription className="sr-only">
