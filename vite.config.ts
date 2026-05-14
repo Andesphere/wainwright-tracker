@@ -49,10 +49,18 @@ export default defineConfig({
         navigateFallback: "/",
         runtimeCaching: [
           {
-            urlPattern:
-              /^https:\/\/(tiles\.openfreemap\.org|tile\.opentopomap\.org)\//,
+            urlPattern: /^https:\/\/tiles\.openfreemap\.org\//,
             handler: "StaleWhileRevalidate",
-            options: { cacheName: "map-tiles" },
+            options: { cacheName: "map-style-and-vector-tiles" },
+          },
+          {
+            urlPattern: /^https:\/\/tile\.opentopomap\.org\//,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "wainwright-lake-district-topo-v1",
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: { maxEntries: 900, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
           },
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\//,

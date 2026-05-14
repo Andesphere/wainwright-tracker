@@ -55,9 +55,16 @@ import {
   WAINWRIGHTS,
   type Wainwright,
 } from "@/data/wainwrights";
+import {
+  downloadLakeDistrictMap,
+  estimateLakeDistrictDownload,
+  type DownloadProgress,
+} from "@/offlineMap";
 
 const STORAGE_KEY = "wainwright-tracker:v1:completed";
+const OFFLINE_MAP_META_KEY = "wainwright-tracker:v1:offline-map";
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
+const OFFLINE_MAP_ESTIMATE = estimateLakeDistrictDownload();
 const ALL_AREAS = "All";
 const SHOW_OPTIONS = ["all", "todo", "done"] as const;
 const VALID_WAINWRIGHT_IDS = new Set(WAINWRIGHTS.map((peak) => peak.id));
@@ -130,6 +137,15 @@ function App() {
   const [mapError, setMapError] = useState(false);
   const [topoEnabled, setTopoEnabled] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [offlineProgress, setOfflineProgress] = useState<DownloadProgress | null>(null);
+  const [offlineStatus, setOfflineStatus] = useState<
+    "idle" | "downloading" | "ready" | "error"
+  >(() => (localStorage.getItem(OFFLINE_MAP_META_KEY) ? "ready" : "idle"));
+  const [offlineMessage, setOfflineMessage] = useState(() =>
+    localStorage.getItem(OFFLINE_MAP_META_KEY)
+      ? "Lake District topo map saved on this device."
+      : "",
+  );
 
   const selectedPeak = useMemo(
     () => WAINWRIGHTS.find((peak) => peak.id === selectedId) ?? null,
@@ -427,6 +443,39 @@ function App() {
     );
   };
 
+  const downloadOfflineMap = async () => {
+    setOfflineStatus("downloading");
+    setOfflineMessage("Downloading every topo tile for the Wainwright area…");
+    setTopoEnabled(true);
+
+    try {
+      const result = await downloadLakeDistrictMap(setOfflineProgress);
+      const savedAt = new Date().toISOString();
+      localStorage.setItem(
+        OFFLINE_MAP_META_KEY,
+        JSON.stringify({
+          savedAt,
+          ...result,
+          minZoom: OFFLINE_MAP_ESTIMATE.minZoom,
+          maxZoom: OFFLINE_MAP_ESTIMATE.maxZoom,
+        }),
+      );
+      setOfflineStatus("ready");
+      setOfflineMessage(
+        `Lake District map saved: ${result.total.toLocaleString()} tiles, zoom ${OFFLINE_MAP_ESTIMATE.minZoom}-${OFFLINE_MAP_ESTIMATE.maxZoom}.`,
+      );
+      toast.success("Lake District map saved for offline use");
+    } catch (error) {
+      setOfflineStatus("error");
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Could not download the map. Please try again.";
+      setOfflineMessage(message);
+      toast.error(message);
+    }
+  };
+
   const exportProgress = () => {
     const payload = {
       exportedAt: new Date().toISOString(),
@@ -470,6 +519,12 @@ function App() {
     });
   };
 
+  const offlineDownloaded =
+    offlineProgress?.downloaded ??
+    (offlineStatus === "ready" ? OFFLINE_MAP_ESTIMATE.tileCount : 0);
+  const offlineTotal = offlineProgress?.total ?? OFFLINE_MAP_ESTIMATE.tileCount;
+  const offlinePercent = Math.round((offlineDownloaded / offlineTotal) * 100);
+
   const journal = (
     <Journal
       area={area}
@@ -480,6 +535,7 @@ function App() {
       numericPercent={numericPercent}
       onArea={setArea}
       onClearQuery={() => setQuery("")}
+      onDownloadOfflineMap={downloadOfflineMap}
       onExport={exportProgress}
       onImportClick={() => fileInputRef.current?.click()}
       onQuery={setQuery}
@@ -490,6 +546,9 @@ function App() {
       }}
       onShowOnly={setShowOnly}
       onToggle={togglePeak}
+      offlineMessage={offlineMessage}
+      offlinePercent={offlinePercent}
+      offlineStatus={offlineStatus}
       percent={percent}
       query={query}
       selectedId={selectedId}
@@ -581,6 +640,30 @@ function App() {
             <TooltipContent>
               {topoEnabled ? "hide" : "show"} contour overlay
             </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={offlineStatus === "ready" ? "default" : "outline"}
+                size="lg"
+                className={cn(
+                  "rounded-full px-2 backdrop-blur-xl max-[520px]:hidden sm:px-2.5",
+                  offlineStatus === "ready"
+                    ? ""
+                    : "border-white/50 bg-parchment/85",
+                )}
+                disabled={offlineStatus === "downloading"}
+                onClick={downloadOfflineMap}
+              >
+                <HugeiconsIcon icon={Download04Icon} strokeWidth={1.6} />
+                <span>
+                  {offlineStatus === "downloading"
+                    ? `${offlinePercent}%`
+                    : "download lakes"}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>download the full Wainwright map area</TooltipContent>
           </Tooltip>
 
           {/* Mobile: drawer trigger */}
@@ -674,6 +757,7 @@ type JournalProps = {
   numericPercent: number;
   onArea: (area: string) => void;
   onClearQuery: () => void;
+  onDownloadOfflineMap: () => void;
   onExport: () => void;
   onImportClick: () => void;
   onQuery: (query: string) => void;
@@ -681,6 +765,9 @@ type JournalProps = {
   onSelect: (id: string) => void;
   onShowOnly: (value: ShowOnly) => void;
   onToggle: (peak: Wainwright) => void;
+  offlineMessage: string;
+  offlinePercent: number;
+  offlineStatus: "idle" | "downloading" | "ready" | "error";
   percent: string;
   query: string;
   selectedId: string | null;
@@ -697,6 +784,7 @@ function Journal(props: JournalProps) {
     numericPercent,
     onArea,
     onClearQuery,
+    onDownloadOfflineMap,
     onExport,
     onImportClick,
     onQuery,
@@ -704,6 +792,9 @@ function Journal(props: JournalProps) {
     onSelect,
     onShowOnly,
     onToggle,
+    offlineMessage,
+    offlinePercent,
+    offlineStatus,
     percent,
     query,
     selectedId,
@@ -827,6 +918,56 @@ function Journal(props: JournalProps) {
             <HugeiconsIcon icon={ReloadIcon} strokeWidth={1.6} /> reset
           </Button>
         </div>
+      </Card>
+
+      <Card
+        className={cn(
+          "gap-3 border-border/70 bg-card/85 p-4 shadow-sm",
+          offlineStatus === "ready" && "border-primary/40 bg-primary/5",
+          offlineStatus === "error" && "border-destructive/40 bg-destructive/5",
+        )}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.22em] text-muted-foreground">
+              offline map
+            </p>
+            <h3 className="mt-1 font-display text-2xl italic leading-none text-ink">
+              download the lakes
+            </h3>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              Saves {OFFLINE_MAP_ESTIMATE.tileCount.toLocaleString()} topo
+              tiles covering the full Wainwright area, zoom {OFFLINE_MAP_ESTIMATE.minZoom}-
+              {OFFLINE_MAP_ESTIMATE.maxZoom}.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            className="shrink-0 rounded-full"
+            disabled={offlineStatus === "downloading"}
+            onClick={onDownloadOfflineMap}
+          >
+            <HugeiconsIcon icon={Download04Icon} strokeWidth={1.6} />
+            {offlineStatus === "ready"
+              ? "refresh"
+              : offlineStatus === "downloading"
+                ? "saving"
+                : "download"}
+          </Button>
+        </div>
+        {(offlineStatus === "downloading" || offlineStatus === "ready") && (
+          <Progress value={offlinePercent} className="h-2 rounded-full bg-muted" />
+        )}
+        {offlineMessage && (
+          <p
+            className={cn(
+              "font-mono text-[10px] leading-relaxed text-muted-foreground",
+              offlineStatus === "error" && "text-destructive",
+            )}
+          >
+            {offlineMessage}
+          </p>
+        )}
       </Card>
 
       {/* Result meta */}
