@@ -1,4 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/clerk-react";
+import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import maplibregl, { Map, Popup } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -48,6 +57,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { api } from "../convex/_generated/api";
 
 import {
   AREAS,
@@ -81,7 +91,7 @@ function loadCompleted() {
   }
 }
 
-function saveCompleted(completed: Set<string>) {
+function saveCompletedMigration(completed: Set<string>) {
   localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify(Array.from(completed).sort()),
@@ -122,15 +132,36 @@ function isShowOnly(value: string): value is ShowOnly {
 }
 
 function App() {
+  return (
+    <>
+      <Authenticated>
+        <TrackerApp />
+      </Authenticated>
+      <Unauthenticated>
+        <SignedOut>
+          <AuthGate />
+        </SignedOut>
+      </Unauthenticated>
+      <AuthLoading>
+        <LoadingGate />
+      </AuthLoading>
+    </>
+  );
+}
+
+function TrackerApp() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
   const popupRef = useRef<Popup | null>(null);
   const completedMarkersRef = useRef<maplibregl.Marker[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [completed, setCompleted] = useState<Set<string>>(() =>
-    loadCompleted(),
-  );
+  const progress = useQuery(api.progress.get);
+  const replaceProgress = useMutation(api.progress.replace);
+  const setBagged = useMutation(api.progress.setBagged);
+  const migratedLocalProgressRef = useRef(false);
+  const [optimisticCompleted, setOptimisticCompleted] =
+    useState<Set<string> | null>(null);
   const [query, setQuery] = useState("");
   const [area, setArea] = useState(ALL_AREAS);
   const [showOnly, setShowOnly] = useState<ShowOnly>("all");
@@ -149,6 +180,13 @@ function App() {
       ? "Lake District topo map saved on this device."
       : "",
   );
+
+  const serverCompleted = useMemo(
+    () =>
+      new Set((progress ?? []).filter((id) => VALID_WAINWRIGHT_IDS.has(id))),
+    [progress],
+  );
+  const completed = optimisticCompleted ?? serverCompleted;
 
   const selectedPeak = useMemo(
     () => WAINWRIGHTS.find((peak) => peak.id === selectedId) ?? null,
@@ -203,7 +241,20 @@ function App() {
     [completed],
   );
 
-  useEffect(() => saveCompleted(completed), [completed]);
+  useEffect(() => {
+    if (!progress || migratedLocalProgressRef.current || progress.length > 0)
+      return;
+    const local = loadCompleted();
+    const completed = Array.from(local).filter((id) =>
+      VALID_WAINWRIGHT_IDS.has(id),
+    );
+    migratedLocalProgressRef.current = true;
+    if (completed.length === 0) return;
+    void replaceProgress({ completed }).then(() => {
+      saveCompletedMigration(new Set(completed));
+      toast.success(`Imported ${completed.length} saved fells`);
+    });
+  }, [progress, replaceProgress]);
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
@@ -471,18 +522,33 @@ function App() {
       .addTo(map);
   }, [selectedPeak]);
 
-  const togglePeak = (peak: Wainwright) => {
-    setCompleted((previous) => {
-      const next = new Set(previous);
-      if (next.has(peak.id)) {
-        next.delete(peak.id);
-        toast(`${peak.name} marked as unbagged`);
-      } else {
-        next.add(peak.id);
-        toast.success(`${peak.name} bagged — ${peak.heightMetres}m`);
-      }
+  const togglePeak = async (peak: Wainwright) => {
+    const bagged = !completed.has(peak.id);
+    setOptimisticCompleted((previous) => {
+      const baseline = previous ?? completed;
+      const next = new Set(baseline);
+      if (bagged) next.add(peak.id);
+      else next.delete(peak.id);
       return next;
     });
+
+    try {
+      await setBagged({ id: peak.id, bagged });
+      if (bagged) {
+        toast.success(`${peak.name} bagged — ${peak.heightMetres}m`);
+      } else {
+        toast(`${peak.name} marked as unbagged`);
+      }
+    } catch {
+      setOptimisticCompleted((previous) => {
+        const baseline = previous ?? completed;
+        const next = new Set(baseline);
+        if (bagged) next.delete(peak.id);
+        else next.add(peak.id);
+        return next;
+      });
+      toast.error("Could not save progress. Please try again.");
+    }
   };
 
   const fitLakeDistrict = () => {
@@ -556,7 +622,9 @@ function App() {
             typeof id === "string" && VALID_WAINWRIGHT_IDS.has(id),
         ),
       );
-      setCompleted(next);
+      setOptimisticCompleted(next);
+      await replaceProgress({ completed: Array.from(next) });
+      saveCompletedMigration(next);
       toast.success(`Imported ${next.size} bagged fells`);
     } catch {
       toast.error("Could not read that file");
@@ -564,11 +632,14 @@ function App() {
   };
 
   const resetProgress = () => {
-    setCompleted((previous) => {
-      if (previous.size === 0) return previous;
-      toast("Journal reset");
-      return new Set();
-    });
+    if (completed.size === 0) return;
+    setOptimisticCompleted(new Set());
+    void replaceProgress({ completed: [] })
+      .then(() => toast("Journal reset"))
+      .catch(() => {
+        setOptimisticCompleted(completed);
+        toast.error("Could not reset progress. Please try again.");
+      });
   };
 
   const offlineDownloaded =
@@ -660,6 +731,11 @@ function App() {
 
         {/* Floating top-right map controls */}
         <div className="mobile-map-controls absolute right-4 top-[calc(env(safe-area-inset-top)+4.75rem)] z-10 flex items-center gap-2 sm:right-8 sm:top-8">
+          <SignedIn>
+            <div className="grid size-10 place-items-center rounded-full border border-white/50 bg-parchment/85 shadow-sm backdrop-blur-xl sm:size-11">
+              <UserButton afterSignOutUrl="/" />
+            </div>
+          </SignedIn>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -792,6 +868,53 @@ function App() {
       />
 
       <Toaster richColors position="top-center" />
+    </main>
+  );
+}
+
+function AuthGate() {
+  return (
+    <main className="grid min-h-dvh place-items-center bg-parchment p-5 text-ink">
+      <Card className="w-full max-w-md border-border/70 bg-card/90 p-6 shadow-sm">
+        <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground">
+          <HugeiconsIcon
+            icon={MountainIcon}
+            className="size-5"
+            strokeWidth={1.6}
+          />
+        </span>
+        <p className="mt-5 font-mono text-[10px] tracking-[0.22em] text-muted-foreground">
+          the lake district · 214 fells
+        </p>
+        <h1 className="mt-1 font-display text-4xl italic leading-none">
+          fells journal
+        </h1>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Sign in to keep your Wainwright progress private and synced through
+          Convex.
+        </p>
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+          <SignInButton mode="modal">
+            <Button className="rounded-full">sign in</Button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <Button variant="outline" className="rounded-full">
+              create account
+            </Button>
+          </SignUpButton>
+        </div>
+      </Card>
+      <Toaster richColors position="top-center" />
+    </main>
+  );
+}
+
+function LoadingGate() {
+  return (
+    <main className="grid min-h-dvh place-items-center bg-parchment p-5 text-ink">
+      <div className="font-mono text-xs tracking-[0.22em] text-muted-foreground">
+        loading journal
+      </div>
     </main>
   );
 }
@@ -1064,7 +1187,7 @@ function Journal(props: JournalProps) {
 
       <footer className="border-t border-border/70 pt-4 font-mono text-[10px] leading-relaxed text-muted-foreground/80">
         data: thomaswilsonxyz/wainwright-peaks + database of british and irish
-        hills, cc by 4.0. progress is stored privately in this browser.
+        hills, cc by 4.0. progress is stored privately to your account.
       </footer>
     </div>
   );
