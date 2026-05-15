@@ -64,6 +64,7 @@ import {
 const STORAGE_KEY = "wainwright-tracker:v1:completed";
 const OFFLINE_MAP_META_KEY = "wainwright-tracker:v1:offline-map";
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
+export const DEFAULT_TOPO_ENABLED = false;
 const OFFLINE_MAP_ESTIMATE = estimateLakeDistrictDownload();
 const ALL_AREAS = "All";
 const SHOW_OPTIONS = ["all", "todo", "done"] as const;
@@ -135,7 +136,7 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState(false);
-  const [topoEnabled, setTopoEnabled] = useState(true);
+  const [topoEnabled, setTopoEnabled] = useState(DEFAULT_TOPO_ENABLED);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [offlineProgress, setOfflineProgress] = useState<DownloadProgress | null>(null);
   const [offlineStatus, setOfflineStatus] = useState<
