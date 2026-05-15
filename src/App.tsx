@@ -125,6 +125,7 @@ function App() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
   const popupRef = useRef<Popup | null>(null);
+  const completedMarkersRef = useRef<maplibregl.Marker[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [completed, setCompleted] = useState<Set<string>>(() =>
@@ -138,7 +139,8 @@ function App() {
   const [mapError, setMapError] = useState(false);
   const [topoEnabled, setTopoEnabled] = useState(DEFAULT_TOPO_ENABLED);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [offlineProgress, setOfflineProgress] = useState<DownloadProgress | null>(null);
+  const [offlineProgress, setOfflineProgress] =
+    useState<DownloadProgress | null>(null);
   const [offlineStatus, setOfflineStatus] = useState<
     "idle" | "downloading" | "ready" | "error"
   >(() => (localStorage.getItem(OFFLINE_MAP_META_KEY) ? "ready" : "idle"));
@@ -181,6 +183,11 @@ function App() {
       ),
     }),
     [completed, filtered],
+  );
+
+  const completedPeaks = useMemo(
+    () => WAINWRIGHTS.filter((peak) => completed.has(peak.id)),
+    [completed],
   );
 
   const doneCount = completed.size;
@@ -387,6 +394,8 @@ function App() {
       window.visualViewport?.removeEventListener("resize", resizeMap);
       popupRef.current?.remove();
       popupRef.current = null;
+      completedMarkersRef.current.forEach((marker) => marker.remove());
+      completedMarkersRef.current = [];
       mapRef.current = null;
       map.remove();
     };
@@ -401,6 +410,34 @@ function App() {
       : undefined;
     source?.setData(geojson);
   }, [geojson, mapReady]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady) return;
+
+    completedMarkersRef.current.forEach((marker) => marker.remove());
+    completedMarkersRef.current = completedPeaks.map((peak) => {
+      const element = document.createElement("button");
+      element.type = "button";
+      element.className = "completed-peak-pin";
+      element.textContent = "📌";
+      element.title = `${peak.name} bagged`;
+      element.setAttribute("aria-label", `${peak.name} bagged`);
+      element.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setSelectedId(peak.id);
+      });
+
+      return new maplibregl.Marker({ element, anchor: "bottom" })
+        .setLngLat([peak.longitude, peak.latitude])
+        .addTo(map);
+    });
+
+    return () => {
+      completedMarkersRef.current.forEach((marker) => marker.remove());
+      completedMarkersRef.current = [];
+    };
+  }, [completedPeaks, mapReady]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -678,7 +715,9 @@ function App() {
                 </span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>download the full Wainwright map area</TooltipContent>
+            <TooltipContent>
+              download the full Wainwright map area
+            </TooltipContent>
           </Tooltip>
 
           {/* Mobile: drawer trigger */}
@@ -951,9 +990,9 @@ function Journal(props: JournalProps) {
               download the lakes
             </h3>
             <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-              Saves {OFFLINE_MAP_ESTIMATE.tileCount.toLocaleString()} topo
-              tiles covering the full Wainwright area, zoom {OFFLINE_MAP_ESTIMATE.minZoom}-
-              {OFFLINE_MAP_ESTIMATE.maxZoom}.
+              Saves {OFFLINE_MAP_ESTIMATE.tileCount.toLocaleString()} topo tiles
+              covering the full Wainwright area, zoom{" "}
+              {OFFLINE_MAP_ESTIMATE.minZoom}-{OFFLINE_MAP_ESTIMATE.maxZoom}.
             </p>
           </div>
           <Button
@@ -971,7 +1010,10 @@ function Journal(props: JournalProps) {
           </Button>
         </div>
         {(offlineStatus === "downloading" || offlineStatus === "ready") && (
-          <Progress value={offlinePercent} className="h-2 rounded-full bg-muted" />
+          <Progress
+            value={offlinePercent}
+            className="h-2 rounded-full bg-muted"
+          />
         )}
         {offlineMessage && (
           <p

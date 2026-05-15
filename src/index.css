@@ -269,6 +269,30 @@ h6,
 .peak-popup .maplibregl-popup-tip {
   border-top-color: var(--parchment) !important;
 }
+.completed-peak-pin {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 27px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(20, 28, 18, 0.35))
+    drop-shadow(0 0 2px #fbf7ec);
+  transform-origin: 50% 100%;
+  transition:
+    transform 150ms ease,
+    filter 150ms ease;
+}
+.completed-peak-pin:hover,
+.completed-peak-pin:focus-visible {
+  transform: scale(1.15);
+  filter: drop-shadow(0 4px 5px rgba(20, 28, 18, 0.4))
+    drop-shadow(0 0 3px #fbf7ec);
+  outline: none;
+}
 .maplibregl-ctrl-attrib {
   background: color-mix(in oklab, var(--parchment) 85%, transparent) !important;
   border-radius: 10px !important;
