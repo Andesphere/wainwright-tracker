@@ -370,7 +370,21 @@ function App() {
     });
 
     mapRef.current = map;
+
+    const resizeMap = () => {
+      map.resize();
+    };
+    const resizeObserver = new ResizeObserver(resizeMap);
+    resizeObserver.observe(mapContainer.current);
+    window.addEventListener("resize", resizeMap);
+    window.visualViewport?.addEventListener("resize", resizeMap);
+    requestAnimationFrame(resizeMap);
+    map.once("idle", resizeMap);
+
     return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", resizeMap);
+      window.visualViewport?.removeEventListener("resize", resizeMap);
       popupRef.current?.remove();
       popupRef.current = null;
       mapRef.current = null;
@@ -589,7 +603,7 @@ function App() {
         <div className="pointer-events-none absolute inset-2.5 rounded-[1.35rem] ring-1 ring-white/30 sm:inset-4 sm:rounded-3xl lg:inset-5" />
 
         {/* Floating top-left brand card */}
-        <div className="absolute left-4 top-[calc(env(safe-area-inset-top)+1rem)] z-10 flex max-w-[calc(100vw-8.75rem)] items-center gap-2.5 rounded-2xl border border-white/50 bg-parchment/90 px-3 py-2.5 shadow-lg backdrop-blur-xl sm:left-8 sm:top-8 sm:max-w-[88vw] sm:gap-3 sm:px-4 sm:py-3">
+        <div className="mobile-map-brand absolute left-4 right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-10 flex items-center gap-2.5 rounded-2xl border border-white/50 bg-parchment/90 px-3 py-2.5 shadow-lg backdrop-blur-xl sm:left-8 sm:right-auto sm:top-8 sm:max-w-[88vw] sm:gap-3 sm:px-4 sm:py-3">
           <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-inner sm:size-10">
             <HugeiconsIcon
               icon={MountainIcon}
@@ -608,7 +622,7 @@ function App() {
         </div>
 
         {/* Floating top-right map controls */}
-        <div className="absolute right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-10 flex items-center gap-2 sm:right-8 sm:top-8">
+        <div className="mobile-map-controls absolute right-4 top-[calc(env(safe-area-inset-top)+4.75rem)] z-10 flex items-center gap-2 sm:right-8 sm:top-8">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

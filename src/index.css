@@ -276,6 +276,19 @@ h6,
   font-size: 10px !important;
 }
 
+@media (max-width: 1023px) {
+  .maplibregl-ctrl-bottom-right {
+    bottom: calc(env(safe-area-inset-bottom) + 5rem) !important;
+    right: 1rem !important;
+  }
+
+  .maplibregl-ctrl-bottom-left {
+    bottom: calc(env(safe-area-inset-bottom) + 4.75rem) !important;
+    left: 1rem !important;
+    max-width: calc(100vw - 7.5rem);
+  }
+}
+
 /* Soft scrollbar in the journal column. */
 .journal-scroll::-webkit-scrollbar {
   width: 8px;
