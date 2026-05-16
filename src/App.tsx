@@ -1658,15 +1658,17 @@ function CompletionDialog({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        <DrawerHeader>
+    <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={false}>
+      <DrawerContent className="completion-drawer-content overflow-hidden">
+        <DrawerHeader className="shrink-0">
           <DrawerTitle>{peak.name}</DrawerTitle>
           <DrawerDescription>
             Add a date and note for this bag. Both are optional.
           </DrawerDescription>
         </DrawerHeader>
-        <div className="px-5 pb-[env(safe-area-inset-bottom)]">{form}</div>
+        <div className="completion-drawer-body min-h-0 flex-1 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+          {form}
+        </div>
       </DrawerContent>
     </Drawer>
   );

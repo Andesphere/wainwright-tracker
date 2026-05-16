@@ -27,4 +27,15 @@ describe("mobile map layout", () => {
     expect(appSource).toContain("visualViewport");
     expect(appSource).toContain("map.resize()");
   });
+
+  it("keeps the completion drawer usable when the iOS keyboard opens", () => {
+    expect(appSource).toContain("repositionInputs={false}");
+    expect(appSource).toContain("completion-drawer-content");
+    expect(appSource).toContain("completion-drawer-body");
+    expect(appSource).toContain("overflow-y-auto");
+    expect(cssSource).toContain(".completion-drawer-content");
+    expect(cssSource).toContain("max-height: min(92dvh, 42rem);");
+    expect(cssSource).toContain(".completion-drawer-body");
+    expect(cssSource).toContain("-webkit-overflow-scrolling: touch;");
+  });
 });
