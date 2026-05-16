@@ -39,13 +39,31 @@ describe("mobile map layout", () => {
     expect(cssSource).toContain("-webkit-overflow-scrolling: touch;");
   });
 
-  it("makes mobile map selection easy to hit and easy to clear", () => {
+  it("makes mobile map selection easy to hit and fully reset to all fells", () => {
     expect(appSource).toContain('id: "peak-hit-area"');
     expect(appSource).toContain('layers: ["peak-hit-area", "clusters"]');
     expect(appSource).toContain("setSelectedId(null)");
     expect(appSource).toContain("show all fells");
+    const showAllStart = appSource.indexOf("const showAllFells = () =>");
+    const showAllEnd = appSource.indexOf("const resetProgress =", showAllStart);
+    const showAllMarkup = appSource.slice(showAllStart, showAllEnd);
+    expect(showAllMarkup).toContain('setQuery("")');
+    expect(showAllMarkup).toContain("setArea(ALL_AREAS)");
+    expect(showAllMarkup).toContain('setShowOnly("all")');
     expect(cssSource).toContain("width: 48px;");
     expect(cssSource).toContain("height: 48px;");
+  });
+
+  it("resets filters and recentres after saving a bagged fell", () => {
+    const saveStart = appSource.indexOf("const savePeakCompletion = async");
+    const saveEnd = appSource.indexOf("async function unbagPeak", saveStart);
+    const saveMarkup = appSource.slice(saveStart, saveEnd);
+    expect(saveMarkup).toContain("setSelectedId(null)");
+    expect(saveMarkup).toContain("setSelectedDetailsOpen(false)");
+    expect(saveMarkup).toContain('setQuery("")');
+    expect(saveMarkup).toContain("setArea(ALL_AREAS)");
+    expect(saveMarkup).toContain('setShowOnly("all")');
+    expect(saveMarkup).toContain("requestAnimationFrame(fitLakeDistrict)");
   });
 
   it("uses progress as the header copy instead of mobile brand text", () => {

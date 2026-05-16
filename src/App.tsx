@@ -1006,6 +1006,12 @@ function TrackerApp() {
           }),
         ),
       });
+      setSelectedId(null);
+      setSelectedDetailsOpen(false);
+      setQuery("");
+      setArea(ALL_AREAS);
+      setShowOnly("all");
+      requestAnimationFrame(fitLakeDistrict);
       toast.success(`${peak.name} bagged — ${peak.heightMetres}m`);
     } catch (error) {
       setOptimisticCompleted(previousCompleted);
@@ -1074,6 +1080,9 @@ function TrackerApp() {
   const showAllFells = () => {
     setSelectedId(null);
     setSelectedDetailsOpen(false);
+    setQuery("");
+    setArea(ALL_AREAS);
+    setShowOnly("all");
     fitLakeDistrict();
   };
 
