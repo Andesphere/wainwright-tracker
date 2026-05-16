@@ -60,4 +60,14 @@ describe("mobile map layout", () => {
     expect(appSource).toContain("Search");
     expect(appSource).toContain("Search01Icon");
   });
+
+  it("hides destructive progress actions behind progressive advanced options", () => {
+    expect(appSource).toContain("advanced-options");
+    expect(appSource).toContain("Advanced");
+    expect(appSource).toContain("Reset all progress");
+    expect(appSource).toContain("This will reset all of your bagged fells");
+    expect(appSource).toContain("reset-confirmation-dialog");
+    expect(appSource).not.toContain("onExport:");
+    expect(appSource).not.toContain("onImportClick:");
+  });
 });

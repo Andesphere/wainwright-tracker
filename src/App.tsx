@@ -203,7 +203,6 @@ function TrackerApp() {
   const mapRef = useRef<MaplibreMap | null>(null);
   const popupRef = useRef<Popup | null>(null);
   const completedMarkersRef = useRef<maplibregl.Marker[]>([]);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const progress = useQuery(api.progress.get);
   const progressEntries = useQuery(api.progress.getEntries);
@@ -823,47 +822,6 @@ function TrackerApp() {
     }
   };
 
-  const exportProgress = () => {
-    const payload = {
-      exportedAt: new Date().toISOString(),
-      completed: Array.from(completed).sort(),
-      entries: completionEntries,
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "wainwright-progress.json";
-    link.click();
-    URL.revokeObjectURL(url);
-    toast.success("Progress exported");
-  };
-
-  const importProgress = async (file: File) => {
-    try {
-      const json = JSON.parse(await file.text());
-      const ids = Array.isArray(json) ? json : json.completed;
-      if (!Array.isArray(ids)) throw new Error("Invalid file");
-      const next = new Set(
-        ids.filter(
-          (id: unknown) =>
-            typeof id === "string" && VALID_WAINWRIGHT_IDS.has(id),
-        ),
-      );
-      setOptimisticCompleted(next);
-      setOptimisticEntries(
-        (progressEntries ?? []).filter((entry) => next.has(entry.id)),
-      );
-      await replaceProgress({ completed: Array.from(next) });
-      saveCompletedMigration(next);
-      toast.success(`Imported ${next.size} bagged fells`);
-    } catch {
-      toast.error("Could not read that file");
-    }
-  };
-
   const resetProgress = () => {
     if (completed.size === 0) return;
     setOptimisticCompleted(new Set());
@@ -894,8 +852,6 @@ function TrackerApp() {
       numericPercent={numericPercent}
       onArea={setArea}
       onClearQuery={() => setQuery("")}
-      onExport={exportProgress}
-      onImportClick={() => fileInputRef.current?.click()}
       onQuery={setQuery}
       onReset={resetProgress}
       onSelect={(id) => {
@@ -1142,16 +1098,6 @@ function TrackerApp() {
         <div className="h-full overflow-auto journal-scroll">{journal}</div>
       </aside>
 
-      <input
-        ref={fileInputRef}
-        hidden
-        type="file"
-        accept="application/json"
-        onChange={(event) =>
-          event.target.files?.[0] && importProgress(event.target.files[0])
-        }
-      />
-
       <Toaster richColors position="top-center" />
     </main>
   );
@@ -1220,8 +1166,6 @@ type JournalProps = {
   numericPercent: number;
   onArea: (area: string) => void;
   onClearQuery: () => void;
-  onExport: () => void;
-  onImportClick: () => void;
   onQuery: (query: string) => void;
   onReset: () => void;
   onSelect: (id: string) => void;
@@ -1244,8 +1188,6 @@ function Journal(props: JournalProps) {
     numericPercent,
     onArea,
     onClearQuery,
-    onExport,
-    onImportClick,
     onQuery,
     onReset,
     onSelect,
@@ -1256,6 +1198,7 @@ function Journal(props: JournalProps) {
     selectedId,
     showOnly,
   } = props;
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   return (
     <div className="flex min-h-full flex-col gap-5 px-4 pb-10 pt-6 sm:gap-6 sm:px-7 sm:pt-7">
@@ -1348,32 +1291,63 @@ function Journal(props: JournalProps) {
 
         <Separator className="my-1" />
 
-        <div className="grid grid-cols-2 gap-2 min-[420px]:flex min-[420px]:flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onExport}
-            className="rounded-full"
-          >
-            <HugeiconsIcon icon={Download04Icon} strokeWidth={1.6} /> export
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onImportClick}
-            className="rounded-full"
-          >
-            <HugeiconsIcon icon={Upload04Icon} strokeWidth={1.6} /> import
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onReset}
-            className="col-span-2 rounded-full text-muted-foreground hover:text-destructive min-[420px]:ml-auto"
-          >
-            <HugeiconsIcon icon={ReloadIcon} strokeWidth={1.6} /> reset
-          </Button>
-        </div>
+        <details className="advanced-options group rounded-2xl border border-border/70 bg-background/45 px-3 py-2">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl text-sm font-medium text-muted-foreground marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>Advanced</span>
+            <span className="text-xs transition-transform group-open:rotate-180">
+              ⌄
+            </span>
+          </summary>
+          <div className="mt-3 rounded-xl border border-destructive/20 bg-destructive/5 p-3">
+            <p className="text-sm font-semibold text-destructive">
+              Reset all progress
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              This will reset all of your bagged fells, dates, notes, and saved
+              photos from your journal.
+            </p>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => setResetDialogOpen(true)}
+              className="mt-3 rounded-full"
+            >
+              <HugeiconsIcon icon={ReloadIcon} strokeWidth={1.6} /> Reset all
+            </Button>
+          </div>
+        </details>
+
+        <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+          <DialogContent className="reset-confirmation-dialog">
+            <DialogHeader>
+              <DialogTitle>Reset all progress?</DialogTitle>
+              <DialogDescription>
+                This will reset all of your bagged fells, dates, notes, and
+                saved photos. This cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setResetDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                  onReset();
+                  setResetDialogOpen(false);
+                }}
+              >
+                Reset all progress
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Card>
 
       {/* Result meta */}
