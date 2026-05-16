@@ -19,7 +19,6 @@ import {
   Download04Icon,
   EyeIcon,
   FilterIcon,
-  GpsSignal01Icon,
   Layers01Icon,
   Menu02Icon,
   MountainIcon,
@@ -49,7 +48,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -334,16 +332,6 @@ function TrackerApp() {
 
   const doneCount = completed.size;
   const percent = formatPercent(doneCount);
-  const numericPercent = progressPercent(doneCount);
-  const highestDone = useMemo(
-    () =>
-      WAINWRIGHTS.reduce<Wainwright | undefined>((highest, peak) => {
-        if (!completed.has(peak.id)) return highest;
-        if (!highest || peak.heightMetres > highest.heightMetres) return peak;
-        return highest;
-      }, undefined),
-    [completed],
-  );
 
   useEffect(() => {
     if (!progress || migratedLocalProgressRef.current || progress.length > 0)
@@ -925,8 +913,6 @@ function TrackerApp() {
       completionEntriesById={completionEntriesById}
       doneCount={doneCount}
       filtered={filtered}
-      highestDone={highestDone}
-      numericPercent={numericPercent}
       onArea={setArea}
       onClearQuery={() => setQuery("")}
       onQuery={setQuery}
@@ -942,7 +928,6 @@ function TrackerApp() {
       }}
       onToggle={togglePeak}
       onBulkAdd={bulkAddFells}
-      percent={percent}
       query={query}
       selectedId={selectedId}
       showOnly={showOnly}
@@ -1532,8 +1517,6 @@ type JournalProps = {
   completionEntriesById: Map<string, CompletionEntry>;
   doneCount: number;
   filtered: Wainwright[];
-  highestDone?: Wainwright;
-  numericPercent: number;
   onArea: (area: string) => void;
   onClearQuery: () => void;
   onQuery: (query: string) => void;
@@ -1543,7 +1526,6 @@ type JournalProps = {
   onShowOnly: (value: ShowOnly) => void;
   onToggle: (peak: Wainwright) => void;
   onBulkAdd: (ids: string[]) => Promise<void>;
-  percent: string;
   query: string;
   selectedId: string | null;
   showOnly: ShowOnly;
@@ -1556,8 +1538,6 @@ function Journal(props: JournalProps) {
     completionEntriesById,
     doneCount,
     filtered,
-    highestDone,
-    numericPercent,
     onArea,
     onClearQuery,
     onQuery,
@@ -1567,7 +1547,6 @@ function Journal(props: JournalProps) {
     onShowOnly,
     onToggle,
     onBulkAdd,
-    percent,
     query,
     selectedId,
     showOnly,
@@ -1670,14 +1649,6 @@ function Journal(props: JournalProps) {
 
   return (
     <div className="flex min-h-full flex-col gap-5 px-4 pb-10 pt-6 sm:gap-6 sm:px-7 sm:pt-7">
-      {/* Hero — sentence-case, serif-italic */}
-      <HeroProgress
-        doneCount={doneCount}
-        percent={percent}
-        numericPercent={numericPercent}
-        highestDone={highestDone}
-      />
-
       {/* Search + filters */}
       <Card className="gap-3 border-border/70 bg-card/85 p-3.5 shadow-sm sm:p-4">
         <div className="flex items-center gap-2 rounded-xl border border-border bg-background/70 px-3 py-2">
@@ -2015,108 +1986,6 @@ function Journal(props: JournalProps) {
         data: thomaswilsonxyz/wainwright-peaks + database of british and irish
         hills, cc by 4.0. progress is stored privately to your account.
       </footer>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------
- * Hero progress card — big serif-italic number, ring + bar, calm copy.
- * -----------------------------------------------------------------------*/
-
-function HeroProgress({
-  doneCount,
-  percent,
-  numericPercent,
-  highestDone,
-}: {
-  doneCount: number;
-  percent: string;
-  numericPercent: number;
-  highestDone?: Wainwright;
-}) {
-  const status = highestDone
-    ? `highest bagged · ${highestDone.name} (${highestDone.heightMetres}m)`
-    : "no fells bagged yet — pick one and start walking.";
-
-  return (
-    <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-card via-card to-parchment/60 p-0 shadow-sm">
-      <div className="relative grid grid-cols-[1fr_auto] items-end gap-3 p-5 sm:gap-4 sm:p-6">
-        {/* subtle contour map texture */}
-        <div
-          aria-hidden
-          className="contour-texture pointer-events-none absolute inset-0 opacity-[0.18]"
-        />
-        <div className="relative">
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted-foreground">
-            your tally
-          </p>
-          <h2 className="mt-1 flex items-baseline gap-2 font-display text-[52px] italic leading-[0.9] tracking-tight text-ink sm:text-[64px]">
-            {doneCount}
-            <span className="font-mono text-sm not-italic text-muted-foreground sm:text-base">
-              / {TOTAL_WAINWRIGHTS}
-            </span>
-          </h2>
-          <p className="mt-2 text-[13px] leading-snug text-muted-foreground sm:text-sm">
-            <span className="font-display italic text-foreground">
-              {percent}%
-            </span>{" "}
-            of the wainwrights bagged.
-            <br className="hidden sm:block" />
-            {status}
-          </p>
-        </div>
-
-        <ProgressRing percent={numericPercent} />
-      </div>
-
-      <div className="px-5 pb-5 sm:px-6 sm:pb-6">
-        <Progress
-          value={numericPercent}
-          className="h-2.5 rounded-full bg-muted"
-        />
-        <div className="mt-2 flex items-center justify-between font-mono text-[10px] tracking-wider text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <HugeiconsIcon
-              icon={Backpack03Icon}
-              className="size-3"
-              strokeWidth={1.6}
-            />{" "}
-            on the trail
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <HugeiconsIcon
-              icon={GpsSignal01Icon}
-              className="size-3"
-              strokeWidth={1.6}
-            />{" "}
-            {TOTAL_WAINWRIGHTS - doneCount} ahead
-          </span>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-function ProgressRing({ percent }: { percent: number }) {
-  const safe = Math.min(100, Math.max(0, percent));
-  const label = safe < 10 ? safe.toFixed(1) : Math.round(safe).toString();
-  return (
-    <div
-      role="img"
-      aria-label={`${Math.round(safe)} percent complete`}
-      className="relative grid size-20 place-items-center rounded-full shadow-inner sm:size-24"
-      style={{
-        background: `conic-gradient(var(--color-primary) ${safe}%, color-mix(in oklab, var(--moss) 12%, var(--parchment)) 0)`,
-      }}
-    >
-      <div className="grid size-[78%] place-items-center rounded-full bg-parchment shadow">
-        <span className="font-display text-[19px] italic leading-none text-ink sm:text-[22px]">
-          {label}
-          <span className="font-mono text-[10px] not-italic text-muted-foreground">
-            %
-          </span>
-        </span>
-      </div>
     </div>
   );
 }

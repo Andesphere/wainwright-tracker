@@ -86,6 +86,15 @@ describe("mobile map layout", () => {
     expect(appSource).toContain("Search01Icon");
   });
 
+  it("does not duplicate the tally card inside the search journal", () => {
+    const journalStart = appSource.indexOf("function Journal");
+    const resultsStart = appSource.indexOf("{/* Result meta */}", journalStart);
+    const searchJournalMarkup = appSource.slice(journalStart, resultsStart);
+
+    expect(searchJournalMarkup).not.toContain("HeroProgress");
+    expect(searchJournalMarkup).not.toContain("your tally");
+  });
+
   it("hides destructive progress actions behind progressive advanced options", () => {
     expect(appSource).toContain("advanced-options");
     expect(appSource).toContain("Advanced");
