@@ -119,8 +119,10 @@ import {
   buildWainwrightAlbums,
   flattenAlbumsChronologically,
   formatAlbumDateLabel,
+  getProgressivelyDisclosedAlbums,
   type WainwrightAlbumItem,
 } from "@/albums";
+import { buildAlbumExportDocument, openAlbumPrintWindow } from "@/albumExport";
 import { sortWainwrightsForJournal, type JournalSort } from "@/mapSorting";
 
 const STORAGE_KEY = "wainwright-tracker:v1:completed";
@@ -1841,12 +1843,19 @@ function AlbumPage({
   onSelectedAlbumKey: (key: string) => void;
   selectedAlbumKey: string;
 }) {
+  const [albumListExpanded, setAlbumListExpanded] = useState(false);
   const wholeHistoryItems = flattenAlbumsChronologically(albums);
   const selectedAlbum = albums.find((album) => album.dateKey === selectedAlbumKey);
   const visibleItems =
     selectedAlbumKey === WHOLE_HISTORY_ALBUM
       ? wholeHistoryItems
       : (selectedAlbum?.items ?? []);
+  const disclosedAlbums = getProgressivelyDisclosedAlbums(
+    albums,
+    selectedAlbumKey,
+    albumListExpanded,
+  );
+  const hiddenAlbumCount = Math.max(albums.length - disclosedAlbums.length, 0);
   const title =
     selectedAlbumKey === WHOLE_HISTORY_ALBUM
       ? "Whole history"
@@ -1855,6 +1864,30 @@ function AlbumPage({
     (total, item) => total + (item.entry.photos?.length ?? 0),
     0,
   );
+  const exportSubtitle =
+    selectedAlbumKey === WHOLE_HISTORY_ALBUM
+      ? `${visibleItems.length} Wainwrights across ${albums.length} dated album${albums.length === 1 ? "" : "s"}.`
+      : `${visibleItems.length} Wainwright${visibleItems.length === 1 ? "" : "s"} bagged on ${title}.`;
+
+  const downloadAlbumPdf = () => {
+    if (visibleItems.length === 0) {
+      toast("Add dated Wainwrights before exporting an album PDF");
+      return;
+    }
+
+    try {
+      openAlbumPrintWindow(
+        buildAlbumExportDocument({
+          heightUnit,
+          items: visibleItems,
+          subtitle: exportSubtitle,
+          title,
+        }),
+      );
+    } catch (error) {
+      toast(error instanceof Error ? error.message : "Could not open album PDF");
+    }
+  };
 
   return (
     <div className="grid gap-4 p-4 sm:p-5">
@@ -1875,6 +1908,18 @@ function AlbumPage({
           <StatPill label="photos" value={photoCount} />
           <StatPill label="albums" value={albums.length} />
         </div>
+        <Button
+          type="button"
+          className="mt-4 w-full rounded-full"
+          onClick={downloadAlbumPdf}
+          disabled={visibleItems.length === 0}
+        >
+          Download print PDF
+        </Button>
+        <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+          Opens a polished A4 print layout with a map thumbnail and photo pages;
+          choose “Save as PDF” in your browser print dialog.
+        </p>
       </div>
 
       <div className="grid gap-2 rounded-2xl border border-border/70 bg-background/70 p-2">
@@ -1889,7 +1934,7 @@ function AlbumPage({
             {wholeHistoryItems.length}
           </Badge>
         </Button>
-        {albums.map((album) => (
+        {disclosedAlbums.map((album) => (
           <Button
             key={album.dateKey}
             type="button"
@@ -1903,6 +1948,18 @@ function AlbumPage({
             </Badge>
           </Button>
         ))}
+        {albums.length > disclosedAlbums.length || albumListExpanded ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-xl border-dashed"
+            onClick={() => setAlbumListExpanded((expanded) => !expanded)}
+          >
+            {albumListExpanded
+              ? "Show fewer albums"
+              : `Show all albums${hiddenAlbumCount ? ` (+${hiddenAlbumCount})` : ""}`}
+          </Button>
+        ) : null}
       </div>
 
       {visibleItems.length === 0 ? (

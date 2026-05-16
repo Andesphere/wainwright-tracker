@@ -21,6 +21,7 @@ export type WainwrightAlbum = {
 };
 
 export const WHOLE_HISTORY_ALBUM = "whole-history";
+export const INITIAL_VISIBLE_ALBUM_COUNT = 6;
 
 function dateKeyFromCompletedAt(completedAt?: string) {
   if (!completedAt) return null;
@@ -77,6 +78,26 @@ export function flattenAlbumsChronologically(albums: WainwrightAlbum[]) {
   return [...albums]
     .sort((a, b) => a.dateKey.localeCompare(b.dateKey))
     .flatMap((album) => album.items);
+}
+
+export function getProgressivelyDisclosedAlbums(
+  albums: WainwrightAlbum[],
+  selectedAlbumKey: string,
+  expanded: boolean,
+  initialCount = INITIAL_VISIBLE_ALBUM_COUNT,
+) {
+  if (expanded || albums.length <= initialCount) return albums;
+
+  const visible = albums.slice(0, initialCount);
+  const selectedAlbum = albums.find((album) => album.dateKey === selectedAlbumKey);
+  if (
+    selectedAlbum &&
+    !visible.some((album) => album.dateKey === selectedAlbum.dateKey)
+  ) {
+    return [...visible, selectedAlbum];
+  }
+
+  return visible;
 }
 
 export function formatAlbumDateLabel(dateKey: string) {

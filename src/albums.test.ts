@@ -4,6 +4,7 @@ import {
   buildWainwrightAlbums,
   flattenAlbumsChronologically,
   formatAlbumDateLabel,
+  getProgressivelyDisclosedAlbums,
   type AlbumCompletionEntry,
 } from "./albums";
 import type { Wainwright } from "./data/wainwrights";
@@ -86,5 +87,26 @@ describe("Wainwright albums", () => {
 
   it("formats album date labels for human-readable day picking", () => {
     expect(formatAlbumDateLabel("2024-05-02")).toBe("2 May 2024");
+  });
+
+  it("progressively discloses album buttons while preserving a selected older album", () => {
+    const manyAlbums = Array.from({ length: 9 }, (_, index) => ({
+      dateKey: `2024-05-${String(10 - index).padStart(2, "0")}`,
+      items: [],
+    }));
+
+    expect(
+      getProgressivelyDisclosedAlbums(manyAlbums, "whole-history", false, 3).map(
+        (album) => album.dateKey,
+      ),
+    ).toEqual(["2024-05-10", "2024-05-09", "2024-05-08"]);
+
+    expect(
+      getProgressivelyDisclosedAlbums(manyAlbums, "2024-05-04", false, 3).map(
+        (album) => album.dateKey,
+      ),
+    ).toEqual(["2024-05-10", "2024-05-09", "2024-05-08", "2024-05-04"]);
+
+    expect(getProgressivelyDisclosedAlbums(manyAlbums, "2024-05-04", true, 3)).toHaveLength(9);
   });
 });
