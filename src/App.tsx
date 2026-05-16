@@ -131,6 +131,7 @@ function peakFeature(peak: Wainwright, done: boolean) {
     properties: {
       id: peak.id,
       name: peak.name,
+      bookNumber: peak.bookNumber,
       heightMetres: peak.heightMetres,
       heightFt: peak.heightFt,
       gridReference: peak.gridReference,
@@ -249,6 +250,7 @@ function TrackerApp() {
       const matchesSearch =
         !needle ||
         peak.name.toLowerCase().includes(needle) ||
+        peak.bookNumber.toString() === needle ||
         peak.gridReference.toLowerCase().includes(needle) ||
         peak.area.toLowerCase().includes(needle);
       const matchesArea = area === ALL_AREAS || peak.area === area;
@@ -258,7 +260,7 @@ function TrackerApp() {
     }).sort(
       (a, b) =>
         Number(completed.has(a.id)) - Number(completed.has(b.id)) ||
-        b.heightMetres - a.heightMetres,
+        a.bookNumber - b.bookNumber,
     );
   }, [area, completed, query, showOnly]);
 
@@ -359,9 +361,7 @@ function TrackerApp() {
       map.addSource("peaks", {
         type: "geojson",
         data: geojson,
-        cluster: true,
-        clusterRadius: 42,
-        clusterMaxZoom: 11,
+        cluster: false,
       });
 
       map.addLayer({
@@ -402,7 +402,7 @@ function TrackerApp() {
         source: "peaks",
         filter: ["!", ["has", "point_count"]],
         paint: {
-          "circle-radius": 10,
+          "circle-radius": 15,
           "circle-color": "#000",
           "circle-opacity": 0.16,
           "circle-translate": [0, 2],
@@ -414,7 +414,12 @@ function TrackerApp() {
         source: "peaks",
         filter: ["!", ["has", "point_count"]],
         paint: {
-          "circle-radius": ["case", ["boolean", ["get", "done"], false], 8, 7],
+          "circle-radius": [
+            "case",
+            ["boolean", ["get", "done"], false],
+            13,
+            12,
+          ],
           "circle-color": [
             "case",
             ["boolean", ["get", "done"], false],
@@ -434,6 +439,20 @@ function TrackerApp() {
             1.5,
           ],
         },
+      });
+      map.addLayer({
+        id: "peak-numbers",
+        type: "symbol",
+        source: "peaks",
+        filter: ["!", ["has", "point_count"]],
+        layout: {
+          "text-field": ["to-string", ["get", "bookNumber"]],
+          "text-font": ["Noto Sans Bold"],
+          "text-size": 10.5,
+          "text-allow-overlap": true,
+          "text-ignore-placement": true,
+        },
+        paint: { "text-color": "#1f2d23" },
       });
 
       map.on("click", "clusters", (event: maplibregl.MapLayerMouseEvent) => {
@@ -566,7 +585,7 @@ function TrackerApp() {
     })
       .setLngLat([selectedPeak.longitude, selectedPeak.latitude])
       .setHTML(
-        `<strong>${selectedPeak.name}</strong><span>${selectedPeak.heightMetres}m · ${selectedPeak.gridReference}</span>`,
+        `<strong>#${selectedPeak.bookNumber} · ${selectedPeak.name}</strong><span>${selectedPeak.heightMetres}m · ${selectedPeak.gridReference}</span>`,
       )
       .addTo(map);
   }, [selectedPeak]);
@@ -1512,6 +1531,9 @@ function PeakRow({
         className="min-w-0 px-3.5 py-3 text-left outline-none focus-visible:bg-accent/40 sm:px-4"
       >
         <div className="flex items-center gap-2">
+          <span className="grid size-7 shrink-0 place-items-center rounded-full border border-border bg-parchment font-mono text-[11px] font-semibold text-ink">
+            {peak.bookNumber}
+          </span>
           <span
             className={cn(
               "font-display text-lg italic leading-tight tracking-tight text-foreground",

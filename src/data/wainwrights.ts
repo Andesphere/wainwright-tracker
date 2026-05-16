@@ -1,9 +1,11 @@
 // Wainwright fell data from thomaswilsonxyz/wainwright-peaks (CC BY 4.0),
 // derived from The Database of British and Irish Hills v17.4 (CC BY 4.0).
+// bookNumber follows wainwrights.info ordering by Alfred Wainwright Pictorial Guide volume.
 
 export type Wainwright = {
   id: string;
   name: string;
+  bookNumber: number;
   heightMetres: number;
   heightFt: number;
   gridReference: string;
@@ -18,6 +20,7 @@ export type Wainwright = {
 export const WAINWRIGHTS: Wainwright[] = [
   {
     name: "Allen Crags",
+    bookNumber: 99,
     heightMetres: 785,
     heightFt: 2575,
     gridReference: "NY236085",
@@ -31,6 +34,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Angletarn Pikes (Angletarn Pikes North Top)",
+    bookNumber: 36,
     heightMetres: 567,
     heightFt: 1860,
     gridReference: "NY413148",
@@ -44,6 +48,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Ard Crags",
+    bookNumber: 153,
     heightMetres: 581,
     heightFt: 1906,
     gridReference: "NY206197",
@@ -57,6 +62,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Armboth Fell",
+    bookNumber: 72,
     heightMetres: 475,
     heightFt: 1558,
     gridReference: "NY295157",
@@ -70,6 +76,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Arnison Crag",
+    bookNumber: 1,
     heightMetres: 433,
     heightFt: 1421,
     gridReference: "NY393149",
@@ -83,6 +90,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Arthur's Pike",
+    bookNumber: 37,
     heightMetres: 533,
     heightFt: 1749,
     gridReference: "NY460206",
@@ -96,6 +104,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Bakestall",
+    bookNumber: 129,
     heightMetres: 673,
     heightFt: 2208,
     gridReference: "NY266308",
@@ -109,6 +118,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Bannerdale Crags",
+    bookNumber: 130,
     heightMetres: 683,
     heightFt: 2241,
     gridReference: "NY335290",
@@ -122,6 +132,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Barf",
+    bookNumber: 154,
     heightMetres: 469,
     heightFt: 1539,
     gridReference: "NY214267",
@@ -135,6 +146,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Barrow",
+    bookNumber: 155,
     heightMetres: 455,
     heightFt: 1493,
     gridReference: "NY227218",
@@ -148,6 +160,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Base Brown",
+    bookNumber: 182,
     heightMetres: 646,
     heightFt: 2119,
     gridReference: "NY225114",
@@ -161,6 +174,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Baystones (Wansfell)",
+    bookNumber: 69,
     heightMetres: 486.9,
     heightFt: 1597,
     gridReference: "NY403051",
@@ -174,6 +188,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Beda Fell (Beda Head)",
+    bookNumber: 38,
     heightMetres: 509,
     heightFt: 1670,
     gridReference: "NY428171",
@@ -187,6 +202,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Binsey",
+    bookNumber: 131,
     heightMetres: 447,
     heightFt: 1467,
     gridReference: "NY225355",
@@ -200,6 +216,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Birkhouse Moor",
+    bookNumber: 2,
     heightMetres: 718,
     heightFt: 2356,
     gridReference: "NY363159",
@@ -213,6 +230,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Birks",
+    bookNumber: 3,
     heightMetres: 622,
     heightFt: 2041,
     gridReference: "NY380143",
@@ -226,6 +244,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Black Fell",
+    bookNumber: 100,
     heightMetres: 323,
     heightFt: 1060,
     gridReference: "NY340015",
@@ -239,6 +258,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Blake Fell",
+    bookNumber: 183,
     heightMetres: 573,
     heightFt: 1880,
     gridReference: "NY110196",
@@ -252,6 +272,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Blea Rigg",
+    bookNumber: 74,
     heightMetres: 541,
     heightFt: 1775,
     gridReference: "NY301078",
@@ -265,6 +286,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Bleaberry Fell",
+    bookNumber: 73,
     heightMetres: 590,
     heightFt: 1936,
     gridReference: "NY285195",
@@ -278,6 +300,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Blencathra-Hallsfell Top",
+    bookNumber: 132,
     heightMetres: 868,
     heightFt: 2848,
     gridReference: "NY323277",
@@ -291,6 +314,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Bonscale Pike",
+    bookNumber: 39,
     heightMetres: 524,
     heightFt: 1719,
     gridReference: "NY453200",
@@ -304,6 +328,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Bowfell",
+    bookNumber: 101,
     heightMetres: 902,
     heightFt: 2959,
     gridReference: "NY244064",
@@ -317,6 +342,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Bowscale Fell",
+    bookNumber: 133,
     heightMetres: 702,
     heightFt: 2303,
     gridReference: "NY333305",
@@ -330,6 +356,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Brae Fell",
+    bookNumber: 134,
     heightMetres: 586,
     heightFt: 1923,
     gridReference: "NY288351",
@@ -343,6 +370,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Brandreth",
+    bookNumber: 184,
     heightMetres: 715,
     heightFt: 2346,
     gridReference: "NY214119",
@@ -356,6 +384,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Branstree",
+    bookNumber: 40,
     heightMetres: 713,
     heightFt: 2339,
     gridReference: "NY478099",
@@ -369,6 +398,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Brim Fell",
+    bookNumber: 102,
     heightMetres: 796,
     heightFt: 2612,
     gridReference: "SD270985",
@@ -382,6 +412,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Brock Crags",
+    bookNumber: 41,
     heightMetres: 561,
     heightFt: 1841,
     gridReference: "NY416136",
@@ -395,6 +426,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Broom Fell",
+    bookNumber: 156,
     heightMetres: 511,
     heightFt: 1677,
     gridReference: "NY194271",
@@ -408,6 +440,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Buckbarrow",
+    bookNumber: 185,
     heightMetres: 423,
     heightFt: 1388,
     gridReference: "NY135061",
@@ -421,6 +454,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Burnbank Fell",
+    bookNumber: 186,
     heightMetres: 475,
     heightFt: 1558,
     gridReference: "NY110209",
@@ -434,6 +468,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Calf Crag",
+    bookNumber: 75,
     heightMetres: 537,
     heightFt: 1762,
     gridReference: "NY301104",
@@ -447,6 +482,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Carl Side",
+    bookNumber: 135,
     heightMetres: 746,
     heightFt: 2448,
     gridReference: "NY254280",
@@ -460,6 +496,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Carrock Fell",
+    bookNumber: 136,
     heightMetres: 663,
     heightFt: 2175,
     gridReference: "NY341336",
@@ -473,6 +510,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Castle Crag",
+    bookNumber: 157,
     heightMetres: 290,
     heightFt: 951,
     gridReference: "NY249159",
@@ -486,6 +524,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Catbells",
+    bookNumber: 158,
     heightMetres: 451,
     heightFt: 1480,
     gridReference: "NY244198",
@@ -499,6 +538,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Catstye Cam",
+    bookNumber: 4,
     heightMetres: 890,
     heightFt: 2920,
     gridReference: "NY348158",
@@ -512,6 +552,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Causey Pike",
+    bookNumber: 159,
     heightMetres: 637,
     heightFt: 2090,
     gridReference: "NY218208",
@@ -525,6 +566,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Caw Fell",
+    bookNumber: 187,
     heightMetres: 697,
     heightFt: 2287,
     gridReference: "NY132109",
@@ -538,6 +580,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Clough Head",
+    bookNumber: 5,
     heightMetres: 726,
     heightFt: 2382,
     gridReference: "NY333225",
@@ -551,6 +594,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Cold Pike",
+    bookNumber: 103,
     heightMetres: 701,
     heightFt: 2300,
     gridReference: "NY262036",
@@ -564,6 +608,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Crag Fell",
+    bookNumber: 188,
     heightMetres: 523,
     heightFt: 1716,
     gridReference: "NY097143",
@@ -577,6 +622,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Crag Hill (Eel Crag)",
+    bookNumber: 161,
     heightMetres: 839,
     heightFt: 2753,
     gridReference: "NY192203",
@@ -590,6 +636,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Crinkle Crags-Long Top (Second Crinkle)",
+    bookNumber: 105,
     heightMetres: 859,
     heightFt: 2818,
     gridReference: "NY248048",
@@ -603,6 +650,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Dale Head",
+    bookNumber: 160,
     heightMetres: 753,
     heightFt: 2470,
     gridReference: "NY222153",
@@ -616,6 +664,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Dodd (Skiddaw)",
+    bookNumber: 137,
     heightMetres: 502,
     heightFt: 1647,
     gridReference: "NY244273",
@@ -629,6 +678,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Dollywaggon Pike",
+    bookNumber: 6,
     heightMetres: 858,
     heightFt: 2815,
     gridReference: "NY346130",
@@ -642,6 +692,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Dove Crag",
+    bookNumber: 7,
     heightMetres: 792,
     heightFt: 2598,
     gridReference: "NY374104",
@@ -655,6 +706,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Dow Crag",
+    bookNumber: 106,
     heightMetres: 778,
     heightFt: 2552,
     gridReference: "SD262977",
@@ -668,6 +720,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Eagle Crag",
+    bookNumber: 76,
     heightMetres: 525,
     heightFt: 1722,
     gridReference: "NY275121",
@@ -681,6 +734,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Esk Pike",
+    bookNumber: 107,
     heightMetres: 885,
     heightFt: 2904,
     gridReference: "NY236075",
@@ -694,6 +748,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Fairfield",
+    bookNumber: 8,
     heightMetres: 873,
     heightFt: 2864,
     gridReference: "NY358117",
@@ -707,6 +762,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Fellbarrow-Mosser Fell",
+    bookNumber: 189,
     heightMetres: 416,
     heightFt: 1365,
     gridReference: "NY132242",
@@ -720,6 +776,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Fleetwith Pike",
+    bookNumber: 190,
     heightMetres: 648.9,
     heightFt: 2129,
     gridReference: "NY205141",
@@ -733,6 +790,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Froswick",
+    bookNumber: 43,
     heightMetres: 720,
     heightFt: 2362,
     gridReference: "NY435085",
@@ -746,6 +804,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Gavel Fell",
+    bookNumber: 191,
     heightMetres: 526,
     heightFt: 1726,
     gridReference: "NY116183",
@@ -759,6 +818,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Gibson Knott",
+    bookNumber: 77,
     heightMetres: 420,
     heightFt: 1378,
     gridReference: "NY316100",
@@ -772,6 +832,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Glaramara",
+    bookNumber: 108,
     heightMetres: 783,
     heightFt: 2569,
     gridReference: "NY245104",
@@ -785,6 +846,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Glenridding Dodd",
+    bookNumber: 9,
     heightMetres: 442,
     heightFt: 1450,
     gridReference: "NY380175",
@@ -798,6 +860,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Gowbarrow Fell (Wainwright summit)",
+    bookNumber: 10,
     heightMetres: 481.2,
     heightFt: 1579,
     gridReference: "NY407218",
@@ -811,6 +874,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Grange Fell (Brund Fell)",
+    bookNumber: 78,
     heightMetres: 416,
     heightFt: 1365,
     gridReference: "NY264162",
@@ -824,6 +888,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Grasmoor",
+    bookNumber: 162,
     heightMetres: 852,
     heightFt: 2795,
     gridReference: "NY174203",
@@ -837,6 +902,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Gray Crag",
+    bookNumber: 44,
     heightMetres: 699,
     heightFt: 2293,
     gridReference: "NY427117",
@@ -850,6 +916,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Graystones",
+    bookNumber: 163,
     heightMetres: 452,
     heightFt: 1483,
     gridReference: "NY176266",
@@ -863,6 +930,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Borne",
+    bookNumber: 192,
     heightMetres: 616,
     heightFt: 2021,
     gridReference: "NY123163",
@@ -876,6 +944,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Calva",
+    bookNumber: 138,
     heightMetres: 690,
     heightFt: 2264,
     gridReference: "NY290311",
@@ -889,6 +958,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Carrs",
+    bookNumber: 109,
     heightMetres: 785,
     heightFt: 2575,
     gridReference: "NY270009",
@@ -902,6 +972,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Cockup",
+    bookNumber: 139,
     heightMetres: 526,
     heightFt: 1726,
     gridReference: "NY273333",
@@ -915,6 +986,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Crag (Stonethwaite)",
+    bookNumber: 79,
     heightMetres: 449,
     heightFt: 1473,
     gridReference: "NY270146",
@@ -928,6 +1000,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Dodd",
+    bookNumber: 11,
     heightMetres: 857,
     heightFt: 2812,
     gridReference: "NY342205",
@@ -941,6 +1014,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great End",
+    bookNumber: 110,
     heightMetres: 910,
     heightFt: 2986,
     gridReference: "NY226083",
@@ -954,6 +1028,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Gable",
+    bookNumber: 193,
     heightMetres: 899,
     heightFt: 2949,
     gridReference: "NY211103",
@@ -967,6 +1042,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Mell Fell",
+    bookNumber: 12,
     heightMetres: 537,
     heightFt: 1762,
     gridReference: "NY396253",
@@ -980,6 +1056,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Rigg",
+    bookNumber: 13,
     heightMetres: 766,
     heightFt: 2513,
     gridReference: "NY355104",
@@ -993,6 +1070,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Great Sca Fell",
+    bookNumber: 140,
     heightMetres: 651,
     heightFt: 2136,
     gridReference: "NY291339",
@@ -1006,6 +1084,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Green Crag",
+    bookNumber: 111,
     heightMetres: 488.7,
     heightFt: 1603,
     gridReference: "SD200982",
@@ -1019,6 +1098,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Green Gable",
+    bookNumber: 194,
     heightMetres: 801,
     heightFt: 2628,
     gridReference: "NY214107",
@@ -1032,6 +1112,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Grey Crag (Sleddale Fell)",
+    bookNumber: 45,
     heightMetres: 638,
     heightFt: 2093,
     gridReference: "NY497072",
@@ -1045,6 +1126,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Grey Friar",
+    bookNumber: 112,
     heightMetres: 773,
     heightFt: 2536,
     gridReference: "NY260003",
@@ -1058,6 +1140,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Grey Knotts",
+    bookNumber: 195,
     heightMetres: 697,
     heightFt: 2287,
     gridReference: "NY217125",
@@ -1071,6 +1154,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Grike",
+    bookNumber: 196,
     heightMetres: 488,
     heightFt: 1601,
     gridReference: "NY084140",
@@ -1084,6 +1168,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Grisedale Pike",
+    bookNumber: 164,
     heightMetres: 791,
     heightFt: 2595,
     gridReference: "NY198225",
@@ -1097,6 +1182,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Hallin Fell",
+    bookNumber: 46,
     heightMetres: 388,
     heightFt: 1273,
     gridReference: "NY433198",
@@ -1110,6 +1196,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Hard Knott",
+    bookNumber: 113,
     heightMetres: 549,
     heightFt: 1801,
     gridReference: "NY231023",
@@ -1123,6 +1210,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Harrison Stickle",
+    bookNumber: 80,
     heightMetres: 736,
     heightFt: 2415,
     gridReference: "NY281074",
@@ -1136,6 +1224,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Hart Crag",
+    bookNumber: 14,
     heightMetres: 822,
     heightFt: 2697,
     gridReference: "NY369112",
@@ -1149,6 +1238,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Hart Side",
+    bookNumber: 15,
     heightMetres: 756,
     heightFt: 2480,
     gridReference: "NY359197",
@@ -1162,6 +1252,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Harter Fell (Eskdale)",
+    bookNumber: 114,
     heightMetres: 654,
     heightFt: 2146,
     gridReference: "SD218997",
@@ -1175,6 +1266,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Harter Fell (Mardale)",
+    bookNumber: 47,
     heightMetres: 779,
     heightFt: 2556,
     gridReference: "NY459093",
@@ -1188,6 +1280,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Hartsop Above How (Gill Crag-Hartsop Above How)",
+    bookNumber: 16,
     heightMetres: 581,
     heightFt: 1906,
     gridReference: "NY383120",
@@ -1201,6 +1294,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Hartsop Dodd",
+    bookNumber: 48,
     heightMetres: 618,
     heightFt: 2028,
     gridReference: "NY411118",
@@ -1214,6 +1308,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Haycock",
+    bookNumber: 197,
     heightMetres: 797,
     heightFt: 2615,
     gridReference: "NY144107",
@@ -1227,6 +1322,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Haystacks (Buttermere)",
+    bookNumber: 198,
     heightMetres: 597,
     heightFt: 1959,
     gridReference: "NY193131",
@@ -1240,6 +1336,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Helm Crag",
+    bookNumber: 81,
     heightMetres: 405,
     heightFt: 1329,
     gridReference: "NY326093",
@@ -1253,6 +1350,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Helvellyn",
+    bookNumber: 17,
     heightMetres: 950,
     heightFt: 3117,
     gridReference: "NY342151",
@@ -1266,6 +1364,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Hen Comb",
+    bookNumber: 199,
     heightMetres: 509,
     heightFt: 1670,
     gridReference: "NY132181",
@@ -1279,6 +1378,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Heron Pike (Rydal)",
+    bookNumber: 18,
     heightMetres: 612,
     heightFt: 2008,
     gridReference: "NY355083",
@@ -1292,6 +1392,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Crag (Buttermere)",
+    bookNumber: 200,
     heightMetres: 744,
     heightFt: 2441,
     gridReference: "NY180139",
@@ -1305,6 +1406,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Hartsop Dodd",
+    bookNumber: 19,
     heightMetres: 519,
     heightFt: 1703,
     gridReference: "NY393107",
@@ -1318,6 +1420,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Pike (Caldbeck)",
+    bookNumber: 141,
     heightMetres: 658,
     heightFt: 2159,
     gridReference: "NY318350",
@@ -1331,6 +1434,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Pike (Scandale)",
+    bookNumber: 20,
     heightMetres: 656,
     heightFt: 2152,
     gridReference: "NY374088",
@@ -1344,6 +1448,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Raise (High Raise (High White Stones))",
+    bookNumber: 82,
     heightMetres: 762,
     heightFt: 2500,
     gridReference: "NY280095",
@@ -1357,6 +1462,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Raise (High Street)",
+    bookNumber: 49,
     heightMetres: 802,
     heightFt: 2631,
     gridReference: "NY448134",
@@ -1370,6 +1476,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Rigg (Naddle Fell)",
+    bookNumber: 83,
     heightMetres: 357,
     heightFt: 1171,
     gridReference: "NY308219",
@@ -1383,6 +1490,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Seat",
+    bookNumber: 84,
     heightMetres: 608,
     heightFt: 1995,
     gridReference: "NY287180",
@@ -1396,6 +1504,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Spy",
+    bookNumber: 165,
     heightMetres: 653.1,
     heightFt: 2143,
     gridReference: "NY234162",
@@ -1409,6 +1518,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Stile",
+    bookNumber: 201,
     heightMetres: 806,
     heightFt: 2644,
     gridReference: "NY167147",
@@ -1422,6 +1532,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Street",
+    bookNumber: 50,
     heightMetres: 828,
     heightFt: 2717,
     gridReference: "NY440110",
@@ -1435,6 +1546,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "High Tove",
+    bookNumber: 85,
     heightMetres: 515,
     heightFt: 1690,
     gridReference: "NY289165",
@@ -1448,6 +1560,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Hindscarth",
+    bookNumber: 166,
     heightMetres: 727,
     heightFt: 2385,
     gridReference: "NY215165",
@@ -1461,6 +1574,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Holme Fell",
+    bookNumber: 115,
     heightMetres: 317,
     heightFt: 1040,
     gridReference: "NY315006",
@@ -1474,6 +1588,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Hopegill Head",
+    bookNumber: 167,
     heightMetres: 770,
     heightFt: 2526,
     gridReference: "NY185221",
@@ -1487,6 +1602,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Ill Bell",
+    bookNumber: 51,
     heightMetres: 757,
     heightFt: 2484,
     gridReference: "NY436077",
@@ -1500,6 +1616,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Illgill Head",
+    bookNumber: 116,
     heightMetres: 609,
     heightFt: 1998,
     gridReference: "NY168049",
@@ -1513,6 +1630,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Kentmere Pike",
+    bookNumber: 52,
     heightMetres: 730,
     heightFt: 2395,
     gridReference: "NY465077",
@@ -1526,6 +1644,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Kidsty Pike",
+    bookNumber: 53,
     heightMetres: 780,
     heightFt: 2559,
     gridReference: "NY447125",
@@ -1539,6 +1658,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Kirk Fell",
+    bookNumber: 202,
     heightMetres: 802,
     heightFt: 2631,
     gridReference: "NY194104",
@@ -1552,6 +1672,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Knott",
+    bookNumber: 142,
     heightMetres: 710,
     heightFt: 2329,
     gridReference: "NY296329",
@@ -1565,6 +1686,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Knott Rigg",
+    bookNumber: 168,
     heightMetres: 556,
     heightFt: 1824,
     gridReference: "NY197188",
@@ -1578,6 +1700,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Lank Rigg",
+    bookNumber: 203,
     heightMetres: 541,
     heightFt: 1775,
     gridReference: "NY091119",
@@ -1591,6 +1714,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Latrigg",
+    bookNumber: 143,
     heightMetres: 368,
     heightFt: 1207,
     gridReference: "NY279246",
@@ -1604,6 +1728,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Ling Fell",
+    bookNumber: 169,
     heightMetres: 373,
     heightFt: 1224,
     gridReference: "NY179285",
@@ -1617,6 +1742,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Lingmell",
+    bookNumber: 117,
     heightMetres: 807,
     heightFt: 2648,
     gridReference: "NY209081",
@@ -1630,6 +1756,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Lingmoor Fell (Lingmoor Fell-Brown How)",
+    bookNumber: 118,
     heightMetres: 469,
     heightFt: 1539,
     gridReference: "NY302046",
@@ -1643,6 +1770,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Little Hart Crag (Little Hart Crag-West Top)",
+    bookNumber: 21,
     heightMetres: 637,
     heightFt: 2090,
     gridReference: "NY387100",
@@ -1656,6 +1784,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Little Mell Fell",
+    bookNumber: 22,
     heightMetres: 505,
     heightFt: 1657,
     gridReference: "NY423240",
@@ -1669,6 +1798,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Loadpot Hill",
+    bookNumber: 55,
     heightMetres: 672,
     heightFt: 2205,
     gridReference: "NY456180",
@@ -1682,6 +1812,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Loft Crag",
+    bookNumber: 86,
     heightMetres: 680,
     heightFt: 2231,
     gridReference: "NY277071",
@@ -1695,6 +1826,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Long Side",
+    bookNumber: 145,
     heightMetres: 734,
     heightFt: 2408,
     gridReference: "NY248284",
@@ -1708,6 +1840,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Longlands Fell",
+    bookNumber: 144,
     heightMetres: 483,
     heightFt: 1585,
     gridReference: "NY275354",
@@ -1721,6 +1854,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Lonscale Fell",
+    bookNumber: 146,
     heightMetres: 715,
     heightFt: 2346,
     gridReference: "NY285271",
@@ -1734,6 +1868,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Lord's Seat",
+    bookNumber: 170,
     heightMetres: 552,
     heightFt: 1811,
     gridReference: "NY204265",
@@ -1747,6 +1882,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Loughrigg Fell",
+    bookNumber: 87,
     heightMetres: 335,
     heightFt: 1099,
     gridReference: "NY346051",
@@ -1760,6 +1896,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Low Fell",
+    bookNumber: 204,
     heightMetres: 423,
     heightFt: 1388,
     gridReference: "NY137226",
@@ -1773,6 +1910,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Low Pike",
+    bookNumber: 23,
     heightMetres: 508,
     heightFt: 1667,
     gridReference: "NY373078",
@@ -1786,6 +1924,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Maiden Moor",
+    bookNumber: 171,
     heightMetres: 575,
     heightFt: 1886,
     gridReference: "NY236181",
@@ -1799,6 +1938,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Mardale Ill Bell",
+    bookNumber: 56,
     heightMetres: 760,
     heightFt: 2493,
     gridReference: "NY447101",
@@ -1812,6 +1952,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Meal Fell",
+    bookNumber: 147,
     heightMetres: 550,
     heightFt: 1804,
     gridReference: "NY283337",
@@ -1825,6 +1966,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Mellbreak (Mellbreak South Top)",
+    bookNumber: 205,
     heightMetres: 512,
     heightFt: 1680,
     gridReference: "NY148186",
@@ -1838,6 +1980,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Middle Dodd",
+    bookNumber: 24,
     heightMetres: 654,
     heightFt: 2146,
     gridReference: "NY397095",
@@ -1851,6 +1994,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Middle Fell",
+    bookNumber: 206,
     heightMetres: 582,
     heightFt: 1909,
     gridReference: "NY150072",
@@ -1864,6 +2008,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Mungrisdale Common",
+    bookNumber: 148,
     heightMetres: 633,
     heightFt: 2077,
     gridReference: "NY310292",
@@ -1877,6 +2022,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Nab Scar",
+    bookNumber: 25,
     heightMetres: 450,
     heightFt: 1476,
     gridReference: "NY355072",
@@ -1890,6 +2036,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Nethermost Pike",
+    bookNumber: 26,
     heightMetres: 891,
     heightFt: 2923,
     gridReference: "NY343142",
@@ -1903,6 +2050,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Outerside",
+    bookNumber: 172,
     heightMetres: 568,
     heightFt: 1864,
     gridReference: "NY211214",
@@ -1916,6 +2064,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Pavey Ark",
+    bookNumber: 88,
     heightMetres: 700,
     heightFt: 2297,
     gridReference: "NY284079",
@@ -1929,6 +2078,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Pike of Blisco",
+    bookNumber: 119,
     heightMetres: 705,
     heightFt: 2313,
     gridReference: "NY271042",
@@ -1942,6 +2092,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Pike of Stickle",
+    bookNumber: 89,
     heightMetres: 709,
     heightFt: 2326,
     gridReference: "NY273073",
@@ -1955,6 +2106,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Pillar",
+    bookNumber: 207,
     heightMetres: 892,
     heightFt: 2927,
     gridReference: "NY171121",
@@ -1968,6 +2120,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Place Fell",
+    bookNumber: 58,
     heightMetres: 657,
     heightFt: 2156,
     gridReference: "NY405169",
@@ -1981,6 +2134,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Raise",
+    bookNumber: 27,
     heightMetres: 883,
     heightFt: 2897,
     gridReference: "NY342174",
@@ -1994,6 +2148,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Rampsgill Head",
+    bookNumber: 59,
     heightMetres: 792,
     heightFt: 2598,
     gridReference: "NY443128",
@@ -2007,6 +2162,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Rannerdale Knotts",
+    bookNumber: 173,
     heightMetres: 355,
     heightFt: 1165,
     gridReference: "NY167182",
@@ -2020,6 +2176,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Raven Crag",
+    bookNumber: 90,
     heightMetres: 461,
     heightFt: 1512,
     gridReference: "NY303187",
@@ -2033,6 +2190,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Red Pike (Buttermere)",
+    bookNumber: 208,
     heightMetres: 755,
     heightFt: 2477,
     gridReference: "NY160154",
@@ -2046,6 +2204,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Red Pike (Wasdale)",
+    bookNumber: 209,
     heightMetres: 826,
     heightFt: 2710,
     gridReference: "NY165106",
@@ -2059,6 +2218,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Red Screes",
+    bookNumber: 28,
     heightMetres: 776,
     heightFt: 2546,
     gridReference: "NY396087",
@@ -2072,6 +2232,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Rest Dodd",
+    bookNumber: 60,
     heightMetres: 696,
     heightFt: 2283,
     gridReference: "NY432136",
@@ -2085,6 +2246,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Robinson",
+    bookNumber: 174,
     heightMetres: 737,
     heightFt: 2418,
     gridReference: "NY201168",
@@ -2098,6 +2260,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Rossett Pike",
+    bookNumber: 120,
     heightMetres: 651,
     heightFt: 2136,
     gridReference: "NY249075",
@@ -2111,6 +2274,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Rosthwaite Fell-Bessyboot",
+    bookNumber: 121,
     heightMetres: 551,
     heightFt: 1808,
     gridReference: "NY258124",
@@ -2124,6 +2288,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Sail",
+    bookNumber: 175,
     heightMetres: 773,
     heightFt: 2536,
     gridReference: "NY198202",
@@ -2137,6 +2302,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Sale Fell",
+    bookNumber: 176,
     heightMetres: 359,
     heightFt: 1178,
     gridReference: "NY194296",
@@ -2150,6 +2316,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Sallows",
+    bookNumber: 61,
     heightMetres: 516,
     heightFt: 1693,
     gridReference: "NY436039",
@@ -2163,6 +2330,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Scafell",
+    bookNumber: 122,
     heightMetres: 964,
     heightFt: 3163,
     gridReference: "NY206064",
@@ -2176,6 +2344,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Scafell Pike",
+    bookNumber: 123,
     heightMetres: 978,
     heightFt: 3209,
     gridReference: "NY215072",
@@ -2189,6 +2358,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Scar Crags",
+    bookNumber: 177,
     heightMetres: 672,
     heightFt: 2205,
     gridReference: "NY208206",
@@ -2202,6 +2372,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Scoat Fell",
+    bookNumber: 210,
     heightMetres: 841,
     heightFt: 2759,
     gridReference: "NY159113",
@@ -2215,6 +2386,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Seat Sandal",
+    bookNumber: 30,
     heightMetres: 736.8,
     heightFt: 2417,
     gridReference: "NY344115",
@@ -2228,6 +2400,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Seatallan",
+    bookNumber: 211,
     heightMetres: 692,
     heightFt: 2270,
     gridReference: "NY140084",
@@ -2241,6 +2414,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Seathwaite Fell (Wainwright summit)",
+    bookNumber: 124,
     heightMetres: 601,
     heightFt: 1972,
     gridReference: "NY229101",
@@ -2254,6 +2428,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Selside Pike",
+    bookNumber: 62,
     heightMetres: 655,
     heightFt: 2149,
     gridReference: "NY490111",
@@ -2267,6 +2442,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Sergeant Man",
+    bookNumber: 91,
     heightMetres: 736,
     heightFt: 2415,
     gridReference: "NY286088",
@@ -2280,6 +2456,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Sergeant's Crag",
+    bookNumber: 92,
     heightMetres: 571,
     heightFt: 1873,
     gridReference: "NY273113",
@@ -2293,6 +2470,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Sheffield Pike",
+    bookNumber: 31,
     heightMetres: 675,
     heightFt: 2215,
     gridReference: "NY369181",
@@ -2306,6 +2484,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Shipman Knotts",
+    bookNumber: 63,
     heightMetres: 587,
     heightFt: 1926,
     gridReference: "NY472062",
@@ -2319,6 +2498,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Silver How",
+    bookNumber: 93,
     heightMetres: 395,
     heightFt: 1296,
     gridReference: "NY324066",
@@ -2332,6 +2512,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Skiddaw",
+    bookNumber: 149,
     heightMetres: 931,
     heightFt: 3054,
     gridReference: "NY260290",
@@ -2345,6 +2526,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Skiddaw Little Man",
+    bookNumber: 150,
     heightMetres: 865,
     heightFt: 2838,
     gridReference: "NY266277",
@@ -2358,6 +2540,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Slight Side",
+    bookNumber: 125,
     heightMetres: 762,
     heightFt: 2500,
     gridReference: "NY209050",
@@ -2371,6 +2554,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Sour Howes",
+    bookNumber: 64,
     heightMetres: 483,
     heightFt: 1585,
     gridReference: "NY427032",
@@ -2384,6 +2568,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Souther Fell",
+    bookNumber: 151,
     heightMetres: 522,
     heightFt: 1713,
     gridReference: "NY354291",
@@ -2397,6 +2582,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "St Sunday Crag",
+    bookNumber: 29,
     heightMetres: 841,
     heightFt: 2759,
     gridReference: "NY369133",
@@ -2410,6 +2596,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Starling Dodd",
+    bookNumber: 212,
     heightMetres: 633,
     heightFt: 2077,
     gridReference: "NY142157",
@@ -2423,6 +2610,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Steel Fell (Dead Pike-Steel Fell)",
+    bookNumber: 94,
     heightMetres: 553,
     heightFt: 1814,
     gridReference: "NY319111",
@@ -2436,6 +2624,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Steel Knotts (Pikeawassa-Steel Knotts)",
+    bookNumber: 65,
     heightMetres: 432,
     heightFt: 1417,
     gridReference: "NY440181",
@@ -2449,6 +2638,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Steeple",
+    bookNumber: 213,
     heightMetres: 819,
     heightFt: 2687,
     gridReference: "NY157116",
@@ -2462,6 +2652,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Stone Arthur",
+    bookNumber: 32,
     heightMetres: 504,
     heightFt: 1654,
     gridReference: "NY347092",
@@ -2475,6 +2666,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Stony Cove Pike (Caudale Moor)",
+    bookNumber: 42,
     heightMetres: 763,
     heightFt: 2503,
     gridReference: "NY417100",
@@ -2488,6 +2680,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Stybarrow Dodd",
+    bookNumber: 33,
     heightMetres: 843,
     heightFt: 2766,
     gridReference: "NY343189",
@@ -2501,6 +2694,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Swirl How",
+    bookNumber: 126,
     heightMetres: 802,
     heightFt: 2631,
     gridReference: "NY272005",
@@ -2514,6 +2708,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Tarn Crag (Easedale)",
+    bookNumber: 95,
     heightMetres: 549,
     heightFt: 1801,
     gridReference: "NY303093",
@@ -2527,6 +2722,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Tarn Crag (Sleddale)",
+    bookNumber: 66,
     heightMetres: 664,
     heightFt: 2178,
     gridReference: "NY488078",
@@ -2540,6 +2736,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "The Knott (High Street)",
+    bookNumber: 54,
     heightMetres: 739,
     heightFt: 2425,
     gridReference: "NY437126",
@@ -2553,6 +2750,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "The Nab",
+    bookNumber: 57,
     heightMetres: 576,
     heightFt: 1890,
     gridReference: "NY434151",
@@ -2566,6 +2764,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "The Old Man of Coniston (Coniston Old Man)",
+    bookNumber: 104,
     heightMetres: 803,
     heightFt: 2635,
     gridReference: "SD272978",
@@ -2579,6 +2778,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Thornthwaite Crag",
+    bookNumber: 67,
     heightMetres: 784,
     heightFt: 2572,
     gridReference: "NY431100",
@@ -2592,6 +2792,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Thunacar Knott",
+    bookNumber: 96,
     heightMetres: 723,
     heightFt: 2372,
     gridReference: "NY279079",
@@ -2605,6 +2806,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Troutbeck Tongue",
+    bookNumber: 68,
     heightMetres: 364,
     heightFt: 1194,
     gridReference: "NY422064",
@@ -2618,6 +2820,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Ullock Pike",
+    bookNumber: 152,
     heightMetres: 690,
     heightFt: 2264,
     gridReference: "NY244287",
@@ -2631,6 +2834,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Ullscarf",
+    bookNumber: 97,
     heightMetres: 726,
     heightFt: 2382,
     gridReference: "NY291121",
@@ -2644,6 +2848,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Walla Crag",
+    bookNumber: 98,
     heightMetres: 379,
     heightFt: 1243,
     gridReference: "NY276212",
@@ -2657,6 +2862,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Wandope",
+    bookNumber: 178,
     heightMetres: 772,
     heightFt: 2533,
     gridReference: "NY188197",
@@ -2670,6 +2876,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Watson's Dodd",
+    bookNumber: 34,
     heightMetres: 789,
     heightFt: 2589,
     gridReference: "NY335195",
@@ -2683,6 +2890,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Wether Hill",
+    bookNumber: 70,
     heightMetres: 671,
     heightFt: 2201,
     gridReference: "NY455167",
@@ -2696,6 +2904,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Wetherlam",
+    bookNumber: 127,
     heightMetres: 763,
     heightFt: 2503,
     gridReference: "NY288011",
@@ -2709,6 +2918,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Whin Rigg (Wasdale)",
+    bookNumber: 128,
     heightMetres: 537,
     heightFt: 1762,
     gridReference: "NY151035",
@@ -2722,6 +2932,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Whinlatter (Brown How-Whinlatter)",
+    bookNumber: 179,
     heightMetres: 517,
     heightFt: 1696,
     gridReference: "NY191251",
@@ -2735,6 +2946,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "White Side",
+    bookNumber: 35,
     heightMetres: 863,
     heightFt: 2831,
     gridReference: "NY337166",
@@ -2748,6 +2960,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Whiteless Pike",
+    bookNumber: 180,
     heightMetres: 660,
     heightFt: 2165,
     gridReference: "NY180189",
@@ -2761,6 +2974,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Whiteside (Whiteside West Top)",
+    bookNumber: 181,
     heightMetres: 707,
     heightFt: 2320,
     gridReference: "NY170219",
@@ -2774,6 +2988,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Yewbarrow",
+    bookNumber: 214,
     heightMetres: 627,
     heightFt: 2057,
     gridReference: "NY173084",
@@ -2787,6 +3002,7 @@ export const WAINWRIGHTS: Wainwright[] = [
   },
   {
     name: "Yoke",
+    bookNumber: 71,
     heightMetres: 706,
     heightFt: 2316,
     gridReference: "NY437067",
