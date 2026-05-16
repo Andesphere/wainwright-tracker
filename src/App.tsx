@@ -454,6 +454,17 @@ function TrackerApp() {
         },
       });
       map.addLayer({
+        id: "peak-hit-area",
+        type: "circle",
+        source: "peaks",
+        filter: ["!", ["has", "point_count"]],
+        paint: {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 22, 12, 30],
+          "circle-color": "#ffffff",
+          "circle-opacity": 0,
+        },
+      });
+      map.addLayer({
         id: "peak-numbers",
         type: "symbol",
         source: "peaks",
@@ -486,16 +497,23 @@ function TrackerApp() {
         });
       });
 
-      map.on("click", "peaks", (event: maplibregl.MapLayerMouseEvent) => {
+      map.on("click", "peak-hit-area", (event: maplibregl.MapLayerMouseEvent) => {
         const feature = event.features?.[0];
         const id = feature?.properties?.id;
         if (typeof id === "string") setSelectedId(id);
       });
 
-      map.on("mouseenter", "peaks", () => {
+      map.on("click", (event: maplibregl.MapMouseEvent) => {
+        const features = map.queryRenderedFeatures(event.point, {
+          layers: ["peak-hit-area", "clusters"],
+        });
+        if (features.length === 0) setSelectedId(null);
+      });
+
+      map.on("mouseenter", "peak-hit-area", () => {
         map.getCanvas().style.cursor = "pointer";
       });
-      map.on("mouseleave", "peaks", () => {
+      map.on("mouseleave", "peak-hit-area", () => {
         map.getCanvas().style.cursor = "";
       });
       map.on("mouseenter", "clusters", () => {
@@ -584,7 +602,12 @@ function TrackerApp() {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !selectedPeak) return;
+    if (!map) return;
+    if (!selectedPeak) {
+      popupRef.current?.remove();
+      popupRef.current = null;
+      return;
+    }
     map.easeTo({
       center: [selectedPeak.longitude, selectedPeak.latitude],
       zoom: Math.max(map.getZoom(), 12.2),
@@ -763,6 +786,13 @@ function TrackerApp() {
       ],
       { padding: 48, duration: 900 },
     );
+  };
+
+  const showAllFells = () => {
+    setSelectedId(null);
+    popupRef.current?.remove();
+    popupRef.current = null;
+    fitLakeDistrict();
   };
 
   const downloadOfflineMap = async () => {
@@ -969,13 +999,18 @@ function TrackerApp() {
                 variant="outline"
                 size="icon-lg"
                 className="rounded-full border-white/50 bg-parchment/85 backdrop-blur-xl"
-                onClick={fitLakeDistrict}
+                onClick={showAllFells}
+                aria-label={selectedPeak ? "show all fells" : "re-centre map"}
               >
                 <HugeiconsIcon icon={CompassIcon} strokeWidth={1.6} />
-                <span className="sr-only">re-centre map</span>
+                <span className="sr-only">
+                  {selectedPeak ? "show all fells" : "re-centre map"}
+                </span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>re-centre on the lakes</TooltipContent>
+            <TooltipContent>
+              {selectedPeak ? "show all fells" : "re-centre on the lakes"}
+            </TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -1034,6 +1069,18 @@ function TrackerApp() {
             <span className="sr-only">open journal</span>
           </Button>
         </div>
+
+        {selectedPeak && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="absolute right-4 top-[calc(env(safe-area-inset-top)+7.75rem)] z-10 rounded-full border-white/60 bg-parchment/90 shadow-lg backdrop-blur-xl sm:right-8 sm:top-[calc(env(safe-area-inset-top)+5.4rem)]"
+            onClick={showAllFells}
+          >
+            <HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.8} />
+            show all fells
+          </Button>
+        )}
 
         <div className="absolute inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-10 lg:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

@@ -292,8 +292,8 @@ h6,
 }
 .completed-peak-pin {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 48px;
+  height: 48px;
   place-items: center;
   border: 0;
   background: transparent;

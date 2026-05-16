@@ -38,4 +38,13 @@ describe("mobile map layout", () => {
     expect(cssSource).toContain(".completion-drawer-body");
     expect(cssSource).toContain("-webkit-overflow-scrolling: touch;");
   });
+
+  it("makes mobile map selection easy to hit and easy to clear", () => {
+    expect(appSource).toContain('id: "peak-hit-area"');
+    expect(appSource).toContain('layers: ["peak-hit-area", "clusters"]');
+    expect(appSource).toContain("setSelectedId(null)");
+    expect(appSource).toContain("show all fells");
+    expect(cssSource).toContain("width: 48px;");
+    expect(cssSource).toContain("height: 48px;");
+  });
 });
