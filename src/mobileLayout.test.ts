@@ -79,11 +79,26 @@ describe("mobile map layout", () => {
     expect(appSource).toContain('initialMetadata?.note ?? ""');
   });
 
-  it("turns the bottom mobile drawer trigger into an obvious Search button", () => {
+  it("splits the bottom mobile actions between fell search and bagger discovery", () => {
+    expect(appSource).toContain("mobile-action-bar");
     expect(appSource).toContain("mobile-search-trigger");
+    expect(appSource).toContain("basis-[82%]");
     expect(appSource).toContain('aria-label="open search"');
     expect(appSource).toContain("Search");
     expect(appSource).toContain("Search01Icon");
+    expect(appSource).toContain("mobile-baggers-trigger");
+    expect(appSource).toContain('aria-label="find other baggers"');
+    expect(appSource).toContain("UserGroupIcon");
+  });
+
+  it("adds a Polarsteps-style bagger discovery drawer with search, follows, profiles, and photos", () => {
+    expect(appSource).toContain("PeopleDiscoverySheet");
+    expect(appSource).toContain("Find other baggers");
+    expect(appSource).toContain("Search by name or email");
+    expect(appSource).toContain("Follow");
+    expect(appSource).toContain("Following");
+    expect(appSource).toContain("Wainwrights bagged");
+    expect(appSource).toContain("photo-preview-grid");
   });
 
   it("opens a simple mobile menu whose Configuration title opens a settings drawer", () => {

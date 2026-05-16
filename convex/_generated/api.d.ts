@@ -10,6 +10,7 @@
 
 import type * as importer from "../importer.js";
 import type * as progress from "../progress.js";
+import type * as social from "../social.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   importer: typeof importer;
   progress: typeof progress;
+  social: typeof social;
 }>;
 
 /**

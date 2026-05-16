@@ -25,6 +25,10 @@ import {
   ReloadIcon,
   Search01Icon,
   Upload04Icon,
+  UserAdd01Icon,
+  UserCheck01Icon,
+  UserGroupIcon,
+  UserSearch01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { Badge } from "@/components/ui/badge";
@@ -124,6 +128,19 @@ type PendingPhoto = {
   file: File;
   id: string;
   previewUrl: string;
+};
+type BaggerSummary = {
+  completedCount: number;
+  displayName: string;
+  email?: string;
+  followersCount: number;
+  followingCount: number;
+  imageUrl?: string;
+  isFollowing: boolean;
+  isSelf: boolean;
+  photoUrls: string[];
+  updatedAt?: number;
+  userId: string;
 };
 
 const IMPORTABLE_FILE_TYPES = ".csv,.txt,.md,.docx,.xls,.xlsx";
@@ -275,6 +292,9 @@ function TrackerApp() {
   const generatePhotoUploadUrl = useMutation(
     api.progress.generatePhotoUploadUrl,
   );
+  const followBagger = useMutation(api.social.follow);
+  const unfollowBagger = useMutation(api.social.unfollow);
+  const upsertCurrentProfile = useMutation(api.social.upsertCurrentProfile);
   const migratedLocalProgressRef = useRef(false);
   const [optimisticCompleted, setOptimisticCompleted] =
     useState<Set<string> | null>(null);
@@ -296,6 +316,9 @@ function TrackerApp() {
     loadHeightUnitPreference,
   );
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [peopleOpen, setPeopleOpen] = useState(false);
+  const [peopleQuery, setPeopleQuery] = useState("");
+  const [selectedBaggerId, setSelectedBaggerId] = useState<string | null>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
 
@@ -358,8 +381,32 @@ function TrackerApp() {
     [completed],
   );
 
+  const baggerResults =
+    (useQuery(
+      api.social.searchBaggers,
+      peopleOpen ? { query: peopleQuery } : "skip",
+    ) as BaggerSummary[] | undefined) ?? [];
+  const selectedBaggerProfile = useQuery(
+    api.social.getProfile,
+    selectedBaggerId ? { userId: selectedBaggerId } : "skip",
+  ) as BaggerSummary | null | undefined;
+
   const doneCount = completed.size;
   const percent = formatPercent(doneCount);
+
+  const handleToggleFollow = async (bagger: BaggerSummary) => {
+    const action = bagger.isFollowing ? unfollowBagger : followBagger;
+    await action({ userId: bagger.userId });
+    toast.success(
+      bagger.isFollowing
+        ? `Unfollowed ${bagger.displayName}`
+        : `Following ${bagger.displayName}`,
+    );
+  };
+
+  useEffect(() => {
+    void upsertCurrentProfile();
+  }, [upsertCurrentProfile]);
 
   useEffect(() => {
     if (!progress || migratedLocalProgressRef.current || progress.length > 0)
@@ -1165,39 +1212,70 @@ function TrackerApp() {
               peak={selectedPeak}
             />
           ) : (
-            <Sheet open={mobileSearchOpen} onOpenChange={setMobileSearchOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="mobile-search-trigger h-14 w-full justify-center gap-3 rounded-full border-white/60 bg-parchment/95 px-5 text-xl font-bold text-ink shadow-lg backdrop-blur-xl lg:hidden"
-                  onClick={() => setMobileSearchOpen(true)}
-                  aria-label="open search"
+            <div className="mobile-action-bar flex gap-2 lg:hidden">
+              <Sheet open={mobileSearchOpen} onOpenChange={setMobileSearchOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="mobile-search-trigger h-14 basis-[82%] justify-center gap-3 rounded-full border-white/60 bg-parchment/95 px-5 text-xl font-bold text-ink shadow-lg backdrop-blur-xl"
+                    onClick={() => setMobileSearchOpen(true)}
+                    aria-label="open search"
+                  >
+                    <HugeiconsIcon
+                      icon={Search01Icon}
+                      className="size-7"
+                      strokeWidth={2}
+                    />
+                    <span>Search</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="bottom"
+                  className="h-[92dvh] max-h-[760px] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl"
                 >
-                  <HugeiconsIcon
-                    icon={Search01Icon}
-                    className="size-7"
-                    strokeWidth={2}
-                  />
-                  <span>Search</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="bottom"
-                className="h-[92dvh] max-h-[760px] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl"
+                  <SheetTitle className="sr-only">fells journal</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Search, filter, import, export, and mark Wainwright fells as
+                    bagged.
+                  </SheetDescription>
+                  <div className="h-full overflow-auto journal-scroll">
+                    {mobileSearchOpen && journal}
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              <Button
+                variant="outline"
+                size="icon-lg"
+                className="mobile-baggers-trigger h-14 min-w-14 flex-1 rounded-full border-white/60 bg-ink/90 text-white shadow-lg backdrop-blur-xl hover:bg-ink hover:text-white"
+                onClick={() => setPeopleOpen(true)}
+                aria-label="find other baggers"
               >
-                <SheetTitle className="sr-only">fells journal</SheetTitle>
-                <SheetDescription className="sr-only">
-                  Search, filter, import, export, and mark Wainwright fells as
-                  bagged.
-                </SheetDescription>
-                <div className="h-full overflow-auto journal-scroll">
-                  {mobileSearchOpen && journal}
-                </div>
-              </SheetContent>
-            </Sheet>
+                <HugeiconsIcon
+                  icon={UserGroupIcon}
+                  className="size-7"
+                  strokeWidth={1.8}
+                />
+              </Button>
+            </div>
           )}
         </div>
+
+        <PeopleDiscoverySheet
+          open={peopleOpen}
+          onOpenChange={(open) => {
+            setPeopleOpen(open);
+            if (!open) setSelectedBaggerId(null);
+          }}
+          query={peopleQuery}
+          onQuery={setPeopleQuery}
+          results={baggerResults}
+          selectedProfile={selectedBaggerProfile ?? null}
+          selectedUserId={selectedBaggerId}
+          onSelectProfile={setSelectedBaggerId}
+          onToggleFollow={(bagger) => void handleToggleFollow(bagger)}
+        />
 
         <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
           <SheetContent
@@ -1235,7 +1313,9 @@ function TrackerApp() {
                     Display units and map preferences
                   </span>
                 </span>
-                <span className="text-2xl leading-none text-muted-foreground">›</span>
+                <span className="text-2xl leading-none text-muted-foreground">
+                  ›
+                </span>
               </button>
             </div>
           </SheetContent>
@@ -1303,6 +1383,283 @@ function TrackerApp() {
 
       <Toaster richColors position="top-center" />
     </main>
+  );
+}
+
+function PeopleDiscoverySheet({
+  onOpenChange,
+  onQuery,
+  onSelectProfile,
+  onToggleFollow,
+  open,
+  query,
+  results,
+  selectedProfile,
+  selectedUserId,
+}: {
+  onOpenChange: (open: boolean) => void;
+  onQuery: (query: string) => void;
+  onSelectProfile: (userId: string) => void;
+  onToggleFollow: (bagger: BaggerSummary) => void;
+  open: boolean;
+  query: string;
+  results: BaggerSummary[];
+  selectedProfile: BaggerSummary | null;
+  selectedUserId: string | null;
+}) {
+  const activeProfile =
+    selectedProfile ??
+    results.find((bagger) => bagger.userId === selectedUserId);
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="bottom"
+        className="h-[92dvh] max-h-[780px] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl"
+      >
+        <SheetTitle className="sr-only">Find other baggers</SheetTitle>
+        <SheetDescription className="sr-only">
+          Search app users by name or email, follow them, and view their public
+          Wainwright progress and photos.
+        </SheetDescription>
+        <div className="grid h-full grid-rows-[auto_1fr] overflow-hidden">
+          <div className="space-y-4 border-b border-border/70 bg-card/60 px-4 pb-4 pt-5 shadow-sm sm:px-6">
+            <div className="flex items-start gap-3">
+              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary">
+                <HugeiconsIcon icon={UserSearch01Icon} strokeWidth={1.7} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  community
+                </p>
+                <h2 className="mt-1 font-display text-3xl italic leading-none text-foreground">
+                  Find other baggers
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  Follow walkers to compare Wainwright progress, see recent
+                  summit photos, and keep their profiles one tap away.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-2 rounded-2xl border border-border bg-background/80 p-2">
+              <label className="sr-only" htmlFor="bagger-search">
+                Search by name or email
+              </label>
+              <div className="flex items-center gap-2 px-2">
+                <HugeiconsIcon
+                  icon={Search01Icon}
+                  className="size-4 text-muted-foreground"
+                  strokeWidth={1.7}
+                />
+                <Input
+                  id="bagger-search"
+                  value={query}
+                  onChange={(event) => onQuery(event.target.value)}
+                  className="h-10 border-0 bg-transparent p-0 shadow-none focus-visible:border-transparent focus-visible:ring-0"
+                  placeholder="Search by name or email"
+                />
+              </div>
+              <div className="rounded-xl bg-primary/8 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+                Contact import can layer on later with explicit permission; this
+                starts safely with in-app users only.
+              </div>
+            </div>
+          </div>
+
+          <div className="journal-scroll grid min-h-0 gap-4 overflow-y-auto px-4 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(18rem,0.9fr)] sm:px-6">
+            <div className="grid content-start gap-2.5">
+              {results.length === 0 ? (
+                <div className="rounded-3xl border border-dashed border-border bg-background/70 p-6 text-center">
+                  <HugeiconsIcon
+                    icon={UserGroupIcon}
+                    className="mx-auto size-10 text-muted-foreground"
+                    strokeWidth={1.5}
+                  />
+                  <p className="mt-3 font-semibold text-foreground">
+                    No baggers found yet
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Try a name or email once more friends have signed in.
+                  </p>
+                </div>
+              ) : (
+                results.map((bagger) => (
+                  <button
+                    key={bagger.userId}
+                    type="button"
+                    onClick={() => onSelectProfile(bagger.userId)}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-3xl border bg-background/75 p-3 text-left shadow-xs transition hover:bg-accent/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      selectedUserId === bagger.userId
+                        ? "border-primary/70 ring-2 ring-primary/20"
+                        : "border-border/70",
+                    )}
+                  >
+                    <BaggerAvatar bagger={bagger} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-semibold text-foreground">
+                        {bagger.displayName}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                        {bagger.completedCount} Wainwrights bagged ·{" "}
+                        {bagger.followersCount} followers
+                      </span>
+                    </span>
+                    <span
+                      className={cn(
+                        "rounded-full px-3 py-1 text-xs font-semibold",
+                        bagger.isFollowing
+                          ? "bg-primary/15 text-primary"
+                          : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {bagger.isFollowing ? "Following" : "View"}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+
+            <div className="min-h-[22rem] rounded-3xl border border-border/70 bg-card/85 p-4 shadow-sm">
+              {activeProfile ? (
+                <div className="grid gap-4">
+                  <div className="flex items-start gap-3">
+                    <BaggerAvatar bagger={activeProfile} size="lg" />
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate font-display text-3xl italic leading-none text-foreground">
+                        {activeProfile.displayName}
+                      </h3>
+                      {activeProfile.email && (
+                        <p className="mt-1 truncate text-xs text-muted-foreground">
+                          {activeProfile.email}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <StatPill
+                      label="Wainwrights bagged"
+                      value={activeProfile.completedCount}
+                    />
+                    <StatPill
+                      label="followers"
+                      value={activeProfile.followersCount}
+                    />
+                    <StatPill
+                      label="following"
+                      value={activeProfile.followingCount}
+                    />
+                  </div>
+
+                  {!activeProfile.isSelf && (
+                    <Button
+                      type="button"
+                      className="rounded-full"
+                      variant={
+                        activeProfile.isFollowing ? "secondary" : "default"
+                      }
+                      onClick={() => onToggleFollow(activeProfile)}
+                    >
+                      <HugeiconsIcon
+                        icon={
+                          activeProfile.isFollowing
+                            ? UserCheck01Icon
+                            : UserAdd01Icon
+                        }
+                        strokeWidth={1.7}
+                      />
+                      {activeProfile.isFollowing ? "Following" : "Follow"}
+                    </Button>
+                  )}
+
+                  <div>
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                        summit photos
+                      </p>
+                      <Badge variant="secondary" className="rounded-full">
+                        {activeProfile.photoUrls.length} previews
+                      </Badge>
+                    </div>
+                    {activeProfile.photoUrls.length > 0 ? (
+                      <div className="photo-preview-grid grid grid-cols-3 gap-2">
+                        {activeProfile.photoUrls.map((url, index) => (
+                          <img
+                            key={`${url}-${index}`}
+                            src={url}
+                            alt={`${activeProfile.displayName} Wainwright photo ${index + 1}`}
+                            className="aspect-square rounded-2xl object-cover"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="photo-preview-grid grid min-h-28 place-items-center rounded-2xl border border-dashed border-border bg-background/65 p-4 text-center text-sm text-muted-foreground">
+                        No public summit photos yet.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="grid h-full place-items-center text-center text-sm text-muted-foreground">
+                  <div>
+                    <HugeiconsIcon
+                      icon={UserSearch01Icon}
+                      className="mx-auto size-10"
+                      strokeWidth={1.5}
+                    />
+                    <p className="mt-3">
+                      Select a bagger to view their profile.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+function BaggerAvatar({
+  bagger,
+  size = "md",
+}: {
+  bagger: BaggerSummary;
+  size?: "md" | "lg";
+}) {
+  const className = cn(
+    "grid shrink-0 place-items-center overflow-hidden rounded-2xl bg-primary/15 font-semibold text-primary",
+    size === "lg" ? "size-16 text-xl" : "size-12 text-base",
+  );
+
+  if (bagger.imageUrl) {
+    return (
+      <img
+        src={bagger.imageUrl}
+        alt={`${bagger.displayName} profile photo`}
+        className={cn(className, "object-cover")}
+      />
+    );
+  }
+
+  return (
+    <span className={className}>
+      {bagger.displayName.slice(0, 1).toUpperCase()}
+    </span>
+  );
+}
+
+function StatPill({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-border/70 bg-background/70 p-2">
+      <p className="text-lg font-bold text-foreground">{value}</p>
+      <p className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
+        {label}
+      </p>
+    </div>
   );
 }
 
@@ -1419,7 +1776,8 @@ function SelectedFellCard({
                 {peak.name}
               </h2>
               <p className="mt-1 font-mono text-[11px] text-white/70">
-                #{peak.bookNumber} · {peak.area} · {formatPeakHeight(peak, heightUnit)}
+                #{peak.bookNumber} · {peak.area} ·{" "}
+                {formatPeakHeight(peak, heightUnit)}
               </p>
               {completed && (
                 <p className="mt-2 line-clamp-2 text-sm leading-snug text-white/80">
@@ -1509,7 +1867,8 @@ function SelectedFellCard({
                   {peak.name}
                 </h2>
                 <p className="mt-2 font-mono text-xs text-white/70">
-                  #{peak.bookNumber} · {peak.area} · {formatPeakHeight(peak, heightUnit)}
+                  #{peak.bookNumber} · {peak.area} ·{" "}
+                  {formatPeakHeight(peak, heightUnit)}
                 </p>
               </div>
 
