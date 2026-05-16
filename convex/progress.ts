@@ -17,6 +17,14 @@ const requireUserId = async (ctx: QueryCtx | MutationCtx) => {
   return identity.subject;
 };
 
+const photoMetadataValidator = v.object({
+  mimeType: v.optional(v.string()),
+  originalName: v.optional(v.string()),
+  sizeBytes: v.optional(v.number()),
+  storageId: v.id("_storage"),
+  uploadedAt: v.string(),
+});
+
 const photoWithUrlValidator = v.object({
   mimeType: v.optional(v.string()),
   originalName: v.optional(v.string()),
@@ -119,6 +127,7 @@ export const setBagged = mutation({
     completedAt: v.optional(v.string()),
     id: v.string(),
     note: v.optional(v.string()),
+    photos: v.optional(v.array(photoMetadataValidator)),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -139,8 +148,7 @@ export const setBagged = mutation({
             completedAt: cleanOptionalText(args.completedAt),
             id: args.id,
             note: cleanOptionalText(args.note),
-            photos: previousEntries.find((entry) => entry.id === args.id)
-              ?.photos,
+            photos: args.photos,
           },
         ].sort((a, b) => a.id.localeCompare(b.id))
       : previousEntries.filter((entry) => entry.id !== args.id);

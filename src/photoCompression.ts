@@ -23,6 +23,23 @@ export function addPhotoMetadata(
   );
 }
 
+export function removePhotoMetadata(
+  existing: WainwrightPhotoMetadata[],
+  storageId: string,
+) {
+  return existing.filter((photo) => photo.storageId !== storageId);
+}
+
+export function validatePhotoSelectionLimit(
+  savedCount: number,
+  pendingCount: number,
+  selectedCount: number,
+) {
+  if (savedCount + pendingCount + selectedCount > MAX_PHOTOS_PER_WAINWRIGHT) {
+    throw new Error(`Only ${MAX_PHOTOS_PER_WAINWRIGHT} photos are allowed`);
+  }
+}
+
 export function chooseCompressedImageType(inputType: string) {
   return inputType === "image/png" || inputType === "image/webp"
     ? "image/webp"

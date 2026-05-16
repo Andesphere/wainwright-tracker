@@ -95,6 +95,15 @@ describe("mobile map layout", () => {
     expect(searchJournalMarkup).not.toContain("your tally");
   });
 
+  it("lets users queue, remove, and replace photos before saving", () => {
+    expect(appSource).toContain("pendingPhotoPreviews");
+    expect(appSource).toContain("removedPhotoStorageIds");
+    expect(appSource).toContain("multiple");
+    expect(appSource).toContain('aria-label={`remove ${photo.originalName ?? "saved photo"}`}');
+    expect(appSource).toContain("compressing photos…");
+    expect(appSource).not.toContain("compressing + saving…");
+  });
+
   it("hides destructive progress actions behind progressive advanced options", () => {
     expect(appSource).toContain("advanced-options");
     expect(appSource).toContain("Advanced");

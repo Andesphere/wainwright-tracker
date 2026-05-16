@@ -85,6 +85,8 @@ import {
   MAX_PHOTOS_PER_WAINWRIGHT,
   addPhotoMetadata,
   compressImageFile,
+  removePhotoMetadata,
+  validatePhotoSelectionLimit,
   type WainwrightPhotoMetadata,
 } from "@/photoCompression";
 
@@ -117,6 +119,11 @@ type CompletionEntry = {
   photos?: WainwrightPhotoMetadata[];
 };
 type CompletionMetadata = Omit<CompletionEntry, "id">;
+type PendingPhoto = {
+  file: File;
+  id: string;
+  previewUrl: string;
+};
 
 const IMPORTABLE_FILE_TYPES = ".csv,.txt,.md,.docx,.xls,.xlsx";
 const MAX_IMPORT_FILE_BYTES = 2 * 1024 * 1024;
@@ -246,7 +253,6 @@ function TrackerApp() {
   const generatePhotoUploadUrl = useMutation(
     api.progress.generatePhotoUploadUrl,
   );
-  const attachPhoto = useMutation(api.progress.attachPhoto);
   const migratedLocalProgressRef = useRef(false);
   const [optimisticCompleted, setOptimisticCompleted] =
     useState<Set<string> | null>(null);
@@ -678,57 +684,9 @@ function TrackerApp() {
     ]);
   }, [mapReady, selectedPeak]);
 
-  const savePeakCompletion = async (
-    peak: Wainwright,
-    metadata: CompletionMetadata = {},
-  ) => {
-    const existingEntry = completionEntriesById.get(peak.id);
-    setOptimisticCompleted((previous) => {
-      const baseline = previous ?? completed;
-      const next = new Set(baseline);
-      next.add(peak.id);
-      return next;
-    });
-    setOptimisticEntries((previous) => {
-      const baseline = previous ?? completionEntries;
-      return [
-        ...baseline.filter((entry) => entry.id !== peak.id),
-        {
-          ...existingEntry,
-          id: peak.id,
-          ...metadata,
-          photos: existingEntry?.photos,
-        },
-      ].sort((a, b) => a.id.localeCompare(b.id));
-    });
-
-    try {
-      await setBagged({ id: peak.id, bagged: true, ...metadata });
-      toast.success(`${peak.name} bagged — ${peak.heightMetres}m`);
-    } catch {
-      setOptimisticCompleted((previous) => {
-        const baseline = previous ?? completed;
-        const next = new Set(baseline);
-        next.delete(peak.id);
-        return next;
-      });
-      setOptimisticEntries((previous) => {
-        const baseline = previous ?? completionEntries;
-        return baseline.filter((entry) => entry.id !== peak.id);
-      });
-      toast.error("Could not save progress. Please try again.");
-    }
-  };
-
-  const uploadPeakPhoto = async (peak: Wainwright, file: File) => {
-    const existingEntry = completionEntriesById.get(peak.id);
-    const currentPhotos = existingEntry?.photos ?? [];
-    if (currentPhotos.length >= MAX_PHOTOS_PER_WAINWRIGHT) {
-      toast.error(`Only ${MAX_PHOTOS_PER_WAINWRIGHT} photos per fell`);
-      return;
-    }
-
-    try {
+  const uploadPendingPhotos = async (files: File[]) => {
+    const uploaded: WainwrightPhotoMetadata[] = [];
+    for (const file of files) {
       const compressed = await compressImageFile(file);
       const uploadUrl = await generatePhotoUploadUrl({});
       const upload = await fetch(uploadUrl, {
@@ -738,22 +696,40 @@ function TrackerApp() {
       });
       if (!upload.ok) throw new Error("Upload failed");
       const { storageId } = (await upload.json()) as { storageId: string };
-      await attachPhoto({
-        id: peak.id,
-        mimeType: compressed.type,
-        originalName: file.name,
-        sizeBytes: compressed.size,
-        storageId: storageId as Id<"_storage">,
-      });
-
-      const optimisticPhoto: WainwrightPhotoMetadata = {
+      uploaded.push({
         mimeType: compressed.type,
         originalName: file.name,
         sizeBytes: compressed.size,
         storageId,
         uploadedAt: new Date().toISOString(),
         url: URL.createObjectURL(compressed),
+      });
+    }
+    return uploaded;
+  };
+
+  const savePeakCompletion = async (
+    peak: Wainwright,
+    metadata: CompletionMetadata = {},
+    photoFiles: File[] = [],
+  ) => {
+    const existingEntry = completionEntriesById.get(peak.id);
+    const previousCompleted = new Set(completed);
+    const previousEntries = completionEntries;
+
+    try {
+      const uploadedPhotos = await uploadPendingPhotos(photoFiles);
+      const photos = uploadedPhotos.reduce(
+        (nextPhotos, photo) => addPhotoMetadata(nextPhotos, photo),
+        metadata.photos ?? existingEntry?.photos ?? [],
+      );
+      const nextEntry: CompletionEntry = {
+        ...existingEntry,
+        id: peak.id,
+        ...metadata,
+        photos,
       };
+
       setOptimisticCompleted((previous) => {
         const baseline = previous ?? completed;
         const next = new Set(baseline);
@@ -762,22 +738,35 @@ function TrackerApp() {
       });
       setOptimisticEntries((previous) => {
         const baseline = previous ?? completionEntries;
-        const entry = baseline.find((item) => item.id === peak.id) ?? {
-          id: peak.id,
-        };
         return [
-          ...baseline.filter((item) => item.id !== peak.id),
-          {
-            ...entry,
-            photos: addPhotoMetadata(entry.photos ?? [], optimisticPhoto),
-          },
+          ...baseline.filter((entry) => entry.id !== peak.id),
+          nextEntry,
         ].sort((a, b) => a.id.localeCompare(b.id));
       });
-      toast.success("Photo saved to this fell");
+
+      await setBagged({
+        id: peak.id,
+        bagged: true,
+        completedAt: metadata.completedAt,
+        note: metadata.note,
+        photos: photos.map(
+          ({ mimeType, originalName, sizeBytes, storageId, uploadedAt }) => ({
+            mimeType,
+            originalName,
+            sizeBytes,
+            storageId: storageId as Id<"_storage">,
+            uploadedAt,
+          }),
+        ),
+      });
+      toast.success(`${peak.name} bagged — ${peak.heightMetres}m`);
     } catch (error) {
+      setOptimisticCompleted(previousCompleted);
+      setOptimisticEntries(previousEntries);
       const message =
-        error instanceof Error ? error.message : "Could not save photo";
+        error instanceof Error ? error.message : "Could not save progress. Please try again.";
       toast.error(message);
+      throw error;
     }
   };
 
@@ -946,15 +935,13 @@ function TrackerApp() {
         onOpenChange={(open) => {
           if (!open) setPendingCompletionPeak(null);
         }}
-        onPhotoUpload={(file) => {
+        onSave={(metadata, photoFiles) => {
           if (!pendingCompletionPeak) return Promise.resolve();
-          return uploadPeakPhoto(pendingCompletionPeak, file);
-        }}
-        onSave={(metadata) => {
-          if (!pendingCompletionPeak) return;
-          void savePeakCompletion(pendingCompletionPeak, metadata).then(() => {
-            setPendingCompletionPeak(null);
-          });
+          return savePeakCompletion(pendingCompletionPeak, metadata, photoFiles).then(
+            () => {
+              setPendingCompletionPeak(null);
+            },
+          );
         }}
         open={Boolean(pendingCompletionPeak)}
         peak={pendingCompletionPeak}
@@ -2007,7 +1994,6 @@ function formatCompletionDate(value?: string) {
 function CompletionDialog({
   initialMetadata,
   onOpenChange,
-  onPhotoUpload,
   onSave,
   open,
   peak,
@@ -2015,8 +2001,7 @@ function CompletionDialog({
 }: {
   initialMetadata?: CompletionEntry;
   onOpenChange: (open: boolean) => void;
-  onPhotoUpload: (file: File) => Promise<void>;
-  onSave: (metadata: CompletionMetadata) => void;
+  onSave: (metadata: CompletionMetadata, photoFiles: File[]) => Promise<void>;
   open: boolean;
   peak: Wainwright | null;
   photos: WainwrightPhotoMetadata[];
@@ -2026,27 +2011,89 @@ function CompletionDialog({
     () => initialMetadata?.completedAt ?? "",
   );
   const [note, setNote] = useState(() => initialMetadata?.note ?? "");
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
+  const pendingPhotosRef = useRef<PendingPhoto[]>([]);
+  const [removedPhotoStorageIds, setRemovedPhotoStorageIds] = useState<
+    Set<string>
+  >(() => new Set());
+  const [saving, setSaving] = useState(false);
 
   const isEditing = Boolean(initialMetadata);
+  const visibleSavedPhotos = Array.from(removedPhotoStorageIds).reduce(
+    (nextPhotos, storageId) => removePhotoMetadata(nextPhotos, storageId),
+    photos,
+  );
+  const pendingPhotoPreviews = pendingPhotos.map((photo) => ({
+    id: photo.id,
+    originalName: photo.file.name,
+    url: photo.previewUrl,
+  }));
+  const photoCount = visibleSavedPhotos.length + pendingPhotos.length;
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSave({
-      completedAt: completedAt || undefined,
-      note: note.trim() || undefined,
+    setSaving(true);
+    try {
+      await onSave(
+        {
+          completedAt: completedAt || undefined,
+          note: note.trim() || undefined,
+          photos: visibleSavedPhotos,
+        },
+        pendingPhotos.map((photo) => photo.file),
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handlePhotoChange = (files: FileList | null) => {
+    const selected = Array.from(files ?? []);
+    if (selected.length === 0) return;
+    try {
+      validatePhotoSelectionLimit(
+        visibleSavedPhotos.length,
+        pendingPhotos.length,
+        selected.length,
+      );
+      setPendingPhotos((current) => [
+        ...current,
+        ...selected.map((file) => ({
+          file,
+          id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
+          previewUrl: URL.createObjectURL(file),
+        })),
+      ]);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Could not add those photos";
+      toast.error(message);
+    }
+  };
+
+  const removePendingPhoto = (id: string) => {
+    setPendingPhotos((current) => {
+      const removed = current.find((photo) => photo.id === id);
+      if (removed) URL.revokeObjectURL(removed.previewUrl);
+      return current.filter((photo) => photo.id !== id);
     });
   };
 
-  const handlePhotoChange = async (file: File | undefined) => {
-    if (!file) return;
-    setUploadingPhoto(true);
-    try {
-      await onPhotoUpload(file);
-    } finally {
-      setUploadingPhoto(false);
-    }
+  const removeSavedPhoto = (storageId: string) => {
+    setRemovedPhotoStorageIds((current) => new Set(current).add(storageId));
   };
+
+  useEffect(() => {
+    pendingPhotosRef.current = pendingPhotos;
+  }, [pendingPhotos]);
+
+  useEffect(() => {
+    return () => {
+      pendingPhotosRef.current.forEach((photo) =>
+        URL.revokeObjectURL(photo.previewUrl),
+      );
+    };
+  }, []);
 
   if (!peak) return null;
 
@@ -2089,22 +2136,33 @@ function CompletionDialog({
               photos
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Max {MAX_PHOTOS_PER_WAINWRIGHT}; images are resized before Convex
-              upload.
+              Max {MAX_PHOTOS_PER_WAINWRIGHT}; images upload only when you save.
             </p>
           </div>
           <Badge variant="secondary" className="rounded-full">
-            {photos.length}/{MAX_PHOTOS_PER_WAINWRIGHT}
+            {photoCount}/{MAX_PHOTOS_PER_WAINWRIGHT}
           </Badge>
         </div>
 
-        {photos.length > 0 && (
+        {photoCount > 0 && (
           <div className="grid grid-cols-2 gap-2">
-            {photos.map((photo) => (
+            {visibleSavedPhotos.map((photo) => (
               <div
                 key={photo.storageId}
-                className="aspect-[4/3] overflow-hidden rounded-xl border border-border bg-muted"
+                className="relative aspect-[4/3] overflow-hidden rounded-xl border border-border bg-muted"
               >
+                <button
+                  type="button"
+                  aria-label={`remove ${photo.originalName ?? "saved photo"}`}
+                  onClick={() => removeSavedPhoto(photo.storageId)}
+                  className="absolute right-1.5 top-1.5 z-10 grid size-7 place-items-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur transition hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <HugeiconsIcon
+                    icon={Cancel01Icon}
+                    className="size-3.5"
+                    strokeWidth={2}
+                  />
+                </button>
                 {photo.url ? (
                   <img
                     src={photo.url}
@@ -2118,6 +2176,33 @@ function CompletionDialog({
                 )}
               </div>
             ))}
+            {pendingPhotoPreviews.map((photo) => (
+              <div
+                key={photo.id}
+                className="relative aspect-[4/3] overflow-hidden rounded-xl border border-dashed border-primary/50 bg-muted"
+              >
+                <button
+                  type="button"
+                  aria-label={`remove ${photo.originalName}`}
+                  onClick={() => removePendingPhoto(photo.id)}
+                  className="absolute right-1.5 top-1.5 z-10 grid size-7 place-items-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur transition hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <HugeiconsIcon
+                    icon={Cancel01Icon}
+                    className="size-3.5"
+                    strokeWidth={2}
+                  />
+                </button>
+                <img
+                  src={photo.url}
+                  alt={photo.originalName}
+                  className="h-full w-full object-cover"
+                />
+                <span className="absolute bottom-1.5 left-1.5 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-foreground shadow-sm">
+                  pending
+                </span>
+              </div>
+            ))}
           </div>
         )}
 
@@ -2126,18 +2211,17 @@ function CompletionDialog({
             className="sr-only"
             type="file"
             accept="image/*"
-            disabled={
-              uploadingPhoto || photos.length >= MAX_PHOTOS_PER_WAINWRIGHT
-            }
+            multiple
+            disabled={saving || photoCount >= MAX_PHOTOS_PER_WAINWRIGHT}
             onChange={(event) => {
-              void handlePhotoChange(event.target.files?.[0]);
+              handlePhotoChange(event.target.files);
               event.currentTarget.value = "";
             }}
           />
           <span
             className={cn(
               "inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-medium shadow-sm transition-colors hover:bg-accent",
-              (uploadingPhoto || photos.length >= MAX_PHOTOS_PER_WAINWRIGHT) &&
+              (saving || photoCount >= MAX_PHOTOS_PER_WAINWRIGHT) &&
                 "pointer-events-none cursor-not-allowed opacity-50",
             )}
           >
@@ -2146,7 +2230,7 @@ function CompletionDialog({
               className="size-4"
               strokeWidth={1.6}
             />
-            {uploadingPhoto ? "compressing + saving…" : "add photo"}
+            {saving ? "compressing photos…" : "add photo"}
           </span>
         </label>
       </div>
@@ -2160,14 +2244,22 @@ function CompletionDialog({
           >
             cancel
           </Button>
-          <Button type="submit">
-            {isEditing ? "save changes" : "save as bagged"}
+          <Button type="submit" disabled={saving}>
+            {saving
+              ? "saving…"
+              : isEditing
+                ? "save changes"
+                : "save as bagged"}
           </Button>
         </DialogFooter>
       ) : (
         <DrawerFooter>
-          <Button type="submit" size="lg">
-            {isEditing ? "save changes" : "save as bagged"}
+          <Button type="submit" size="lg" disabled={saving}>
+            {saving
+              ? "saving…"
+              : isEditing
+                ? "save changes"
+                : "save as bagged"}
           </Button>
           <Button
             type="button"

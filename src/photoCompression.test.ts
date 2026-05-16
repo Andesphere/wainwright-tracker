@@ -4,6 +4,8 @@ import {
   MAX_PHOTOS_PER_WAINWRIGHT,
   addPhotoMetadata,
   chooseCompressedImageType,
+  removePhotoMetadata,
+  validatePhotoSelectionLimit,
 } from "./photoCompression";
 
 describe("wainwright photo helpers", () => {
@@ -31,6 +33,25 @@ describe("wainwright photo helpers", () => {
       "photo-a",
       "photo-b",
     ]);
+  });
+
+  it("removes saved photo metadata by storage id", () => {
+    const next = removePhotoMetadata(
+      [
+        { storageId: "photo-a", uploadedAt: "2026-01-01T00:00:00.000Z" },
+        { storageId: "photo-b", uploadedAt: "2026-01-02T00:00:00.000Z" },
+      ],
+      "photo-a",
+    );
+
+    expect(next.map((photo) => photo.storageId)).toEqual(["photo-b"]);
+  });
+
+  it("allows replacing removed photos with up to two pending selections", () => {
+    expect(() => validatePhotoSelectionLimit(0, 0, 2)).not.toThrow();
+    expect(() => validatePhotoSelectionLimit(1, 0, 2)).toThrow(
+      `Only ${MAX_PHOTOS_PER_WAINWRIGHT} photos are allowed`,
+    );
   });
 
   it("compresses images to jpeg unless transparency needs webp", () => {
