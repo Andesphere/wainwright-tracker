@@ -138,16 +138,39 @@ type PendingPhoto = {
   id: string;
   previewUrl: string;
 };
+type ProfileVisibility = "public" | "private";
+type CurrentProfile = {
+  displayName: string;
+  firstName?: string;
+  imageUrl?: string;
+  lastName?: string;
+  needsOnboarding: boolean;
+  nickname?: string;
+  onboardingCompletedAt?: number;
+  profileVisibility: ProfileVisibility;
+  updatedAt: number;
+  userId: string;
+};
+type ProfileFormValues = {
+  displayName: string;
+  firstName: string;
+  lastName: string;
+  nickname: string;
+  profileVisibility: ProfileVisibility;
+};
 type BaggerSummary = {
   completedCount: number;
   displayName: string;
-  email?: string;
+  firstName?: string;
   followersCount: number;
   followingCount: number;
   imageUrl?: string;
   isFollowing: boolean;
   isSelf: boolean;
+  lastName?: string;
+  nickname?: string;
   photoUrls: string[];
+  profileVisibility?: ProfileVisibility;
   updatedAt?: number;
   userId: string;
 };
@@ -297,7 +320,10 @@ type ErrorBoundaryProps = {
 
 type ErrorBoundaryState = { hasError: boolean };
 
-class ErrorBoundaryBase extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundaryBase extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   state: ErrorBoundaryState = { hasError: false };
 
   static getDerivedStateFromError(): ErrorBoundaryState {
@@ -328,7 +354,8 @@ function AppErrorBoundary({ children }: { children: ReactNode }) {
               Something went wrong
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              The tracker hit a temporary problem. Refresh the page to try again.
+              The tracker hit a temporary problem. Refresh the page to try
+              again.
             </p>
             <Button
               type="button"
@@ -381,6 +408,12 @@ function TrackerApp() {
   const followBagger = useMutation(api.social.follow);
   const unfollowBagger = useMutation(api.social.unfollow);
   const upsertCurrentProfile = useMutation(api.social.upsertCurrentProfile);
+  const completeOnboarding = useMutation(api.social.completeOnboarding);
+  const updateProfileSettings = useMutation(api.social.updateProfileSettings);
+  const currentProfile = useQuery(api.social.getCurrentProfile) as
+    | CurrentProfile
+    | null
+    | undefined;
   const migratedLocalProgressRef = useRef(false);
   const [optimisticCompleted, setOptimisticCompleted] =
     useState<Set<string> | null>(null);
@@ -488,6 +521,16 @@ function TrackerApp() {
         ? `Unfollowed ${bagger.displayName}`
         : `Following ${bagger.displayName}`,
     );
+  };
+
+  const handleCompleteOnboarding = async (values: ProfileFormValues) => {
+    await completeOnboarding(values);
+    toast.success("Profile setup complete");
+  };
+
+  const handleUpdateProfileSettings = async (values: ProfileFormValues) => {
+    await updateProfileSettings(values);
+    toast.success("Profile privacy saved");
   };
 
   useEffect(() => {
@@ -1117,6 +1160,13 @@ function TrackerApp() {
     </div>
   );
 
+  const profileSettingsControl = currentProfile ? (
+    <ProfileSettingsCard
+      profile={currentProfile}
+      onSave={handleUpdateProfileSettings}
+    />
+  ) : null;
+
   return (
     <main className="relative grid min-h-dvh grid-cols-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_min(440px,38vw)]">
       <CompletionDialog
@@ -1358,7 +1408,7 @@ function TrackerApp() {
             query={peopleQuery}
             onQuery={setPeopleQuery}
             results={baggerResults}
-            selectedProfile={selectedBaggerProfile ?? null}
+            selectedProfile={selectedBaggerProfile}
             selectedUserId={selectedBaggerId}
             onSelectProfile={setSelectedBaggerId}
             onToggleFollow={(bagger) => void handleToggleFollow(bagger)}
@@ -1429,6 +1479,7 @@ function TrackerApp() {
               </div>
 
               {heightPreferenceControl}
+              {profileSettingsControl}
 
               <div className="grid gap-3 rounded-2xl border border-border/70 bg-background/70 p-3">
                 <div>
@@ -1470,7 +1521,207 @@ function TrackerApp() {
       </aside>
 
       <Toaster richColors position="top-center" />
+      <ProfileOnboardingGate
+        profile={currentProfile}
+        onComplete={handleCompleteOnboarding}
+      />
     </main>
+  );
+}
+
+function defaultProfileFormValues(
+  profile?: CurrentProfile | null,
+): ProfileFormValues {
+  return {
+    displayName: profile?.displayName ?? "",
+    firstName: profile?.firstName ?? "",
+    lastName: profile?.lastName ?? "",
+    nickname: profile?.nickname ?? "",
+    profileVisibility: profile?.profileVisibility ?? "private",
+  };
+}
+
+function ProfileForm({
+  buttonLabel,
+  intro,
+  onSave,
+  profile,
+}: {
+  buttonLabel: string;
+  intro?: string;
+  onSave: (values: ProfileFormValues) => Promise<void>;
+  profile?: CurrentProfile | null;
+}) {
+  const [values, setValues] = useState(() => defaultProfileFormValues(profile));
+  const [saving, setSaving] = useState(false);
+
+  const update = (field: keyof ProfileFormValues, value: string) => {
+    setValues((current) => ({ ...current, [field]: value }));
+  };
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSaving(true);
+    try {
+      await onSave({
+        displayName: values.displayName.trim() || values.firstName.trim(),
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        nickname: values.nickname.trim(),
+        profileVisibility: values.profileVisibility,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form className="grid gap-4" onSubmit={submit}>
+      {intro && (
+        <p className="text-sm leading-relaxed text-muted-foreground">{intro}</p>
+      )}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="grid gap-1.5 text-sm font-medium text-foreground">
+          First name
+          <Input
+            required
+            value={values.firstName}
+            onChange={(event) => update("firstName", event.target.value)}
+            placeholder="Wade"
+          />
+        </label>
+        <label className="grid gap-1.5 text-sm font-medium text-foreground">
+          Last name
+          <Input
+            value={values.lastName}
+            onChange={(event) => update("lastName", event.target.value)}
+            placeholder="Optional"
+          />
+        </label>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="grid gap-1.5 text-sm font-medium text-foreground">
+          Nickname
+          <Input
+            value={values.nickname}
+            onChange={(event) => update("nickname", event.target.value)}
+            placeholder="Optional"
+          />
+        </label>
+        <label className="grid gap-1.5 text-sm font-medium text-foreground">
+          Display name
+          <Input
+            required
+            value={values.displayName}
+            onChange={(event) => update("displayName", event.target.value)}
+            placeholder="Shown to other baggers"
+          />
+        </label>
+      </div>
+
+      <div className="grid gap-2 rounded-2xl border border-border/70 bg-background/70 p-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+          Profile visibility
+        </p>
+        <ToggleGroup
+          type="single"
+          value={values.profileVisibility}
+          onValueChange={(value) => {
+            if (value === "public" || value === "private") {
+              update("profileVisibility", value);
+            }
+          }}
+          className="grid grid-cols-2 rounded-xl bg-muted/60 p-1"
+        >
+          <ToggleGroupItem
+            value="public"
+            className="rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+          >
+            Public profile
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="private"
+            className="rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+          >
+            Private profile
+          </ToggleGroupItem>
+        </ToggleGroup>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {values.profileVisibility === "public"
+            ? "Other baggers can find you by name or nickname, follow you, and see your Wainwright count and public summit photo previews."
+            : "You can still track your own Wainwrights, but you will not appear in community search or public profiles."}
+        </p>
+      </div>
+
+      <Button type="submit" className="rounded-full" disabled={saving}>
+        {saving ? "saving…" : buttonLabel}
+      </Button>
+    </form>
+  );
+}
+
+function ProfileOnboardingGate({
+  onComplete,
+  profile,
+}: {
+  onComplete: (values: ProfileFormValues) => Promise<void>;
+  profile: CurrentProfile | null | undefined;
+}) {
+  const shouldBlock =
+    profile !== undefined && (!profile || profile.needsOnboarding);
+  if (!shouldBlock) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-parchment/95 px-4 py-8 backdrop-blur-xl">
+      <Card className="w-full max-w-lg rounded-3xl border-border/70 bg-card/95 p-5 shadow-2xl">
+        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+          community profile
+        </p>
+        <h1 className="mt-2 font-display text-4xl italic text-foreground">
+          Set up your bagger profile
+        </h1>
+        {profile ? (
+          <ProfileForm
+            key={`${profile.userId}-${profile.updatedAt}`}
+            profile={profile}
+            buttonLabel="Save and continue"
+            onSave={onComplete}
+            intro="Help friends find the right Wade, Sarah, or Tom — and choose whether your profile appears in the community search."
+          />
+        ) : (
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Preparing your profile defaults…
+          </p>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+function ProfileSettingsCard({
+  onSave,
+  profile,
+}: {
+  onSave: (values: ProfileFormValues) => Promise<void>;
+  profile: CurrentProfile;
+}) {
+  return (
+    <div className="grid gap-3 rounded-2xl border border-border/70 bg-background/70 p-3">
+      <div>
+        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+          Profile & Privacy
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Edit how other baggers find you, or make your profile private.
+        </p>
+      </div>
+      <ProfileForm
+        key={`${profile.userId}-${profile.updatedAt}`}
+        profile={profile}
+        buttonLabel="Save profile"
+        onSave={onSave}
+      />
+    </div>
   );
 }
 
@@ -1492,12 +1743,15 @@ function PeopleDiscoverySheet({
   open: boolean;
   query: string;
   results: BaggerSummary[];
-  selectedProfile: BaggerSummary | null;
+  selectedProfile: BaggerSummary | null | undefined;
   selectedUserId: string | null;
 }) {
-  const activeProfile =
-    selectedProfile ??
-    results.find((bagger) => bagger.userId === selectedUserId);
+  const fallbackProfile =
+    selectedProfile === undefined
+      ? results.find((bagger) => bagger.userId === selectedUserId)
+      : undefined;
+  const activeProfile = selectedProfile ?? fallbackProfile;
+  const selectedProfileUnavailable = selectedUserId !== null && selectedProfile === null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -1507,8 +1761,8 @@ function PeopleDiscoverySheet({
       >
         <SheetTitle className="sr-only">Find other baggers</SheetTitle>
         <SheetDescription className="sr-only">
-          Search app users by name or email, follow them, and view their public
-          Wainwright progress and photos.
+          Search app users by name or nickname, follow them, and view their
+          public Wainwright progress and photos.
         </SheetDescription>
         <div className="grid h-full grid-rows-[auto_1fr] overflow-hidden">
           <div className="space-y-4 border-b border-border/70 bg-card/60 px-4 pb-4 pt-5 shadow-sm sm:px-6">
@@ -1532,7 +1786,7 @@ function PeopleDiscoverySheet({
 
             <div className="grid gap-2 rounded-2xl border border-border bg-background/80 p-2">
               <label className="sr-only" htmlFor="bagger-search">
-                Search by name or email
+                Search by name or nickname
               </label>
               <div className="flex items-center gap-2 px-2">
                 <HugeiconsIcon
@@ -1545,7 +1799,7 @@ function PeopleDiscoverySheet({
                   value={query}
                   onChange={(event) => onQuery(event.target.value)}
                   className="h-10 border-0 bg-transparent p-0 shadow-none focus-visible:border-transparent focus-visible:ring-0"
-                  placeholder="Search by name or email"
+                  placeholder="Search by name or nickname"
                 />
               </div>
               <div className="rounded-xl bg-primary/8 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
@@ -1568,7 +1822,7 @@ function PeopleDiscoverySheet({
                     No baggers found yet
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Try a name or email once more friends have signed in.
+                    Try a name or nickname once more friends have signed in.
                   </p>
                 </div>
               ) : (
@@ -1618,11 +1872,6 @@ function PeopleDiscoverySheet({
                       <h3 className="truncate font-display text-3xl italic leading-none text-foreground">
                         {activeProfile.displayName}
                       </h3>
-                      {activeProfile.email && (
-                        <p className="mt-1 truncate text-xs text-muted-foreground">
-                          {activeProfile.email}
-                        </p>
-                      )}
                     </div>
                   </div>
 
@@ -1698,7 +1947,9 @@ function PeopleDiscoverySheet({
                       strokeWidth={1.5}
                     />
                     <p className="mt-3">
-                      Select a bagger to view their profile.
+                      {selectedProfileUnavailable
+                        ? "This profile is private or no longer available."
+                        : "Select a bagger to view their profile."}
                     </p>
                   </div>
                 </div>

@@ -94,7 +94,7 @@ describe("mobile map layout", () => {
   it("adds a Polarsteps-style bagger discovery drawer with search, follows, profiles, and photos", () => {
     expect(appSource).toContain("PeopleDiscoverySheet");
     expect(appSource).toContain("Find other baggers");
-    expect(appSource).toContain("Search by name or email");
+    expect(appSource).toContain("Search by name or nickname");
     expect(appSource).toContain("Follow");
     expect(appSource).toContain("Following");
     expect(appSource).toContain("Wainwrights bagged");
@@ -109,6 +109,16 @@ describe("mobile map layout", () => {
     expect(appSource).toContain("componentDidCatch");
     expect(appSource).not.toContain("Called by client");
     expect(appSource).not.toContain("queryResult@");
+  });
+
+  it("gates signed-in users through profile setup and keeps email out of discovery UI", () => {
+    expect(appSource).toContain("ProfileOnboardingGate");
+    expect(appSource).toContain("Set up your bagger profile");
+    expect(appSource).toContain("Profile & Privacy");
+    expect(appSource).toContain("Search by name or nickname");
+    expect(appSource).toContain("Public profile");
+    expect(appSource).toContain("Private profile");
+    expect(appSource).not.toContain("Search by name or email");
   });
 
   it("opens a simple mobile menu whose Configuration title opens a settings drawer", () => {

@@ -15,15 +15,45 @@ export default defineSchema({
     createdAt: v.number(),
     displayName: v.string(),
     email: v.optional(v.string()),
+    firstName: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
-    searchableEmail: v.string(),
-    searchableName: v.string(),
+    lastName: v.optional(v.string()),
+    nickname: v.optional(v.string()),
+    onboardingCompletedAt: v.optional(v.number()),
+    profileVisibility: v.optional(
+      v.union(v.literal("public"), v.literal("private")),
+    ),
+    searchableDisplayName: v.optional(v.string()),
+    searchableEmail: v.optional(v.string()),
+    searchableFirstName: v.optional(v.string()),
+    searchableLastName: v.optional(v.string()),
+    searchableName: v.optional(v.string()),
+    searchableNickname: v.optional(v.string()),
+    searchableText: v.optional(v.string()),
     updatedAt: v.number(),
     userId: v.string(),
   })
     .index("by_user", ["userId"])
-    .index("by_searchable_name", ["searchableName"])
-    .index("by_searchable_email", ["searchableEmail"]),
+    .index("by_visibility_searchable_text", [
+      "profileVisibility",
+      "searchableText",
+    ])
+    .index("by_visibility_searchable_display_name", [
+      "profileVisibility",
+      "searchableDisplayName",
+    ])
+    .index("by_visibility_searchable_first_name", [
+      "profileVisibility",
+      "searchableFirstName",
+    ])
+    .index("by_visibility_searchable_last_name", [
+      "profileVisibility",
+      "searchableLastName",
+    ])
+    .index("by_visibility_searchable_nickname", [
+      "profileVisibility",
+      "searchableNickname",
+    ]),
 
   userProgress: defineTable({
     completed: v.array(v.string()),
