@@ -48,10 +48,16 @@ describe("mobile map layout", () => {
     expect(cssSource).toContain("height: 48px;");
   });
 
-  it("moves mobile progress into the header brand card", () => {
-    expect(appSource).toContain("mobile-brand-progress");
-    expect(appSource).toContain("{doneCount}/{TOTAL_WAINWRIGHTS}");
-    expect(appSource).toContain("{percent}%");
+  it("uses progress as the left header copy instead of mobile brand text", () => {
+    const brandStart = appSource.indexOf("mobile-map-brand");
+    const controlsStart = appSource.indexOf("mobile-map-controls");
+    const brandMarkup = appSource.slice(brandStart, controlsStart);
+
+    expect(brandMarkup).toContain("mobile-brand-progress");
+    expect(brandMarkup).toContain("{doneCount}/{TOTAL_WAINWRIGHTS}");
+    expect(brandMarkup).toContain("{percent}%");
+    expect(brandMarkup).not.toContain("the lake district · 214 fells");
+    expect(brandMarkup).not.toContain("fells journal");
   });
 
   it("turns the bottom mobile drawer trigger into an obvious Search button", () => {
