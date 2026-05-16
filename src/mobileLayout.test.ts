@@ -47,4 +47,17 @@ describe("mobile map layout", () => {
     expect(cssSource).toContain("width: 48px;");
     expect(cssSource).toContain("height: 48px;");
   });
+
+  it("moves mobile progress into the header brand card", () => {
+    expect(appSource).toContain("mobile-brand-progress");
+    expect(appSource).toContain("{doneCount}/{TOTAL_WAINWRIGHTS}");
+    expect(appSource).toContain("{percent}%");
+  });
+
+  it("turns the bottom mobile drawer trigger into an obvious Search button", () => {
+    expect(appSource).toContain("mobile-search-trigger");
+    expect(appSource).toContain('aria-label="open search"');
+    expect(appSource).toContain("Search");
+    expect(appSource).toContain("Search01Icon");
+  });
 });

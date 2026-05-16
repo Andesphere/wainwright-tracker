@@ -968,21 +968,31 @@ function TrackerApp() {
         <div className="pointer-events-none absolute inset-2.5 rounded-[1.35rem] ring-1 ring-white/30 sm:inset-4 sm:rounded-3xl lg:inset-5" />
 
         {/* Floating top-left brand card */}
-        <div className="mobile-map-brand absolute left-4 right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-10 flex items-center gap-2.5 rounded-2xl border border-white/50 bg-parchment/90 px-3 py-2.5 shadow-lg backdrop-blur-xl sm:left-8 sm:right-auto sm:top-8 sm:max-w-[88vw] sm:gap-3 sm:px-4 sm:py-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-inner sm:size-10">
-            <HugeiconsIcon
-              icon={MountainIcon}
-              className="size-5"
-              strokeWidth={1.6}
-            />
-          </span>
-          <div className="leading-tight">
-            <p className="truncate font-mono text-[9px] tracking-[0.14em] text-muted-foreground sm:text-[10px] sm:tracking-[0.18em]">
-              the lake district · 214 fells
-            </p>
-            <h1 className="truncate font-display text-[20px] italic leading-none text-ink sm:text-[22px]">
-              fells journal
-            </h1>
+        <div className="mobile-map-brand absolute left-4 right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-10 flex items-center justify-between gap-3 rounded-2xl border border-white/50 bg-parchment/90 px-3 py-2.5 shadow-lg backdrop-blur-xl sm:left-8 sm:right-auto sm:top-8 sm:min-w-[22rem] sm:max-w-[88vw] sm:gap-4 sm:px-4 sm:py-3">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-inner sm:size-10">
+              <HugeiconsIcon
+                icon={MountainIcon}
+                className="size-5"
+                strokeWidth={1.6}
+              />
+            </span>
+            <div className="min-w-0 leading-tight">
+              <p className="truncate font-mono text-[9px] tracking-[0.14em] text-muted-foreground sm:text-[10px] sm:tracking-[0.18em]">
+                the lake district · 214 fells
+              </p>
+              <h1 className="truncate font-display text-[20px] italic leading-none text-ink sm:text-[22px]">
+                fells journal
+              </h1>
+            </div>
+          </div>
+          <div className="mobile-brand-progress flex shrink-0 items-end gap-2 pl-1 text-right sm:gap-3 sm:pl-3">
+            <span className="font-mono text-[13px] font-semibold leading-none tracking-tight text-ink sm:text-sm">
+              {doneCount}/{TOTAL_WAINWRIGHTS}
+            </span>
+            <span className="font-display text-[22px] italic leading-none text-ink sm:text-2xl">
+              {percent}%
+            </span>
           </div>
         </div>
 
@@ -1088,15 +1098,16 @@ function TrackerApp() {
               <Button
                 variant="outline"
                 size="lg"
-                className="h-12 w-full justify-between rounded-full border-white/60 bg-parchment/90 px-4 shadow-lg backdrop-blur-xl"
+                className="mobile-search-trigger h-14 w-full justify-center gap-3 rounded-full border-white/60 bg-parchment/95 px-5 text-xl font-bold text-ink shadow-lg backdrop-blur-xl"
+                onClick={() => setMobileOpen(true)}
+                aria-label="open search"
               >
-                <span className="inline-flex min-w-0 items-center gap-2">
-                  <HugeiconsIcon icon={Backpack03Icon} strokeWidth={1.6} />
-                  <span className="truncate font-mono text-xs">
-                    {doneCount}/{TOTAL_WAINWRIGHTS} bagged
-                  </span>
-                </span>
-                <span className="font-display text-lg italic">{percent}%</span>
+                <HugeiconsIcon
+                  icon={Search01Icon}
+                  className="size-7"
+                  strokeWidth={2}
+                />
+                <span>Search</span>
               </Button>
             </SheetTrigger>
             <SheetContent
