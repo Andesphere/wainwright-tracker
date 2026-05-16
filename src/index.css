@@ -266,6 +266,27 @@ h6,
   font-size: 11px;
   color: color-mix(in oklab, var(--ink) 60%, transparent);
 }
+.peak-popup-action {
+  margin-top: 10px;
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  cursor: pointer;
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+}
+.peak-popup-action:hover,
+.peak-popup-action:focus-visible {
+  filter: brightness(0.96);
+  outline: 2px solid color-mix(in oklab, var(--primary) 45%, transparent);
+  outline-offset: 2px;
+}
 .peak-popup .maplibregl-popup-tip {
   border-top-color: var(--parchment) !important;
 }

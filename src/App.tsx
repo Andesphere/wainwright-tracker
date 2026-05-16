@@ -75,6 +75,14 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { api } from "../convex/_generated/api";
+import type { Id } from "../convex/_generated/dataModel";
+import { buildPeakPopupHtml } from "@/peakPopup";
+import {
+  MAX_PHOTOS_PER_WAINWRIGHT,
+  addPhotoMetadata,
+  compressImageFile,
+  type WainwrightPhotoMetadata,
+} from "@/photoCompression";
 
 import {
   AREAS,
@@ -102,6 +110,7 @@ type CompletionEntry = {
   completedAt?: string;
   id: string;
   note?: string;
+  photos?: WainwrightPhotoMetadata[];
 };
 type CompletionMetadata = Omit<CompletionEntry, "id">;
 
@@ -200,6 +209,10 @@ function TrackerApp() {
   const progressEntries = useQuery(api.progress.getEntries);
   const replaceProgress = useMutation(api.progress.replace);
   const setBagged = useMutation(api.progress.setBagged);
+  const generatePhotoUploadUrl = useMutation(
+    api.progress.generatePhotoUploadUrl,
+  );
+  const attachPhoto = useMutation(api.progress.attachPhoto);
   const migratedLocalProgressRef = useRef(false);
   const [optimisticCompleted, setOptimisticCompleted] =
     useState<Set<string> | null>(null);
@@ -584,11 +597,24 @@ function TrackerApp() {
       className: "peak-popup",
     })
       .setLngLat([selectedPeak.longitude, selectedPeak.latitude])
-      .setHTML(
-        `<strong>#${selectedPeak.bookNumber} · ${selectedPeak.name}</strong><span>${selectedPeak.heightMetres}m · ${selectedPeak.gridReference}</span>`,
-      )
+      .setHTML(buildPeakPopupHtml(selectedPeak, completed.has(selectedPeak.id)))
       .addTo(map);
-  }, [selectedPeak]);
+
+    const popupElement = popupRef.current.getElement();
+    const actionButton = popupElement.querySelector<HTMLButtonElement>(
+      `[data-peak-id="${selectedPeak.id}"]`,
+    );
+    actionButton?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (completed.has(selectedPeak.id)) {
+        void unbagPeak(selectedPeak);
+        return;
+      }
+      setPendingCompletionPeak(selectedPeak);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completed, selectedPeak]);
 
   const savePeakCompletion = async (
     peak: Wainwright,
@@ -626,7 +652,68 @@ function TrackerApp() {
     }
   };
 
-  const unbagPeak = async (peak: Wainwright) => {
+  const uploadPeakPhoto = async (peak: Wainwright, file: File) => {
+    const existingEntry = completionEntriesById.get(peak.id);
+    const currentPhotos = existingEntry?.photos ?? [];
+    if (currentPhotos.length >= MAX_PHOTOS_PER_WAINWRIGHT) {
+      toast.error(`Only ${MAX_PHOTOS_PER_WAINWRIGHT} photos per fell`);
+      return;
+    }
+
+    try {
+      const compressed = await compressImageFile(file);
+      const uploadUrl = await generatePhotoUploadUrl({});
+      const upload = await fetch(uploadUrl, {
+        body: compressed,
+        headers: { "Content-Type": compressed.type },
+        method: "POST",
+      });
+      if (!upload.ok) throw new Error("Upload failed");
+      const { storageId } = (await upload.json()) as { storageId: string };
+      await attachPhoto({
+        id: peak.id,
+        mimeType: compressed.type,
+        originalName: file.name,
+        sizeBytes: compressed.size,
+        storageId: storageId as Id<"_storage">,
+      });
+
+      const optimisticPhoto: WainwrightPhotoMetadata = {
+        mimeType: compressed.type,
+        originalName: file.name,
+        sizeBytes: compressed.size,
+        storageId,
+        uploadedAt: new Date().toISOString(),
+        url: URL.createObjectURL(compressed),
+      };
+      setOptimisticCompleted((previous) => {
+        const baseline = previous ?? completed;
+        const next = new Set(baseline);
+        next.add(peak.id);
+        return next;
+      });
+      setOptimisticEntries((previous) => {
+        const baseline = previous ?? completionEntries;
+        const entry = baseline.find((item) => item.id === peak.id) ?? {
+          id: peak.id,
+        };
+        return [
+          ...baseline.filter((item) => item.id !== peak.id),
+          {
+            ...entry,
+            photos: addPhotoMetadata(entry.photos ?? [], optimisticPhoto),
+          },
+        ].sort((a, b) => a.id.localeCompare(b.id));
+      });
+      toast.success("Photo saved to this fell");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Could not save photo";
+      toast.error(message);
+    }
+  };
+
+  async function unbagPeak(peak: Wainwright) {
     setOptimisticCompleted((previous) => {
       const baseline = previous ?? completed;
       const next = new Set(baseline);
@@ -658,7 +745,7 @@ function TrackerApp() {
       });
       toast.error("Could not save progress. Please try again.");
     }
-  };
+  }
 
   const togglePeak = (peak: Wainwright) => {
     if (completed.has(peak.id)) {
@@ -801,6 +888,10 @@ function TrackerApp() {
         onOpenChange={(open) => {
           if (!open) setPendingCompletionPeak(null);
         }}
+        onPhotoUpload={(file) => {
+          if (!pendingCompletionPeak) return Promise.resolve();
+          return uploadPeakPhoto(pendingCompletionPeak, file);
+        }}
         onSave={(metadata) => {
           if (!pendingCompletionPeak) return;
           void savePeakCompletion(pendingCompletionPeak, metadata).then(() => {
@@ -809,6 +900,12 @@ function TrackerApp() {
         }}
         open={Boolean(pendingCompletionPeak)}
         peak={pendingCompletionPeak}
+        photos={
+          pendingCompletionPeak
+            ? (completionEntriesById.get(pendingCompletionPeak.id)?.photos ??
+              [])
+            : []
+        }
       />
 
       {/* Map stage --------------------------------------------------------- */}
@@ -1377,18 +1474,23 @@ function formatCompletionDate(value: string) {
 
 function CompletionDialog({
   onOpenChange,
+  onPhotoUpload,
   onSave,
   open,
   peak,
+  photos,
 }: {
   onOpenChange: (open: boolean) => void;
+  onPhotoUpload: (file: File) => Promise<void>;
   onSave: (metadata: CompletionMetadata) => void;
   open: boolean;
   peak: Wainwright | null;
+  photos: WainwrightPhotoMetadata[];
 }) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [completedAt, setCompletedAt] = useState("");
   const [note, setNote] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1396,6 +1498,16 @@ function CompletionDialog({
       completedAt: completedAt || undefined,
       note: note.trim() || undefined,
     });
+  };
+
+  const handlePhotoChange = async (file: File | undefined) => {
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      await onPhotoUpload(file);
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   if (!peak) return null;
@@ -1430,6 +1542,75 @@ function CompletionDialog({
           onChange={(event) => setNote(event.target.value)}
           placeholder="Weather, route, company, summit snack..."
         />
+      </div>
+
+      <div className="grid gap-2 rounded-2xl border border-border/70 bg-background/55 p-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground">
+              photos
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Max {MAX_PHOTOS_PER_WAINWRIGHT}; images are resized before Convex
+              upload.
+            </p>
+          </div>
+          <Badge variant="secondary" className="rounded-full">
+            {photos.length}/{MAX_PHOTOS_PER_WAINWRIGHT}
+          </Badge>
+        </div>
+
+        {photos.length > 0 && (
+          <div className="grid grid-cols-2 gap-2">
+            {photos.map((photo) => (
+              <div
+                key={photo.storageId}
+                className="aspect-[4/3] overflow-hidden rounded-xl border border-border bg-muted"
+              >
+                {photo.url ? (
+                  <img
+                    src={photo.url}
+                    alt={photo.originalName ?? `${peak.name} photo`}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="grid h-full place-items-center px-2 text-center text-xs text-muted-foreground">
+                    photo saved
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <label className="inline-flex">
+          <input
+            className="sr-only"
+            type="file"
+            accept="image/*"
+            disabled={
+              uploadingPhoto || photos.length >= MAX_PHOTOS_PER_WAINWRIGHT
+            }
+            onChange={(event) => {
+              void handlePhotoChange(event.target.files?.[0]);
+              event.currentTarget.value = "";
+            }}
+          />
+          <span
+            className={cn(
+              "inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-medium shadow-sm transition-colors hover:bg-accent",
+              (uploadingPhoto || photos.length >= MAX_PHOTOS_PER_WAINWRIGHT) &&
+                "pointer-events-none cursor-not-allowed opacity-50",
+            )}
+          >
+            <HugeiconsIcon
+              icon={Upload04Icon}
+              className="size-4"
+              strokeWidth={1.6}
+            />
+            {uploadingPhoto ? "compressing + saving…" : "add photo"}
+          </span>
+        </label>
       </div>
 
       {isDesktop ? (

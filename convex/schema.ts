@@ -10,6 +10,17 @@ export default defineSchema({
           completedAt: v.optional(v.string()),
           id: v.string(),
           note: v.optional(v.string()),
+          photos: v.optional(
+            v.array(
+              v.object({
+                mimeType: v.optional(v.string()),
+                originalName: v.optional(v.string()),
+                sizeBytes: v.optional(v.number()),
+                storageId: v.id("_storage"),
+                uploadedAt: v.string(),
+              }),
+            ),
+          ),
         }),
       ),
     ),
