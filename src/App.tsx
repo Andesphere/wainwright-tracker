@@ -2027,6 +2027,10 @@ function CompletionDialog({
   const [removedPhotoStorageIds, setRemovedPhotoStorageIds] = useState<
     Set<string>
   >(() => new Set());
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<{
+    alt: string;
+    url: string;
+  } | null>(null);
   const [saving, setSaving] = useState(false);
 
   const isEditing = Boolean(initialMetadata);
@@ -2175,11 +2179,23 @@ function CompletionDialog({
                   />
                 </button>
                 {photo.url ? (
-                  <img
-                    src={photo.url}
-                    alt={photo.originalName ?? `${peak.name} photo`}
-                    className="h-full w-full object-cover"
-                  />
+                  <button
+                    type="button"
+                    aria-label={`Open full screen photo ${photo.originalName ?? peak.name}`}
+                    onClick={() =>
+                      setFullscreenPhoto({
+                        url: photo.url!,
+                        alt: photo.originalName ?? `${peak.name} photo`,
+                      })
+                    }
+                    className="block h-full w-full cursor-zoom-in"
+                  >
+                    <img
+                      src={photo.url}
+                      alt={photo.originalName ?? `${peak.name} photo`}
+                      className="h-full w-full object-cover"
+                    />
+                  </button>
                 ) : (
                   <div className="grid h-full place-items-center px-2 text-center text-xs text-muted-foreground">
                     photo saved
@@ -2204,11 +2220,23 @@ function CompletionDialog({
                     strokeWidth={2}
                   />
                 </button>
-                <img
-                  src={photo.url}
-                  alt={photo.originalName}
-                  className="h-full w-full object-cover"
-                />
+                <button
+                  type="button"
+                  aria-label={`Open full screen photo ${photo.originalName}`}
+                  onClick={() =>
+                    setFullscreenPhoto({
+                      url: photo.url,
+                      alt: photo.originalName,
+                    })
+                  }
+                  className="block h-full w-full cursor-zoom-in"
+                >
+                  <img
+                    src={photo.url}
+                    alt={photo.originalName}
+                    className="h-full w-full object-cover"
+                  />
+                </button>
                 <span className="absolute bottom-1.5 left-1.5 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-foreground shadow-sm">
                   pending
                 </span>
@@ -2276,40 +2304,72 @@ function CompletionDialog({
     </form>
   );
 
+  const fullscreenPhotoDialog = (
+    <Dialog
+      open={Boolean(fullscreenPhoto)}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setFullscreenPhoto(null);
+      }}
+    >
+      <DialogContent className="fullscreen-photo-dialog" showCloseButton>
+        <DialogTitle className="sr-only">
+          {fullscreenPhoto?.alt ?? "full screen photo"}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          Full screen photo preview. Rotate your phone to landscape for a wider
+          horizontal view.
+        </DialogDescription>
+        {fullscreenPhoto && (
+          <img
+            src={fullscreenPhoto.url}
+            alt={fullscreenPhoto.alt}
+            className="fullscreen-photo-image"
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{peak.name}</DialogTitle>
-            <DialogDescription>
-              {isEditing
-                ? "Edit the date, note, and photos saved for this bag."
-                : "Add a date and note for this bag. Both are optional."}
-            </DialogDescription>
-          </DialogHeader>
-          {form}
-        </DialogContent>
-      </Dialog>
+      <>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{peak.name}</DialogTitle>
+              <DialogDescription>
+                {isEditing
+                  ? "Edit the date, note, and photos saved for this bag."
+                  : "Add a date and note for this bag. Both are optional."}
+              </DialogDescription>
+            </DialogHeader>
+            {form}
+          </DialogContent>
+        </Dialog>
+        {fullscreenPhotoDialog}
+      </>
     );
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={false}>
-      <DrawerContent className="completion-drawer-content overflow-hidden">
-        <DrawerHeader className="shrink-0">
-          <DrawerTitle>{peak.name}</DrawerTitle>
-          <DrawerDescription>
-            {isEditing
-              ? "Edit the date, note, and photos saved for this bag."
-              : "Add a date and note for this bag. Both are optional."}
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="completion-drawer-body min-h-0 flex-1 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-          {form}
-        </div>
-      </DrawerContent>
-    </Drawer>
+    <>
+      <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={false}>
+        <DrawerContent className="completion-drawer-content overflow-hidden">
+          <DrawerHeader className="shrink-0">
+            <DrawerTitle>{peak.name}</DrawerTitle>
+            <DrawerDescription>
+              {isEditing
+                ? "Edit the date, note, and photos saved for this bag."
+                : "Add a date and note for this bag. Both are optional."}
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="completion-drawer-body min-h-0 flex-1 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+            {form}
+          </div>
+        </DrawerContent>
+      </Drawer>
+      {fullscreenPhotoDialog}
+    </>
   );
 }
 

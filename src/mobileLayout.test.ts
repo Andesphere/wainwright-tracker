@@ -95,10 +95,17 @@ describe("mobile map layout", () => {
     expect(searchJournalMarkup).not.toContain("your tally");
   });
 
-  it("lets users queue, remove, and replace photos before saving", () => {
+  it("lets users queue, remove, replace, and fullscreen photos before saving", () => {
     expect(appSource).toContain("pendingPhotoPreviews");
     expect(appSource).toContain("removedPhotoStorageIds");
     expect(appSource).toContain("multiple");
+    expect(appSource).toContain("fullscreenPhoto");
+    expect(appSource).toContain("fullscreen-photo-dialog");
+    expect(appSource).toContain("fullscreen-photo-image");
+    expect(appSource).toContain("Open full screen photo");
+    expect(cssSource).toContain(".fullscreen-photo-dialog");
+    expect(cssSource).toContain("@media (orientation: landscape)");
+    expect(cssSource).toContain("100dvw");
     expect(appSource).toContain(
       'aria-label={`remove ${photo.originalName ?? "saved photo"}`}',
     );

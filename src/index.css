@@ -354,6 +354,48 @@ h6,
   overscroll-behavior: contain;
 }
 
+.fullscreen-photo-dialog {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100dvw !important;
+  max-width: 100dvw !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  transform: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: rgba(0, 0, 0, 0.96) !important;
+  padding: max(0.75rem, env(safe-area-inset-top))
+    max(0.75rem, env(safe-area-inset-right))
+    max(0.75rem, env(safe-area-inset-bottom))
+    max(0.75rem, env(safe-area-inset-left)) !important;
+  place-items: center;
+}
+
+.fullscreen-photo-image {
+  width: 100%;
+  height: 100%;
+  max-width: calc(100dvw - 1.5rem);
+  max-height: calc(100dvh - 1.5rem);
+  object-fit: contain;
+}
+
+@media (orientation: landscape) {
+  .fullscreen-photo-dialog {
+    width: 100dvw !important;
+    height: 100dvh !important;
+    padding: max(0.5rem, env(safe-area-inset-top))
+      max(0.5rem, env(safe-area-inset-right))
+      max(0.5rem, env(safe-area-inset-bottom))
+      max(0.5rem, env(safe-area-inset-left)) !important;
+  }
+
+  .fullscreen-photo-image {
+    max-width: calc(100dvw - 1rem);
+    max-height: calc(100dvh - 1rem);
+  }
+}
+
 /* Soft scrollbar in the journal column. */
 .journal-scroll::-webkit-scrollbar {
   width: 8px;
