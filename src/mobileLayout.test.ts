@@ -121,14 +121,19 @@ describe("mobile map layout", () => {
     expect(appSource).not.toContain("Search by name or email");
   });
 
-  it("opens a simple mobile menu whose Configuration title opens a settings drawer", () => {
+  it("opens a mobile menu with album and configuration destinations", () => {
     expect(appSource).toContain("mobile-sidebar-open");
     expect(appSource).toContain('aria-label="open menu"');
     expect(appSource).toContain('side="right"');
+    expect(appSource).toContain("mobile-albums-trigger");
+    expect(appSource).toContain('aria-label="open albums"');
     expect(appSource).toContain("mobile-configuration-trigger");
     expect(appSource).toContain('aria-label="open configuration"');
     expect(appSource).toContain("mobile-settings-drawer");
     expect(appSource).toContain("All settings");
+    expect(appSource).toContain("AlbumPage");
+    expect(appSource).toContain("Wainwright albums");
+    expect(appSource).toContain("Whole history");
 
     expect(appSource).not.toContain("MOBILE_SIDEBAR_PAGES");
     expect(appSource).not.toContain("mobile-sidebar-page");

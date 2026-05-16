@@ -114,6 +114,13 @@ import {
   startAutoOfflineTopoDownload,
   storeTopoPreference,
 } from "@/mapPreferences";
+import {
+  WHOLE_HISTORY_ALBUM,
+  buildWainwrightAlbums,
+  flattenAlbumsChronologically,
+  formatAlbumDateLabel,
+  type WainwrightAlbumItem,
+} from "@/albums";
 import { sortWainwrightsForJournal, type JournalSort } from "@/mapSorting";
 
 const STORAGE_KEY = "wainwright-tracker:v1:completed";
@@ -126,6 +133,7 @@ const VALID_WAINWRIGHT_IDS = new Set(WAINWRIGHTS.map((peak) => peak.id));
 
 type ShowOnly = (typeof SHOW_OPTIONS)[number];
 type HeightUnit = (typeof HEIGHT_UNITS)[number];
+type SidebarPage = "journal" | "albums";
 type CompletionEntry = {
   completedAt?: string;
   id: string;
@@ -438,6 +446,9 @@ function TrackerApp() {
   const [peopleOpen, setPeopleOpen] = useState(false);
   const [peopleQuery, setPeopleQuery] = useState("");
   const [selectedBaggerId, setSelectedBaggerId] = useState<string | null>(null);
+  const [sidebarPage, setSidebarPage] = useState<SidebarPage>("journal");
+  const [selectedAlbumKey, setSelectedAlbumKey] = useState(WHOLE_HISTORY_ALBUM);
+  const [mobileAlbumsOpen, setMobileAlbumsOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
 
@@ -498,6 +509,10 @@ function TrackerApp() {
   const completedPeaks = useMemo(
     () => WAINWRIGHTS.filter((peak) => completed.has(peak.id)),
     [completed],
+  );
+  const albums = useMemo(
+    () => buildWainwrightAlbums(WAINWRIGHTS, completionEntries),
+    [completionEntries],
   );
 
   const baggerResults =
@@ -1126,6 +1141,25 @@ function TrackerApp() {
     />
   );
 
+  const effectiveSelectedAlbumKey =
+    selectedAlbumKey === WHOLE_HISTORY_ALBUM ||
+    albums.some((album) => album.dateKey === selectedAlbumKey)
+      ? selectedAlbumKey
+      : WHOLE_HISTORY_ALBUM;
+
+  const albumPage = (
+    <AlbumPage
+      albums={albums}
+      heightUnit={heightUnit}
+      onEdit={(peak) => {
+        setPendingCompletionPeak(peak);
+        setMobileAlbumsOpen(false);
+      }}
+      selectedAlbumKey={effectiveSelectedAlbumKey}
+      onSelectedAlbumKey={setSelectedAlbumKey}
+    />
+  );
+
   const heightPreferenceControl = (
     <div className="grid gap-3 rounded-2xl border border-border/70 bg-background/70 p-3">
       <div>
@@ -1436,6 +1470,28 @@ function TrackerApp() {
 
               <button
                 type="button"
+                aria-label="open albums"
+                className="mobile-albums-trigger flex w-full items-center justify-between rounded-2xl border border-border/70 bg-background/80 p-4 text-left shadow-xs transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={() => {
+                  setMobileSidebarOpen(false);
+                  setMobileAlbumsOpen(true);
+                }}
+              >
+                <span>
+                  <span className="block text-lg font-semibold text-foreground">
+                    Wainwright albums
+                  </span>
+                  <span className="mt-1 block text-sm text-muted-foreground">
+                    Days bagged, photos, elevation, and mini maps
+                  </span>
+                </span>
+                <span className="text-2xl leading-none text-muted-foreground">
+                  ›
+                </span>
+              </button>
+
+              <button
+                type="button"
                 aria-label="open configuration"
                 className="mobile-configuration-trigger flex w-full items-center justify-between rounded-2xl border border-border/70 bg-background/80 p-4 text-left shadow-xs transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => {
@@ -1455,6 +1511,22 @@ function TrackerApp() {
                   ›
                 </span>
               </button>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        <Sheet open={mobileAlbumsOpen} onOpenChange={setMobileAlbumsOpen}>
+          <SheetContent
+            side="bottom"
+            className="mobile-albums-drawer h-[92dvh] max-h-[780px] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl lg:hidden"
+          >
+            <SheetTitle className="sr-only">Wainwright albums</SheetTitle>
+            <SheetDescription className="sr-only">
+              Review bagged Wainwrights grouped into day albums with photos,
+              elevations, and mini maps.
+            </SheetDescription>
+            <div className="h-full overflow-auto journal-scroll">
+              {mobileAlbumsOpen && albumPage}
             </div>
           </SheetContent>
         </Sheet>
@@ -1517,7 +1589,29 @@ function TrackerApp() {
 
       {/* Journal column --------------------------------------------------- */}
       <aside className="hidden h-dvh overflow-hidden border-l border-border/70 bg-sidebar/70 backdrop-blur-2xl lg:block">
-        <div className="h-full overflow-auto journal-scroll">{journal}</div>
+        <div className="grid h-full grid-rows-[auto_1fr] overflow-hidden">
+          <div className="flex gap-2 border-b border-border/70 bg-card/60 p-3">
+            <Button
+              type="button"
+              variant={sidebarPage === "journal" ? "default" : "outline"}
+              className="flex-1 rounded-full"
+              onClick={() => setSidebarPage("journal")}
+            >
+              Journal
+            </Button>
+            <Button
+              type="button"
+              variant={sidebarPage === "albums" ? "default" : "outline"}
+              className="flex-1 rounded-full"
+              onClick={() => setSidebarPage("albums")}
+            >
+              Albums
+            </Button>
+          </div>
+          <div className="min-h-0 overflow-auto journal-scroll">
+            {sidebarPage === "albums" ? albumPage : journal}
+          </div>
+        </div>
       </aside>
 
       <Toaster richColors position="top-center" />
@@ -1721,6 +1815,245 @@ function ProfileSettingsCard({
         buttonLabel="Save profile"
         onSave={onSave}
       />
+    </div>
+  );
+}
+
+function AlbumPage({
+  albums,
+  heightUnit,
+  onEdit,
+  onSelectedAlbumKey,
+  selectedAlbumKey,
+}: {
+  albums: ReturnType<typeof buildWainwrightAlbums>;
+  heightUnit: HeightUnit;
+  onEdit: (peak: Wainwright) => void;
+  onSelectedAlbumKey: (key: string) => void;
+  selectedAlbumKey: string;
+}) {
+  const wholeHistoryItems = flattenAlbumsChronologically(albums);
+  const selectedAlbum = albums.find((album) => album.dateKey === selectedAlbumKey);
+  const visibleItems =
+    selectedAlbumKey === WHOLE_HISTORY_ALBUM
+      ? wholeHistoryItems
+      : (selectedAlbum?.items ?? []);
+  const title =
+    selectedAlbumKey === WHOLE_HISTORY_ALBUM
+      ? "Whole history"
+      : formatAlbumDateLabel(selectedAlbumKey);
+  const photoCount = visibleItems.reduce(
+    (total, item) => total + (item.entry.photos?.length ?? 0),
+    0,
+  );
+
+  return (
+    <div className="grid gap-4 p-4 sm:p-5">
+      <div className="rounded-3xl border border-border/70 bg-card/85 p-4 shadow-sm">
+        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+          Wainwright albums
+        </p>
+        <h2 className="mt-2 font-display text-4xl italic leading-none text-foreground">
+          {title}
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Pick a bagging day or view your whole history. Albums group completed
+          fells by the date they were bagged, with photos, elevation, and a mini
+          map for the day.
+        </p>
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <StatPill label="fells" value={visibleItems.length} />
+          <StatPill label="photos" value={photoCount} />
+          <StatPill label="albums" value={albums.length} />
+        </div>
+      </div>
+
+      <div className="grid gap-2 rounded-2xl border border-border/70 bg-background/70 p-2">
+        <Button
+          type="button"
+          variant={selectedAlbumKey === WHOLE_HISTORY_ALBUM ? "default" : "ghost"}
+          className="justify-between rounded-xl"
+          onClick={() => onSelectedAlbumKey(WHOLE_HISTORY_ALBUM)}
+        >
+          <span>Whole history</span>
+          <Badge variant="secondary" className="rounded-full">
+            {wholeHistoryItems.length}
+          </Badge>
+        </Button>
+        {albums.map((album) => (
+          <Button
+            key={album.dateKey}
+            type="button"
+            variant={selectedAlbumKey === album.dateKey ? "default" : "ghost"}
+            className="justify-between rounded-xl"
+            onClick={() => onSelectedAlbumKey(album.dateKey)}
+          >
+            <span>{formatAlbumDateLabel(album.dateKey)}</span>
+            <Badge variant="secondary" className="rounded-full">
+              {album.items.length}
+            </Badge>
+          </Button>
+        ))}
+      </div>
+
+      {visibleItems.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-border bg-background/70 p-6 text-center text-sm text-muted-foreground">
+          Add bagged dates to your completed Wainwrights and they will appear as
+          albums here.
+        </div>
+      ) : selectedAlbumKey === WHOLE_HISTORY_ALBUM ? (
+        <div className="grid gap-4">
+          {albums
+            .slice()
+            .reverse()
+            .map((album) => (
+              <AlbumDaySection
+                key={album.dateKey}
+                dateKey={album.dateKey}
+                heightUnit={heightUnit}
+                items={album.items}
+                onEdit={onEdit}
+              />
+            ))}
+        </div>
+      ) : (
+        <AlbumDaySection
+          dateKey={selectedAlbumKey}
+          heightUnit={heightUnit}
+          items={visibleItems}
+          onEdit={onEdit}
+        />
+      )}
+    </div>
+  );
+}
+
+function AlbumDaySection({
+  dateKey,
+  heightUnit,
+  items,
+  onEdit,
+}: {
+  dateKey: string;
+  heightUnit: HeightUnit;
+  items: WainwrightAlbumItem[];
+  onEdit: (peak: Wainwright) => void;
+}) {
+  return (
+    <section className="grid gap-3 rounded-3xl border border-border/70 bg-card/85 p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            album day
+          </p>
+          <h3 className="mt-1 font-display text-3xl italic leading-none text-foreground">
+            {formatAlbumDateLabel(dateKey)}
+          </h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {items.length} Wainwright{items.length === 1 ? "" : "s"} bagged
+          </p>
+        </div>
+        <Badge variant="secondary" className="rounded-full">
+          {items.reduce((total, item) => total + (item.entry.photos?.length ?? 0), 0)} photos
+        </Badge>
+      </div>
+
+      <AlbumMiniMap items={items} />
+
+      <ol className="grid gap-3">
+        {items.map((item) => (
+          <li
+            key={`${item.completedDateKey}-${item.peak.id}`}
+            className="overflow-hidden rounded-2xl border border-border/70 bg-background/70"
+          >
+            <div className="grid gap-3 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-display text-xl italic leading-tight text-foreground">
+                    {item.peak.name}
+                  </p>
+                  <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+                    {formatPeakHeight(item.peak, heightUnit)} · {item.peak.area}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="shrink-0 rounded-full"
+                  onClick={() => onEdit(item.peak)}
+                >
+                  <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={1.7} />
+                  Edit
+                </Button>
+              </div>
+              {item.entry.photos && item.entry.photos.length > 0 ? (
+                <div className="album-photo-grid grid grid-cols-3 gap-2">
+                  {item.entry.photos.map((photo, index) =>
+                    photo.url ? (
+                      <img
+                        key={`${photo.storageId}-${index}`}
+                        src={photo.url}
+                        alt={photo.originalName ?? `${item.peak.name} album photo`}
+                        className="aspect-square rounded-xl object-cover"
+                      />
+                    ) : (
+                      <div
+                        key={`${photo.storageId}-${index}`}
+                        className="grid aspect-square place-items-center rounded-xl bg-muted text-center text-[10px] text-muted-foreground"
+                      >
+                        photo saved
+                      </div>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                  No photos saved for this summit yet.
+                </div>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function AlbumMiniMap({ items }: { items: WainwrightAlbumItem[] }) {
+  const latitudes = items.map((item) => item.peak.latitude);
+  const longitudes = items.map((item) => item.peak.longitude);
+  const minLat = Math.min(...latitudes);
+  const maxLat = Math.max(...latitudes);
+  const minLng = Math.min(...longitudes);
+  const maxLng = Math.max(...longitudes);
+  const latSpan = Math.max(maxLat - minLat, 0.01);
+  const lngSpan = Math.max(maxLng - minLng, 0.01);
+
+  return (
+    <div
+      className="album-mini-map relative h-36 overflow-hidden rounded-2xl border border-border/70 bg-[radial-gradient(circle_at_30%_20%,rgba(85,130,85,0.35),transparent_32%),linear-gradient(135deg,rgba(216,220,200,0.95),rgba(181,193,158,0.9))]"
+      aria-label="small map of this album day"
+    >
+      <div className="absolute inset-x-0 top-1/2 h-px bg-white/35" />
+      <div className="absolute inset-y-0 left-1/2 w-px bg-white/35" />
+      {items.map((item, index) => {
+        const left = 12 + ((item.peak.longitude - minLng) / lngSpan) * 76;
+        const top = 88 - ((item.peak.latitude - minLat) / latSpan) * 76;
+        return (
+          <span
+            key={item.peak.id}
+            className="absolute grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-lg ring-2 ring-white/80"
+            style={{ left: `${left}%`, top: `${top}%` }}
+            title={item.peak.name}
+          >
+            {index + 1}
+          </span>
+        );
+      })}
+      <span className="absolute bottom-2 left-2 rounded-full bg-background/85 px-2 py-1 font-mono text-[10px] text-muted-foreground shadow-sm backdrop-blur">
+        mini map · {items.length} stop{items.length === 1 ? "" : "s"}
+      </span>
     </div>
   );
 }
