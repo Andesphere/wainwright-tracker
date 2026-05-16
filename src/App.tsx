@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   SignedIn,
   SignedOut,
@@ -8,7 +8,7 @@ import {
 } from "@clerk/clerk-react";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { useMutation, useQuery } from "convex/react";
-import maplibregl, { Map, Popup } from "maplibre-gl";
+import maplibregl, { Map as MaplibreMap, Popup } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -31,6 +31,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -49,6 +65,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
@@ -81,6 +98,12 @@ const SHOW_OPTIONS = ["all", "todo", "done"] as const;
 const VALID_WAINWRIGHT_IDS = new Set(WAINWRIGHTS.map((peak) => peak.id));
 
 type ShowOnly = (typeof SHOW_OPTIONS)[number];
+type CompletionEntry = {
+  completedAt?: string;
+  id: string;
+  note?: string;
+};
+type CompletionMetadata = Omit<CompletionEntry, "id">;
 
 function loadCompleted() {
   try {
@@ -131,6 +154,22 @@ function isShowOnly(value: string): value is ShowOnly {
   return SHOW_OPTIONS.includes(value as ShowOnly);
 }
 
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(
+    () => window.matchMedia(query).matches,
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const handleChange = () => setMatches(media.matches);
+    handleChange();
+    media.addEventListener("change", handleChange);
+    return () => media.removeEventListener("change", handleChange);
+  }, [query]);
+
+  return matches;
+}
+
 function App() {
   return (
     <>
@@ -151,21 +190,27 @@ function App() {
 
 function TrackerApp() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<Map | null>(null);
+  const mapRef = useRef<MaplibreMap | null>(null);
   const popupRef = useRef<Popup | null>(null);
   const completedMarkersRef = useRef<maplibregl.Marker[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const progress = useQuery(api.progress.get);
+  const progressEntries = useQuery(api.progress.getEntries);
   const replaceProgress = useMutation(api.progress.replace);
   const setBagged = useMutation(api.progress.setBagged);
   const migratedLocalProgressRef = useRef(false);
   const [optimisticCompleted, setOptimisticCompleted] =
     useState<Set<string> | null>(null);
+  const [optimisticEntries, setOptimisticEntries] = useState<
+    CompletionEntry[] | null
+  >(null);
   const [query, setQuery] = useState("");
   const [area, setArea] = useState(ALL_AREAS);
   const [showOnly, setShowOnly] = useState<ShowOnly>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [pendingCompletionPeak, setPendingCompletionPeak] =
+    useState<Wainwright | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState(false);
   const [topoEnabled, setTopoEnabled] = useState(DEFAULT_TOPO_ENABLED);
@@ -175,11 +220,6 @@ function TrackerApp() {
   const [offlineStatus, setOfflineStatus] = useState<
     "idle" | "downloading" | "ready" | "error"
   >(() => (localStorage.getItem(OFFLINE_MAP_META_KEY) ? "ready" : "idle"));
-  const [offlineMessage, setOfflineMessage] = useState(() =>
-    localStorage.getItem(OFFLINE_MAP_META_KEY)
-      ? "Lake District topo map saved on this device."
-      : "",
-  );
 
   const serverCompleted = useMemo(
     () =>
@@ -187,6 +227,15 @@ function TrackerApp() {
     [progress],
   );
   const completed = optimisticCompleted ?? serverCompleted;
+  const completionEntries =
+    optimisticEntries ??
+    (progressEntries ?? []).filter((entry) =>
+      VALID_WAINWRIGHT_IDS.has(entry.id),
+    );
+  const completionEntriesById = useMemo(
+    () => new Map(completionEntries.map((entry) => [entry.id, entry])),
+    [completionEntries],
+  );
 
   const selectedPeak = useMemo(
     () => WAINWRIGHTS.find((peak) => peak.id === selectedId) ?? null,
@@ -259,7 +308,7 @@ function TrackerApp() {
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
 
-    let map: Map;
+    let map: MaplibreMap;
     try {
       map = new maplibregl.Map({
         container: mapContainer.current,
@@ -387,7 +436,7 @@ function TrackerApp() {
         },
       });
 
-      map.on("click", "clusters", (event) => {
+      map.on("click", "clusters", (event: maplibregl.MapLayerMouseEvent) => {
         const features = map.queryRenderedFeatures(event.point, {
           layers: ["clusters"],
         });
@@ -405,7 +454,7 @@ function TrackerApp() {
         });
       });
 
-      map.on("click", "peaks", (event) => {
+      map.on("click", "peaks", (event: maplibregl.MapLayerMouseEvent) => {
         const feature = event.features?.[0];
         const id = feature?.properties?.id;
         if (typeof id === "string") setSelectedId(id);
@@ -522,33 +571,82 @@ function TrackerApp() {
       .addTo(map);
   }, [selectedPeak]);
 
-  const togglePeak = async (peak: Wainwright) => {
-    const bagged = !completed.has(peak.id);
+  const savePeakCompletion = async (
+    peak: Wainwright,
+    metadata: CompletionMetadata = {},
+  ) => {
     setOptimisticCompleted((previous) => {
       const baseline = previous ?? completed;
       const next = new Set(baseline);
-      if (bagged) next.add(peak.id);
-      else next.delete(peak.id);
+      next.add(peak.id);
       return next;
+    });
+    setOptimisticEntries((previous) => {
+      const baseline = previous ?? completionEntries;
+      return [
+        ...baseline.filter((entry) => entry.id !== peak.id),
+        { id: peak.id, ...metadata },
+      ].sort((a, b) => a.id.localeCompare(b.id));
     });
 
     try {
-      await setBagged({ id: peak.id, bagged });
-      if (bagged) {
-        toast.success(`${peak.name} bagged — ${peak.heightMetres}m`);
-      } else {
-        toast(`${peak.name} marked as unbagged`);
-      }
+      await setBagged({ id: peak.id, bagged: true, ...metadata });
+      toast.success(`${peak.name} bagged — ${peak.heightMetres}m`);
     } catch {
       setOptimisticCompleted((previous) => {
         const baseline = previous ?? completed;
         const next = new Set(baseline);
-        if (bagged) next.delete(peak.id);
-        else next.add(peak.id);
+        next.delete(peak.id);
         return next;
+      });
+      setOptimisticEntries((previous) => {
+        const baseline = previous ?? completionEntries;
+        return baseline.filter((entry) => entry.id !== peak.id);
       });
       toast.error("Could not save progress. Please try again.");
     }
+  };
+
+  const unbagPeak = async (peak: Wainwright) => {
+    setOptimisticCompleted((previous) => {
+      const baseline = previous ?? completed;
+      const next = new Set(baseline);
+      next.delete(peak.id);
+      return next;
+    });
+    setOptimisticEntries((previous) => {
+      const baseline = previous ?? completionEntries;
+      return baseline.filter((entry) => entry.id !== peak.id);
+    });
+
+    try {
+      await setBagged({ id: peak.id, bagged: false });
+      toast(`${peak.name} marked as unbagged`);
+    } catch {
+      setOptimisticCompleted((previous) => {
+        const baseline = previous ?? completed;
+        const next = new Set(baseline);
+        next.add(peak.id);
+        return next;
+      });
+      setOptimisticEntries((previous) => {
+        const baseline = previous ?? completionEntries;
+        const restored = completionEntriesById.get(peak.id) ?? { id: peak.id };
+        return [
+          ...baseline.filter((entry) => entry.id !== peak.id),
+          restored,
+        ].sort((a, b) => a.id.localeCompare(b.id));
+      });
+      toast.error("Could not save progress. Please try again.");
+    }
+  };
+
+  const togglePeak = (peak: Wainwright) => {
+    if (completed.has(peak.id)) {
+      void unbagPeak(peak);
+      return;
+    }
+    setPendingCompletionPeak(peak);
   };
 
   const fitLakeDistrict = () => {
@@ -563,7 +661,6 @@ function TrackerApp() {
 
   const downloadOfflineMap = async () => {
     setOfflineStatus("downloading");
-    setOfflineMessage("Downloading every topo tile for the Wainwright area…");
     setTopoEnabled(true);
 
     try {
@@ -579,9 +676,6 @@ function TrackerApp() {
         }),
       );
       setOfflineStatus("ready");
-      setOfflineMessage(
-        `Lake District map saved: ${result.total.toLocaleString()} tiles, zoom ${OFFLINE_MAP_ESTIMATE.minZoom}-${OFFLINE_MAP_ESTIMATE.maxZoom}.`,
-      );
       toast.success("Lake District map saved for offline use");
     } catch (error) {
       setOfflineStatus("error");
@@ -589,7 +683,6 @@ function TrackerApp() {
         error instanceof Error
           ? error.message
           : "Could not download the map. Please try again.";
-      setOfflineMessage(message);
       toast.error(message);
     }
   };
@@ -598,6 +691,7 @@ function TrackerApp() {
     const payload = {
       exportedAt: new Date().toISOString(),
       completed: Array.from(completed).sort(),
+      entries: completionEntries,
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: "application/json",
@@ -623,6 +717,9 @@ function TrackerApp() {
         ),
       );
       setOptimisticCompleted(next);
+      setOptimisticEntries(
+        (progressEntries ?? []).filter((entry) => next.has(entry.id)),
+      );
       await replaceProgress({ completed: Array.from(next) });
       saveCompletedMigration(next);
       toast.success(`Imported ${next.size} bagged fells`);
@@ -634,10 +731,12 @@ function TrackerApp() {
   const resetProgress = () => {
     if (completed.size === 0) return;
     setOptimisticCompleted(new Set());
+    setOptimisticEntries([]);
     void replaceProgress({ completed: [] })
       .then(() => toast("Journal reset"))
       .catch(() => {
         setOptimisticCompleted(completed);
+        setOptimisticEntries(completionEntries);
         toast.error("Could not reset progress. Please try again.");
       });
   };
@@ -652,13 +751,13 @@ function TrackerApp() {
     <Journal
       area={area}
       completed={completed}
+      completionEntriesById={completionEntriesById}
       doneCount={doneCount}
       filtered={filtered}
       highestDone={highestDone}
       numericPercent={numericPercent}
       onArea={setArea}
       onClearQuery={() => setQuery("")}
-      onDownloadOfflineMap={downloadOfflineMap}
       onExport={exportProgress}
       onImportClick={() => fileInputRef.current?.click()}
       onQuery={setQuery}
@@ -669,9 +768,6 @@ function TrackerApp() {
       }}
       onShowOnly={setShowOnly}
       onToggle={togglePeak}
-      offlineMessage={offlineMessage}
-      offlinePercent={offlinePercent}
-      offlineStatus={offlineStatus}
       percent={percent}
       query={query}
       selectedId={selectedId}
@@ -681,6 +777,21 @@ function TrackerApp() {
 
   return (
     <main className="relative grid min-h-dvh grid-cols-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_min(440px,38vw)]">
+      <CompletionDialog
+        key={pendingCompletionPeak?.id ?? "closed"}
+        onOpenChange={(open) => {
+          if (!open) setPendingCompletionPeak(null);
+        }}
+        onSave={(metadata) => {
+          if (!pendingCompletionPeak) return;
+          void savePeakCompletion(pendingCompletionPeak, metadata).then(() => {
+            setPendingCompletionPeak(null);
+          });
+        }}
+        open={Boolean(pendingCompletionPeak)}
+        peak={pendingCompletionPeak}
+      />
+
       {/* Map stage --------------------------------------------------------- */}
       <section
         className="relative h-dvh p-2.5 sm:p-4 lg:p-5"
@@ -773,22 +884,22 @@ function TrackerApp() {
             <TooltipTrigger asChild>
               <Button
                 variant={offlineStatus === "ready" ? "default" : "outline"}
-                size="lg"
+                size="icon-lg"
                 className={cn(
-                  "rounded-full px-2 backdrop-blur-xl max-[520px]:hidden sm:px-2.5",
+                  "rounded-full backdrop-blur-xl max-[520px]:hidden",
                   offlineStatus === "ready"
                     ? ""
                     : "border-white/50 bg-parchment/85",
                 )}
                 disabled={offlineStatus === "downloading"}
                 onClick={downloadOfflineMap}
+                aria-label={
+                  offlineStatus === "downloading"
+                    ? `downloading lakes ${offlinePercent}%`
+                    : "download lakes"
+                }
               >
                 <HugeiconsIcon icon={Download04Icon} strokeWidth={1.6} />
-                <span>
-                  {offlineStatus === "downloading"
-                    ? `${offlinePercent}%`
-                    : "download lakes"}
-                </span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -928,13 +1039,13 @@ export default App;
 type JournalProps = {
   area: string;
   completed: Set<string>;
+  completionEntriesById: Map<string, CompletionEntry>;
   doneCount: number;
   filtered: Wainwright[];
   highestDone?: Wainwright;
   numericPercent: number;
   onArea: (area: string) => void;
   onClearQuery: () => void;
-  onDownloadOfflineMap: () => void;
   onExport: () => void;
   onImportClick: () => void;
   onQuery: (query: string) => void;
@@ -942,9 +1053,6 @@ type JournalProps = {
   onSelect: (id: string) => void;
   onShowOnly: (value: ShowOnly) => void;
   onToggle: (peak: Wainwright) => void;
-  offlineMessage: string;
-  offlinePercent: number;
-  offlineStatus: "idle" | "downloading" | "ready" | "error";
   percent: string;
   query: string;
   selectedId: string | null;
@@ -955,13 +1063,13 @@ function Journal(props: JournalProps) {
   const {
     area,
     completed,
+    completionEntriesById,
     doneCount,
     filtered,
     highestDone,
     numericPercent,
     onArea,
     onClearQuery,
-    onDownloadOfflineMap,
     onExport,
     onImportClick,
     onQuery,
@@ -969,9 +1077,6 @@ function Journal(props: JournalProps) {
     onSelect,
     onShowOnly,
     onToggle,
-    offlineMessage,
-    offlinePercent,
-    offlineStatus,
     percent,
     query,
     selectedId,
@@ -1097,59 +1202,6 @@ function Journal(props: JournalProps) {
         </div>
       </Card>
 
-      <Card
-        className={cn(
-          "gap-3 border-border/70 bg-card/85 p-4 shadow-sm",
-          offlineStatus === "ready" && "border-primary/40 bg-primary/5",
-          offlineStatus === "error" && "border-destructive/40 bg-destructive/5",
-        )}
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted-foreground">
-              offline map
-            </p>
-            <h3 className="mt-1 font-display text-2xl italic leading-none text-ink">
-              download the lakes
-            </h3>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-              Saves {OFFLINE_MAP_ESTIMATE.tileCount.toLocaleString()} topo tiles
-              covering the full Wainwright area, zoom{" "}
-              {OFFLINE_MAP_ESTIMATE.minZoom}-{OFFLINE_MAP_ESTIMATE.maxZoom}.
-            </p>
-          </div>
-          <Button
-            size="sm"
-            className="shrink-0 rounded-full"
-            disabled={offlineStatus === "downloading"}
-            onClick={onDownloadOfflineMap}
-          >
-            <HugeiconsIcon icon={Download04Icon} strokeWidth={1.6} />
-            {offlineStatus === "ready"
-              ? "refresh"
-              : offlineStatus === "downloading"
-                ? "saving"
-                : "download"}
-          </Button>
-        </div>
-        {(offlineStatus === "downloading" || offlineStatus === "ready") && (
-          <Progress
-            value={offlinePercent}
-            className="h-2 rounded-full bg-muted"
-          />
-        )}
-        {offlineMessage && (
-          <p
-            className={cn(
-              "font-mono text-[10px] leading-relaxed text-muted-foreground",
-              offlineStatus === "error" && "text-destructive",
-            )}
-          >
-            {offlineMessage}
-          </p>
-        )}
-      </Card>
-
       {/* Result meta */}
       <div className="flex items-center justify-between gap-3 font-mono text-[11px] tracking-wider text-muted-foreground">
         <span>
@@ -1170,6 +1222,7 @@ function Journal(props: JournalProps) {
             <li key={peak.id}>
               <PeakRow
                 peak={peak}
+                completionEntry={completionEntriesById.get(peak.id)}
                 done={done}
                 selected={selected}
                 onSelect={() => onSelect(peak.id)}
@@ -1295,23 +1348,155 @@ function ProgressRing({ percent }: { percent: number }) {
   );
 }
 
+function formatCompletionDate(value: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(`${value}T00:00:00`));
+}
+
+function CompletionDialog({
+  onOpenChange,
+  onSave,
+  open,
+  peak,
+}: {
+  onOpenChange: (open: boolean) => void;
+  onSave: (metadata: CompletionMetadata) => void;
+  open: boolean;
+  peak: Wainwright | null;
+}) {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [completedAt, setCompletedAt] = useState("");
+  const [note, setNote] = useState("");
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSave({
+      completedAt: completedAt || undefined,
+      note: note.trim() || undefined,
+    });
+  };
+
+  if (!peak) return null;
+
+  const form = (
+    <form onSubmit={handleSubmit} className="grid gap-4">
+      <div className="grid gap-2">
+        <label
+          htmlFor="completion-date"
+          className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground"
+        >
+          date bagged
+        </label>
+        <Input
+          id="completion-date"
+          type="date"
+          value={completedAt}
+          onChange={(event) => setCompletedAt(event.target.value)}
+        />
+      </div>
+
+      <div className="grid gap-2">
+        <label
+          htmlFor="completion-note"
+          className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground"
+        >
+          note
+        </label>
+        <Textarea
+          id="completion-note"
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+          placeholder="Weather, route, company, summit snack..."
+        />
+      </div>
+
+      {isDesktop ? (
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            cancel
+          </Button>
+          <Button type="submit">save as bagged</Button>
+        </DialogFooter>
+      ) : (
+        <DrawerFooter>
+          <Button type="submit" size="lg">
+            save as bagged
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            cancel
+          </Button>
+        </DrawerFooter>
+      )}
+    </form>
+  );
+
+  if (isDesktop) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{peak.name}</DialogTitle>
+            <DialogDescription>
+              Add a date and note for this bag. Both are optional.
+            </DialogDescription>
+          </DialogHeader>
+          {form}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>{peak.name}</DrawerTitle>
+          <DrawerDescription>
+            Add a date and note for this bag. Both are optional.
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="px-5 pb-[env(safe-area-inset-bottom)]">{form}</div>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
 /* -------------------------------------------------------------------------
  * Single peak row — like a journal entry. Click select, check bag.
  * -----------------------------------------------------------------------*/
 
 function PeakRow({
   peak,
+  completionEntry,
   done,
   selected,
   onSelect,
   onToggle,
 }: {
   peak: Wainwright;
+  completionEntry?: CompletionEntry;
   done: boolean;
   selected: boolean;
   onSelect: () => void;
   onToggle: () => void;
 }) {
+  const completionMeta = [
+    completionEntry?.completedAt &&
+      `bagged ${formatCompletionDate(completionEntry.completedAt)}`,
+    completionEntry?.note,
+  ].filter(Boolean);
+
   return (
     <div
       className={cn(
@@ -1348,6 +1533,11 @@ function PeakRow({
           {peak.heightMetres}m · {peak.heightFt}ft · {peak.gridReference} ·{" "}
           {peak.area.toLowerCase()}
         </div>
+        {done && completionMeta.length > 0 && (
+          <div className="mt-2 line-clamp-2 text-xs leading-snug text-muted-foreground">
+            {completionMeta.join(" · ")}
+          </div>
+        )}
       </button>
 
       <Tooltip>

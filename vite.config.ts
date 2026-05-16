@@ -62,7 +62,10 @@ export default defineConfig({
             options: {
               cacheName: "wainwright-lake-district-topo-v1",
               cacheableResponse: { statuses: [0, 200] },
-              expiration: { maxEntries: 900, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              expiration: {
+                maxEntries: 900,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
             },
           },
           {
