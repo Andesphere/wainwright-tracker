@@ -16,7 +16,6 @@ import {
   Cancel01Icon,
   CheckmarkCircle02Icon,
   CompassIcon,
-  Download04Icon,
   EyeIcon,
   FilterIcon,
   Layers01Icon,
@@ -96,17 +95,15 @@ import {
   WAINWRIGHTS,
   type Wainwright,
 } from "@/data/wainwrights";
+import { downloadLakeDistrictMap } from "@/offlineMap";
 import {
-  downloadLakeDistrictMap,
-  estimateLakeDistrictDownload,
-  type DownloadProgress,
-} from "@/offlineMap";
+  loadTopoPreference,
+  startAutoOfflineTopoDownload,
+  storeTopoPreference,
+} from "@/mapPreferences";
 
 const STORAGE_KEY = "wainwright-tracker:v1:completed";
-const OFFLINE_MAP_META_KEY = "wainwright-tracker:v1:offline-map";
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
-export const DEFAULT_TOPO_ENABLED = false;
-const OFFLINE_MAP_ESTIMATE = estimateLakeDistrictDownload();
 const ALL_AREAS = "All";
 const SHOW_OPTIONS = ["all", "todo", "done"] as const;
 const VALID_WAINWRIGHT_IDS = new Set(WAINWRIGHTS.map((peak) => peak.id));
@@ -268,13 +265,8 @@ function TrackerApp() {
   const [selectedDetailsOpen, setSelectedDetailsOpen] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState(false);
-  const [topoEnabled, setTopoEnabled] = useState(DEFAULT_TOPO_ENABLED);
+  const [topoEnabled, setTopoEnabled] = useState(loadTopoPreference);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [offlineProgress, setOfflineProgress] =
-    useState<DownloadProgress | null>(null);
-  const [offlineStatus, setOfflineStatus] = useState<
-    "idle" | "downloading" | "ready" | "error"
-  >(() => (localStorage.getItem(OFFLINE_MAP_META_KEY) ? "ready" : "idle"));
 
   const serverCompleted = useMemo(
     () =>
@@ -629,6 +621,10 @@ function TrackerApp() {
   }, [completedPeaks, mapReady, selectedId]);
 
   useEffect(() => {
+    storeTopoPreference(topoEnabled);
+  }, [topoEnabled]);
+
+  useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapReady) return;
     if (map.getLayer("topo-layer"))
@@ -638,6 +634,32 @@ function TrackerApp() {
         topoEnabled ? "visible" : "none",
       );
   }, [topoEnabled, mapReady]);
+
+  useEffect(() => {
+    if (!mapReady) return;
+
+    let cancelled = false;
+    const run = () => {
+      if (cancelled || document.visibilityState === "hidden") return;
+      void startAutoOfflineTopoDownload({
+        download: downloadLakeDistrictMap,
+      });
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(run, { timeout: 4_000 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(idleId);
+      };
+    }
+
+    const timeoutId = globalThis.setTimeout(run, 1_500);
+    return () => {
+      cancelled = true;
+      globalThis.clearTimeout(timeoutId);
+    };
+  }, [mapReady]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -764,7 +786,9 @@ function TrackerApp() {
       setOptimisticCompleted(previousCompleted);
       setOptimisticEntries(previousEntries);
       const message =
-        error instanceof Error ? error.message : "Could not save progress. Please try again.";
+        error instanceof Error
+          ? error.message
+          : "Could not save progress. Please try again.";
       toast.error(message);
       throw error;
     }
@@ -828,34 +852,6 @@ function TrackerApp() {
     fitLakeDistrict();
   };
 
-  const downloadOfflineMap = async () => {
-    setOfflineStatus("downloading");
-    setTopoEnabled(true);
-
-    try {
-      const result = await downloadLakeDistrictMap(setOfflineProgress);
-      const savedAt = new Date().toISOString();
-      localStorage.setItem(
-        OFFLINE_MAP_META_KEY,
-        JSON.stringify({
-          savedAt,
-          ...result,
-          minZoom: OFFLINE_MAP_ESTIMATE.minZoom,
-          maxZoom: OFFLINE_MAP_ESTIMATE.maxZoom,
-        }),
-      );
-      setOfflineStatus("ready");
-      toast.success("Lake District map saved for offline use");
-    } catch (error) {
-      setOfflineStatus("error");
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Could not download the map. Please try again.";
-      toast.error(message);
-    }
-  };
-
   const resetProgress = () => {
     if (completed.size === 0) return;
     setOptimisticCompleted(new Set());
@@ -888,12 +884,6 @@ function TrackerApp() {
       throw new Error("Bulk import failed");
     }
   };
-
-  const offlineDownloaded =
-    offlineProgress?.downloaded ??
-    (offlineStatus === "ready" ? OFFLINE_MAP_ESTIMATE.tileCount : 0);
-  const offlineTotal = offlineProgress?.total ?? OFFLINE_MAP_ESTIMATE.tileCount;
-  const offlinePercent = Math.round((offlineDownloaded / offlineTotal) * 100);
 
   const journal = (
     <Journal
@@ -937,11 +927,13 @@ function TrackerApp() {
         }}
         onSave={(metadata, photoFiles) => {
           if (!pendingCompletionPeak) return Promise.resolve();
-          return savePeakCompletion(pendingCompletionPeak, metadata, photoFiles).then(
-            () => {
-              setPendingCompletionPeak(null);
-            },
-          );
+          return savePeakCompletion(
+            pendingCompletionPeak,
+            metadata,
+            photoFiles,
+          ).then(() => {
+            setPendingCompletionPeak(null);
+          });
         }}
         open={Boolean(pendingCompletionPeak)}
         peak={pendingCompletionPeak}
@@ -1050,32 +1042,6 @@ function TrackerApp() {
             </TooltipTrigger>
             <TooltipContent>
               {topoEnabled ? "hide" : "show"} contour overlay
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant={offlineStatus === "ready" ? "default" : "outline"}
-                size="icon-lg"
-                className={cn(
-                  "rounded-full backdrop-blur-xl max-[520px]:hidden",
-                  offlineStatus === "ready"
-                    ? ""
-                    : "border-white/50 bg-parchment/85",
-                )}
-                disabled={offlineStatus === "downloading"}
-                onClick={downloadOfflineMap}
-                aria-label={
-                  offlineStatus === "downloading"
-                    ? `downloading lakes ${offlinePercent}%`
-                    : "download lakes"
-                }
-              >
-                <HugeiconsIcon icon={Download04Icon} strokeWidth={1.6} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              download the full Wainwright map area
             </TooltipContent>
           </Tooltip>
 
@@ -2245,21 +2211,13 @@ function CompletionDialog({
             cancel
           </Button>
           <Button type="submit" disabled={saving}>
-            {saving
-              ? "saving…"
-              : isEditing
-                ? "save changes"
-                : "save as bagged"}
+            {saving ? "saving…" : isEditing ? "save changes" : "save as bagged"}
           </Button>
         </DialogFooter>
       ) : (
         <DrawerFooter>
           <Button type="submit" size="lg" disabled={saving}>
-            {saving
-              ? "saving…"
-              : isEditing
-                ? "save changes"
-                : "save as bagged"}
+            {saving ? "saving…" : isEditing ? "save changes" : "save as bagged"}
           </Button>
           <Button
             type="button"

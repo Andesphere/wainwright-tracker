@@ -73,10 +73,10 @@ describe("mobile map layout", () => {
   it("lets users edit a bagged Wainwright from the list with existing details", () => {
     expect(appSource).toContain("PencilEdit02Icon");
     expect(appSource).toContain("onEdit");
-    expect(appSource).toContain('aria-label={`edit ${peak.name}`}');
+    expect(appSource).toContain("aria-label={`edit ${peak.name}`}");
     expect(appSource).toContain("initialMetadata");
-    expect(appSource).toContain("initialMetadata?.completedAt ?? \"\"");
-    expect(appSource).toContain("initialMetadata?.note ?? \"\"");
+    expect(appSource).toContain('initialMetadata?.completedAt ?? ""');
+    expect(appSource).toContain('initialMetadata?.note ?? ""');
   });
 
   it("turns the bottom mobile drawer trigger into an obvious Search button", () => {
@@ -99,9 +99,22 @@ describe("mobile map layout", () => {
     expect(appSource).toContain("pendingPhotoPreviews");
     expect(appSource).toContain("removedPhotoStorageIds");
     expect(appSource).toContain("multiple");
-    expect(appSource).toContain('aria-label={`remove ${photo.originalName ?? "saved photo"}`}');
+    expect(appSource).toContain(
+      'aria-label={`remove ${photo.originalName ?? "saved photo"}`}',
+    );
     expect(appSource).toContain("compressing photos…");
     expect(appSource).not.toContain("compressing + saving…");
+  });
+
+  it("keeps offline topo downloads automatic and out of the primary map controls", () => {
+    expect(appSource).toContain("startAutoOfflineTopoDownload");
+    expect(appSource).toContain("loadTopoPreference");
+    expect(appSource).toContain("storeTopoPreference");
+    expect(appSource).not.toContain(
+      'aria-label={\n                  offlineStatus === "downloading"',
+    );
+    expect(appSource).not.toContain('aria-label="download lakes"');
+    expect(appSource).not.toContain("download the full Wainwright map area");
   });
 
   it("hides destructive progress actions behind progressive advanced options", () => {
