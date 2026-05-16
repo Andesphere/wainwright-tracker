@@ -117,6 +117,25 @@ describe("mobile map layout", () => {
     expect(appSource).not.toContain("download the full Wainwright map area");
   });
 
+  it("keeps sort visible while moving rare filters and tools into progressive disclosure", () => {
+    const journalStart = appSource.indexOf("function Journal");
+    const advancedStart = appSource.indexOf("advanced-options", journalStart);
+    const primaryControls = appSource.slice(journalStart, advancedStart);
+    const advancedControls = appSource.slice(
+      advancedStart,
+      appSource.indexOf("<Dialog", advancedStart),
+    );
+
+    expect(primaryControls).toContain("Sort by");
+    expect(primaryControls).toContain("Recently bagged");
+    expect(primaryControls).toContain("Oldest bagged");
+    expect(primaryControls).not.toContain("Reset all progress");
+    expect(advancedControls).toContain("mobile-filter-summary");
+    expect(advancedControls).toContain("Area filter");
+    expect(advancedControls).toContain("Bulk add fells");
+    expect(advancedControls).toContain("Reset all progress");
+  });
+
   it("hides destructive progress actions behind progressive advanced options", () => {
     expect(appSource).toContain("advanced-options");
     expect(appSource).toContain("Advanced");

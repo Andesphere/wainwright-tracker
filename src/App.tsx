@@ -101,6 +101,7 @@ import {
   startAutoOfflineTopoDownload,
   storeTopoPreference,
 } from "@/mapPreferences";
+import { sortWainwrightsForJournal, type JournalSort } from "@/mapSorting";
 
 const STORAGE_KEY = "wainwright-tracker:v1:completed";
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
@@ -259,6 +260,7 @@ function TrackerApp() {
   const [query, setQuery] = useState("");
   const [area, setArea] = useState(ALL_AREAS);
   const [showOnly, setShowOnly] = useState<ShowOnly>("all");
+  const [sortBy, setSortBy] = useState<JournalSort>("progress");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pendingCompletionPeak, setPendingCompletionPeak] =
     useState<Wainwright | null>(null);
@@ -294,24 +296,23 @@ function TrackerApp() {
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return WAINWRIGHTS.filter((peak) => {
-      const done = completed.has(peak.id);
-      const matchesSearch =
-        !needle ||
-        peak.name.toLowerCase().includes(needle) ||
-        peak.bookNumber.toString() === needle ||
-        peak.gridReference.toLowerCase().includes(needle) ||
-        peak.area.toLowerCase().includes(needle);
-      const matchesArea = area === ALL_AREAS || peak.area === area;
-      const matchesDone =
-        showOnly === "all" || (showOnly === "done" ? done : !done);
-      return matchesSearch && matchesArea && matchesDone;
-    }).sort(
-      (a, b) =>
-        Number(completed.has(a.id)) - Number(completed.has(b.id)) ||
-        a.bookNumber - b.bookNumber,
+    return sortWainwrightsForJournal(
+      WAINWRIGHTS.filter((peak) => {
+        const done = completed.has(peak.id);
+        const matchesSearch =
+          !needle ||
+          peak.name.toLowerCase().includes(needle) ||
+          peak.bookNumber.toString() === needle ||
+          peak.gridReference.toLowerCase().includes(needle) ||
+          peak.area.toLowerCase().includes(needle);
+        const matchesArea = area === ALL_AREAS || peak.area === area;
+        const matchesDone =
+          showOnly === "all" || (showOnly === "done" ? done : !done);
+        return matchesSearch && matchesArea && matchesDone;
+      }),
+      { completed, entriesById: completionEntriesById, sortBy },
     );
-  }, [area, completed, query, showOnly]);
+  }, [area, completed, completionEntriesById, query, showOnly, sortBy]);
 
   const geojson = useMemo(
     () => ({
@@ -896,6 +897,7 @@ function TrackerApp() {
       onClearQuery={() => setQuery("")}
       onQuery={setQuery}
       onReset={resetProgress}
+      onSort={setSortBy}
       onSelect={(id) => {
         setSelectedId(id);
         setMobileOpen(false);
@@ -910,6 +912,7 @@ function TrackerApp() {
       query={query}
       selectedId={selectedId}
       showOnly={showOnly}
+      sortBy={sortBy}
     />
   );
 
@@ -1477,11 +1480,13 @@ type JournalProps = {
   onSelect: (id: string) => void;
   onEdit: (peak: Wainwright) => void;
   onShowOnly: (value: ShowOnly) => void;
+  onSort: (value: JournalSort) => void;
   onToggle: (peak: Wainwright) => void;
   onBulkAdd: (ids: string[]) => Promise<void>;
   query: string;
   selectedId: string | null;
   showOnly: ShowOnly;
+  sortBy: JournalSort;
 };
 
 function Journal(props: JournalProps) {
@@ -1498,11 +1503,13 @@ function Journal(props: JournalProps) {
     onSelect,
     onEdit,
     onShowOnly,
+    onSort,
     onToggle,
     onBulkAdd,
     query,
     selectedId,
     showOnly,
+    sortBy,
   } = props;
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [bulkText, setBulkText] = useState("");
@@ -1632,237 +1639,275 @@ function Journal(props: JournalProps) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto]">
-          <Select value={area} onValueChange={onArea}>
-            <SelectTrigger className="h-9 rounded-xl">
-              <HugeiconsIcon
-                icon={FilterIcon}
-                className="size-3.5"
-                strokeWidth={1.6}
-              />
-              <SelectValue placeholder="area" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL_AREAS}>all areas</SelectItem>
-              {AREAS.map((name) => (
-                <SelectItem key={name} value={name}>
-                  {name.toLowerCase()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="grid gap-3">
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-muted/45 p-1.5">
+            <ToggleGroup
+              type="single"
+              value={showOnly}
+              onValueChange={(value) => {
+                if (isShowOnly(value)) onShowOnly(value);
+              }}
+              className="grid flex-1 grid-cols-3 rounded-xl bg-background/75 p-1 shadow-xs"
+            >
+              <ToggleGroupItem
+                value="all"
+                className="rounded-lg text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                all
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="todo"
+                className="rounded-lg text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                to go
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="done"
+                className="rounded-lg text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                bagged
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
 
-          <ToggleGroup
-            type="single"
-            value={showOnly}
-            onValueChange={(value) => {
-              if (isShowOnly(value)) onShowOnly(value);
-            }}
-            className="rounded-xl bg-muted/70 p-1"
-          >
-            <ToggleGroupItem
-              value="all"
-              className="rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+          <div className="grid gap-1.5">
+            <label className="px-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Sort by
+            </label>
+            <Select
+              value={sortBy}
+              onValueChange={(value) => onSort(value as JournalSort)}
             >
-              all
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="todo"
-              className="rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-            >
-              to go
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="done"
-              className="rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-            >
-              bagged
-            </ToggleGroupItem>
-          </ToggleGroup>
+              <SelectTrigger className="h-11 rounded-2xl border-border bg-background/80 px-3 shadow-xs">
+                <SelectValue placeholder="sort results" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="progress">To go first</SelectItem>
+                <SelectItem value="date-desc">Recently bagged</SelectItem>
+                <SelectItem value="date-asc">Oldest bagged</SelectItem>
+                <SelectItem value="guide">Wainwright order</SelectItem>
+                <SelectItem value="height-desc">Highest first</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <Separator className="my-1" />
-
-        <details className="advanced-options group rounded-2xl border border-border/70 bg-background/45 px-3 py-2">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl text-sm font-medium text-muted-foreground marker:content-none [&::-webkit-details-marker]:hidden">
-            <span>Advanced</span>
-            <span className="text-xs transition-transform group-open:rotate-180">
+        <details className="advanced-options group rounded-2xl border border-border/70 bg-background/45 px-3 py-2.5">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl text-sm font-medium text-foreground marker:content-none [&::-webkit-details-marker]:hidden">
+            <span className="min-w-0">
+              <span className="block">Advanced filters & tools</span>
+              <span className="mobile-filter-summary mt-0.5 block truncate text-xs font-normal text-muted-foreground">
+                {area === ALL_AREAS ? "all areas" : area.toLowerCase()} · bulk
+                add · reset
+              </span>
+            </span>
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-xs transition-transform group-open:rotate-180">
               ⌄
             </span>
           </summary>
-          <div className="mt-3 grid gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  Fast add from a list
-                </p>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Paste text or load CSV, Excel, Word .docx, or plain text. AI
-                  finds Wainwright matches; you confirm anything ambiguous
-                  before it changes your journal.
-                </p>
-              </div>
-              {bulkRows.length > 0 && (
-                <Badge variant="secondary" className="shrink-0 rounded-full">
-                  {countImportableRows(bulkRows, completed)} ready
-                </Badge>
-              )}
-            </div>
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="bulk-import-text"
-                className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground"
-              >
-                paste list
+          <div className="mt-3 grid gap-3">
+            <div className="grid gap-1.5 rounded-xl border border-border/70 bg-background/70 p-3">
+              <label className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                Area filter
               </label>
-              <Textarea
-                id="bulk-import-text"
-                value={bulkText}
-                onChange={(event) => setBulkText(event.target.value)}
-                placeholder={"Scafell Pike\nHelvellyn, 2024-05-02\nHigh Raise"}
-                className="min-h-24 bg-background/80"
-              />
+              <Select value={area} onValueChange={onArea}>
+                <SelectTrigger className="h-10 rounded-xl">
+                  <HugeiconsIcon
+                    icon={FilterIcon}
+                    className="size-3.5"
+                    strokeWidth={1.6}
+                  />
+                  <SelectValue placeholder="area" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_AREAS}>all areas</SelectItem>
+                  {AREAS.map((name) => (
+                    <SelectItem key={name} value={name}>
+                      {name.toLowerCase()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
-              <label className="inline-flex">
-                <input
-                  className="sr-only"
-                  type="file"
-                  accept={IMPORTABLE_FILE_TYPES}
-                  onChange={(event) => {
-                    void handleBulkFile(event.target.files?.[0]);
-                    event.currentTarget.value = "";
-                  }}
-                />
-                <span className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-medium shadow-xs transition hover:bg-accent hover:text-accent-foreground">
-                  <HugeiconsIcon icon={Upload04Icon} strokeWidth={1.6} /> Load
-                  file
-                </span>
-              </label>
-              <Button
-                type="button"
-                className="rounded-full"
-                disabled={bulkWorking}
-                onClick={() => void runBulkMatch(bulkText)}
-              >
-                {bulkWorking ? "Finding matches…" : "Find matches"}
-              </Button>
-            </div>
+            <Separator />
 
-            {bulkRows.length > 0 && (
-              <div className="grid gap-2 rounded-2xl border border-border/70 bg-background/70 p-2">
-                <div className="max-h-80 overflow-auto pr-1">
-                  <div className="grid gap-2">
-                    {bulkRows.map((row, index) => (
-                      <div
-                        key={`${row.sourceText}-${index}`}
-                        className="rounded-xl border border-border/70 bg-card/80 p-2.5"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-foreground">
-                              {row.sourceText}
-                            </p>
-                            <p className="mt-0.5 text-xs text-muted-foreground">
-                              {row.status === "needs-choice"
-                                ? "Choose the right fell"
-                                : row.status === "already-bagged"
-                                  ? "Already in your journal"
-                                  : row.status === "no-match"
-                                    ? "No confident match"
-                                    : "Ready to add"}
-                            </p>
-                          </div>
-                          <Badge
-                            variant={
-                              row.status === "ready" ? "default" : "secondary"
-                            }
-                            className="shrink-0 rounded-full"
-                          >
-                            {row.status === "needs-choice"
-                              ? "confirm"
-                              : row.status === "no-match"
-                                ? "skip"
-                                : row.status === "already-bagged"
-                                  ? "done"
-                                  : "add"}
-                          </Badge>
-                        </div>
-
-                        {row.candidates.length > 0 && (
-                          <div className="mt-2 grid gap-1.5">
-                            {row.candidates.map((candidate) => (
-                              <label
-                                key={candidate.id}
-                                className={cn(
-                                  "flex cursor-pointer items-start gap-2 rounded-lg border px-2 py-1.5 text-sm transition",
-                                  row.selectedId === candidate.id
-                                    ? "border-primary bg-primary/10"
-                                    : "border-border bg-background/60 hover:bg-accent/50",
-                                )}
-                              >
-                                <input
-                                  type="radio"
-                                  name={`bulk-match-${index}`}
-                                  className="mt-1"
-                                  checked={row.selectedId === candidate.id}
-                                  onChange={() =>
-                                    selectBulkCandidate(index, candidate.id)
-                                  }
-                                />
-                                <span className="min-w-0">
-                                  <span className="block font-medium">
-                                    {candidate.name}
-                                  </span>
-                                  <span className="block text-xs text-muted-foreground">
-                                    {Math.round(candidate.confidence * 100)}%
-                                    {candidate.reason
-                                      ? ` · ${candidate.reason}`
-                                      : ""}
-                                  </span>
-                                </span>
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+            <div className="grid gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Bulk add fells
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    Paste text or load CSV, Excel, Word .docx, or plain text. AI
+                    finds Wainwright matches; you confirm anything ambiguous
+                    before it changes your journal.
+                  </p>
                 </div>
+                {bulkRows.length > 0 && (
+                  <Badge variant="secondary" className="shrink-0 rounded-full">
+                    {countImportableRows(bulkRows, completed)} ready
+                  </Badge>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                <label
+                  htmlFor="bulk-import-text"
+                  className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground"
+                >
+                  paste list
+                </label>
+                <Textarea
+                  id="bulk-import-text"
+                  value={bulkText}
+                  onChange={(event) => setBulkText(event.target.value)}
+                  placeholder={
+                    "Scafell Pike\nHelvellyn, 2024-05-02\nHigh Raise"
+                  }
+                  className="min-h-24 bg-background/80"
+                />
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <label className="inline-flex">
+                  <input
+                    className="sr-only"
+                    type="file"
+                    accept={IMPORTABLE_FILE_TYPES}
+                    onChange={(event) => {
+                      void handleBulkFile(event.target.files?.[0]);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                  <span className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-medium shadow-xs transition hover:bg-accent hover:text-accent-foreground">
+                    <HugeiconsIcon icon={Upload04Icon} strokeWidth={1.6} /> Load
+                    file
+                  </span>
+                </label>
                 <Button
                   type="button"
                   className="rounded-full"
-                  disabled={
-                    bulkWorking ||
-                    countImportableRows(bulkRows, completed) === 0
-                  }
-                  onClick={() => void addSelectedBulkRows()}
+                  disabled={bulkWorking}
+                  onClick={() => void runBulkMatch(bulkText)}
                 >
-                  Add selected fells
+                  {bulkWorking ? "Finding matches…" : "Find matches"}
                 </Button>
               </div>
-            )}
-          </div>
 
-          <div className="mt-3 rounded-xl border border-destructive/20 bg-destructive/5 p-3">
-            <p className="text-sm font-semibold text-destructive">
-              Reset all progress
-            </p>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              This will reset all of your bagged fells, dates, notes, and saved
-              photos from your journal.
-            </p>
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={() => setResetDialogOpen(true)}
-              className="mt-3 rounded-full"
-            >
-              <HugeiconsIcon icon={ReloadIcon} strokeWidth={1.6} /> Reset all
-            </Button>
+              {bulkRows.length > 0 && (
+                <div className="grid gap-2 rounded-2xl border border-border/70 bg-background/70 p-2">
+                  <div className="max-h-80 overflow-auto pr-1">
+                    <div className="grid gap-2">
+                      {bulkRows.map((row, index) => (
+                        <div
+                          key={`${row.sourceText}-${index}`}
+                          className="rounded-xl border border-border/70 bg-card/80 p-2.5"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium text-foreground">
+                                {row.sourceText}
+                              </p>
+                              <p className="mt-0.5 text-xs text-muted-foreground">
+                                {row.status === "needs-choice"
+                                  ? "Choose the right fell"
+                                  : row.status === "already-bagged"
+                                    ? "Already in your journal"
+                                    : row.status === "no-match"
+                                      ? "No confident match"
+                                      : "Ready to add"}
+                              </p>
+                            </div>
+                            <Badge
+                              variant={
+                                row.status === "ready" ? "default" : "secondary"
+                              }
+                              className="shrink-0 rounded-full"
+                            >
+                              {row.status === "needs-choice"
+                                ? "confirm"
+                                : row.status === "no-match"
+                                  ? "skip"
+                                  : row.status === "already-bagged"
+                                    ? "done"
+                                    : "add"}
+                            </Badge>
+                          </div>
+
+                          {row.candidates.length > 0 && (
+                            <div className="mt-2 grid gap-1.5">
+                              {row.candidates.map((candidate) => (
+                                <label
+                                  key={candidate.id}
+                                  className={cn(
+                                    "flex cursor-pointer items-start gap-2 rounded-lg border px-2 py-1.5 text-sm transition",
+                                    row.selectedId === candidate.id
+                                      ? "border-primary bg-primary/10"
+                                      : "border-border bg-background/60 hover:bg-accent/50",
+                                  )}
+                                >
+                                  <input
+                                    type="radio"
+                                    name={`bulk-match-${index}`}
+                                    className="mt-1"
+                                    checked={row.selectedId === candidate.id}
+                                    onChange={() =>
+                                      selectBulkCandidate(index, candidate.id)
+                                    }
+                                  />
+                                  <span className="min-w-0">
+                                    <span className="block font-medium">
+                                      {candidate.name}
+                                    </span>
+                                    <span className="block text-xs text-muted-foreground">
+                                      {Math.round(candidate.confidence * 100)}%
+                                      {candidate.reason
+                                        ? ` · ${candidate.reason}`
+                                        : ""}
+                                    </span>
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    className="rounded-full"
+                    disabled={
+                      bulkWorking ||
+                      countImportableRows(bulkRows, completed) === 0
+                    }
+                    onClick={() => void addSelectedBulkRows()}
+                  >
+                    Add selected fells
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-3 rounded-xl border border-destructive/20 bg-destructive/5 p-3">
+              <p className="text-sm font-semibold text-destructive">
+                Reset all progress
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                This will reset all of your bagged fells, dates, notes, and
+                saved photos from your journal.
+              </p>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => setResetDialogOpen(true)}
+                className="mt-3 rounded-full"
+              >
+                <HugeiconsIcon icon={ReloadIcon} strokeWidth={1.6} /> Reset all
+              </Button>
+            </div>
           </div>
         </details>
 
