@@ -101,6 +101,16 @@ describe("mobile map layout", () => {
     expect(appSource).toContain("photo-preview-grid");
   });
 
+  it("uses friendly error boundaries instead of exposing raw Convex stack traces", () => {
+    expect(appSource).toContain("AppErrorBoundary");
+    expect(appSource).toContain("FeatureErrorBoundary");
+    expect(appSource).toContain("Something went wrong");
+    expect(appSource).toContain("We could not load this section");
+    expect(appSource).toContain("componentDidCatch");
+    expect(appSource).not.toContain("Called by client");
+    expect(appSource).not.toContain("queryResult@");
+  });
+
   it("opens a simple mobile menu whose Configuration title opens a settings drawer", () => {
     expect(appSource).toContain("mobile-sidebar-open");
     expect(appSource).toContain('aria-label="open menu"');
