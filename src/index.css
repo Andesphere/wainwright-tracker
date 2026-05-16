@@ -308,11 +308,15 @@ h6,
     filter 150ms ease;
 }
 .completed-peak-pin:hover,
-.completed-peak-pin:focus-visible {
+.completed-peak-pin:focus-visible,
+.completed-peak-pin-selected {
   transform: scale(1.15);
   filter: drop-shadow(0 4px 5px rgba(20, 28, 18, 0.4))
     drop-shadow(0 0 3px #fbf7ec);
   outline: none;
+}
+.completed-peak-pin-selected {
+  transform: scale(1.25);
 }
 .maplibregl-ctrl-attrib {
   background: color-mix(in oklab, var(--parchment) 85%, transparent) !important;
@@ -331,6 +335,13 @@ h6,
     bottom: calc(env(safe-area-inset-bottom) + 4.75rem) !important;
     left: 1rem !important;
     max-width: calc(100vw - 7.5rem);
+  }
+  .has-selected-fell .maplibregl-ctrl-bottom-right {
+    bottom: calc(env(safe-area-inset-bottom) + 13.5rem) !important;
+  }
+
+  .has-selected-fell .maplibregl-ctrl-bottom-left {
+    bottom: calc(env(safe-area-inset-bottom) + 13rem) !important;
   }
 }
 

@@ -8,7 +8,7 @@ import {
 } from "@clerk/clerk-react";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { useAction, useMutation, useQuery } from "convex/react";
-import maplibregl, { Map as MaplibreMap, Popup } from "maplibre-gl";
+import maplibregl, { Map as MaplibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -77,7 +77,6 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
-import { buildPeakPopupHtml } from "@/peakPopup";
 import {
   buildBulkReviewRows,
   countImportableRows,
@@ -127,7 +126,9 @@ const MAX_IMPORT_TEXT_CHARS = 40_000;
 
 async function extractBulkImportText(file: File) {
   if (file.size > MAX_IMPORT_FILE_BYTES) {
-    throw new Error("Import files must be under 2MB. Split the list or paste the fells instead.");
+    throw new Error(
+      "Import files must be under 2MB. Split the list or paste the fells instead.",
+    );
   }
 
   const lowerName = file.name.toLowerCase();
@@ -142,7 +143,9 @@ async function extractBulkImportText(file: File) {
 
   if (lowerName.endsWith(".docx")) {
     const mammoth = await import("mammoth");
-    const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+    const result = await mammoth.extractRawText({
+      arrayBuffer: await file.arrayBuffer(),
+    });
     return result.value;
   }
 
@@ -236,7 +239,6 @@ function App() {
 function TrackerApp() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MaplibreMap | null>(null);
-  const popupRef = useRef<Popup | null>(null);
   const completedMarkersRef = useRef<maplibregl.Marker[]>([]);
 
   const progress = useQuery(api.progress.get);
@@ -259,6 +261,7 @@ function TrackerApp() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pendingCompletionPeak, setPendingCompletionPeak] =
     useState<Wainwright | null>(null);
+  const [selectedDetailsOpen, setSelectedDetailsOpen] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState(false);
   const [topoEnabled, setTopoEnabled] = useState(DEFAULT_TOPO_ENABLED);
@@ -289,6 +292,9 @@ function TrackerApp() {
     () => WAINWRIGHTS.find((peak) => peak.id === selectedId) ?? null,
     [selectedId],
   );
+  const selectedEntry = selectedPeak
+    ? completionEntriesById.get(selectedPeak.id)
+    : undefined;
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -531,11 +537,15 @@ function TrackerApp() {
         });
       });
 
-      map.on("click", "peak-hit-area", (event: maplibregl.MapLayerMouseEvent) => {
-        const feature = event.features?.[0];
-        const id = feature?.properties?.id;
-        if (typeof id === "string") setSelectedId(id);
-      });
+      map.on(
+        "click",
+        "peak-hit-area",
+        (event: maplibregl.MapLayerMouseEvent) => {
+          const feature = event.features?.[0];
+          const id = feature?.properties?.id;
+          if (typeof id === "string") setSelectedId(id);
+        },
+      );
 
       map.on("click", (event: maplibregl.MapMouseEvent) => {
         const features = map.queryRenderedFeatures(event.point, {
@@ -576,8 +586,6 @@ function TrackerApp() {
       resizeObserver.disconnect();
       window.removeEventListener("resize", resizeMap);
       window.visualViewport?.removeEventListener("resize", resizeMap);
-      popupRef.current?.remove();
-      popupRef.current = null;
       completedMarkersRef.current.forEach((marker) => marker.remove());
       completedMarkersRef.current = [];
       mapRef.current = null;
@@ -603,7 +611,10 @@ function TrackerApp() {
     completedMarkersRef.current = completedPeaks.map((peak) => {
       const element = document.createElement("button");
       element.type = "button";
-      element.className = "completed-peak-pin";
+      element.className = cn(
+        "completed-peak-pin",
+        selectedId === peak.id && "completed-peak-pin-selected",
+      );
       element.textContent = "📌";
       element.title = `${peak.name} bagged`;
       element.setAttribute("aria-label", `${peak.name} bagged`);
@@ -621,7 +632,7 @@ function TrackerApp() {
       completedMarkersRef.current.forEach((marker) => marker.remove());
       completedMarkersRef.current = [];
     };
-  }, [completedPeaks, mapReady]);
+  }, [completedPeaks, mapReady, selectedId]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -636,42 +647,48 @@ function TrackerApp() {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-    if (!selectedPeak) {
-      popupRef.current?.remove();
-      popupRef.current = null;
-      return;
-    }
+    if (!map || !mapReady || !selectedPeak) return;
+
     map.easeTo({
       center: [selectedPeak.longitude, selectedPeak.latitude],
       zoom: Math.max(map.getZoom(), 12.2),
+      offset: [0, window.innerWidth < 1024 ? -130 : 0],
       duration: 850,
     });
-    popupRef.current?.remove();
-    popupRef.current = new maplibregl.Popup({
-      closeButton: false,
-      offset: 18,
-      className: "peak-popup",
-    })
-      .setLngLat([selectedPeak.longitude, selectedPeak.latitude])
-      .setHTML(buildPeakPopupHtml(selectedPeak, completed.has(selectedPeak.id)))
-      .addTo(map);
+  }, [mapReady, selectedPeak]);
 
-    const popupElement = popupRef.current.getElement();
-    const actionButton = popupElement.querySelector<HTMLButtonElement>(
-      `[data-peak-id="${selectedPeak.id}"]`,
-    );
-    actionButton?.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (completed.has(selectedPeak.id)) {
-        void unbagPeak(selectedPeak);
-        return;
-      }
-      setPendingCompletionPeak(selectedPeak);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [completed, selectedPeak]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady || !map.getLayer("peaks")) return;
+
+    const selectedFilter = selectedPeak
+      ? ["==", ["get", "id"], selectedPeak.id]
+      : ["==", ["get", "id"], ""];
+    map.setPaintProperty("peaks", "circle-radius", [
+      "case",
+      selectedFilter,
+      18,
+      ["boolean", ["get", "done"], false],
+      13,
+      12,
+    ]);
+    map.setPaintProperty("peaks", "circle-stroke-color", [
+      "case",
+      selectedFilter,
+      "#fbf7ec",
+      ["boolean", ["get", "done"], false],
+      "#0b5d3b",
+      "#1f2d23",
+    ]);
+    map.setPaintProperty("peaks", "circle-stroke-width", [
+      "case",
+      selectedFilter,
+      5,
+      ["boolean", ["get", "done"], false],
+      2.5,
+      1.5,
+    ]);
+  }, [mapReady, selectedPeak]);
 
   const savePeakCompletion = async (
     peak: Wainwright,
@@ -830,8 +847,7 @@ function TrackerApp() {
 
   const showAllFells = () => {
     setSelectedId(null);
-    popupRef.current?.remove();
-    popupRef.current = null;
+    setSelectedDetailsOpen(false);
     fitLakeDistrict();
   };
 
@@ -967,7 +983,10 @@ function TrackerApp() {
 
       {/* Map stage --------------------------------------------------------- */}
       <section
-        className="relative h-dvh p-2.5 sm:p-4 lg:p-5"
+        className={cn(
+          "relative h-dvh p-2.5 sm:p-4 lg:p-5",
+          selectedPeak && "has-selected-fell",
+        )}
         aria-label="Wainwright map"
       >
         <div
@@ -1112,38 +1131,61 @@ function TrackerApp() {
           </Button>
         )}
 
-        <div className="absolute inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-10 lg:hidden">
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                size="lg"
-                className="mobile-search-trigger h-14 w-full justify-center gap-3 rounded-full border-white/60 bg-parchment/95 px-5 text-xl font-bold text-ink shadow-lg backdrop-blur-xl"
-                onClick={() => setMobileOpen(true)}
-                aria-label="open search"
+        <div className="absolute inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-10 lg:bottom-8 lg:left-8 lg:right-auto lg:w-[26rem]">
+          {selectedPeak ? (
+            <SelectedFellCard
+              completed={completed.has(selectedPeak.id)}
+              entry={selectedEntry}
+              onBag={() => setPendingCompletionPeak(selectedPeak)}
+              onClose={() => {
+                setSelectedId(null);
+                setSelectedDetailsOpen(false);
+              }}
+              onDetails={() => setSelectedDetailsOpen(true)}
+              onEdit={() => setPendingCompletionPeak(selectedPeak)}
+              onSearch={() => {
+                setSelectedId(null);
+                setSelectedDetailsOpen(false);
+                setMobileOpen(true);
+              }}
+              onUnbag={() => void unbagPeak(selectedPeak)}
+              open={selectedDetailsOpen}
+              onOpenChange={setSelectedDetailsOpen}
+              peak={selectedPeak}
+            />
+          ) : (
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="mobile-search-trigger h-14 w-full justify-center gap-3 rounded-full border-white/60 bg-parchment/95 px-5 text-xl font-bold text-ink shadow-lg backdrop-blur-xl lg:hidden"
+                  onClick={() => setMobileOpen(true)}
+                  aria-label="open search"
+                >
+                  <HugeiconsIcon
+                    icon={Search01Icon}
+                    className="size-7"
+                    strokeWidth={2}
+                  />
+                  <span>Search</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="bottom"
+                className="h-[92dvh] max-h-[760px] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl"
               >
-                <HugeiconsIcon
-                  icon={Search01Icon}
-                  className="size-7"
-                  strokeWidth={2}
-                />
-                <span>Search</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="bottom"
-              className="h-[92dvh] max-h-[760px] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl"
-            >
-              <SheetTitle className="sr-only">fells journal</SheetTitle>
-              <SheetDescription className="sr-only">
-                Search, filter, import, export, and mark Wainwright fells as
-                bagged.
-              </SheetDescription>
-              <div className="h-full overflow-auto journal-scroll">
-                {mobileOpen && journal}
-              </div>
-            </SheetContent>
-          </Sheet>
+                <SheetTitle className="sr-only">fells journal</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Search, filter, import, export, and mark Wainwright fells as
+                  bagged.
+                </SheetDescription>
+                <div className="h-full overflow-auto journal-scroll">
+                  {mobileOpen && journal}
+                </div>
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
 
         {/* Bottom-left ambient stats — desktop only */}
@@ -1164,6 +1206,270 @@ function TrackerApp() {
 
       <Toaster richColors position="top-center" />
     </main>
+  );
+}
+
+function SelectedPhotoStrip({ photos }: { photos: WainwrightPhotoMetadata[] }) {
+  if (photos.length === 0) {
+    return (
+      <div className="grid h-24 place-items-center rounded-2xl border border-white/15 bg-white/10 text-center text-xs text-white/70">
+        no photos yet
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      {photos.slice(0, 2).map((photo, index) =>
+        photo.url ? (
+          <img
+            key={`${photo.storageId}-${index}`}
+            src={photo.url}
+            alt={photo.originalName ?? "Wainwright photo"}
+            className="h-24 w-full rounded-2xl object-cover shadow-sm"
+          />
+        ) : (
+          <div
+            key={`${photo.storageId}-${index}`}
+            className="grid h-24 place-items-center rounded-2xl bg-white/10 text-xs text-white/70"
+          >
+            photo saved
+          </div>
+        ),
+      )}
+    </div>
+  );
+}
+
+type SelectedFellCardProps = {
+  completed: boolean;
+  entry?: CompletionEntry;
+  onBag: () => void;
+  onClose: () => void;
+  onDetails: () => void;
+  onEdit: () => void;
+  onOpenChange: (open: boolean) => void;
+  onSearch: () => void;
+  onUnbag: () => void;
+  open: boolean;
+  peak: Wainwright;
+};
+
+function SelectedFellCard({
+  completed,
+  entry,
+  onBag,
+  onClose,
+  onDetails,
+  onEdit,
+  onOpenChange,
+  onSearch,
+  onUnbag,
+  open,
+  peak,
+}: SelectedFellCardProps) {
+  const photos = entry?.photos ?? [];
+  const heroPhoto = photos.find((photo) => photo.url)?.url;
+  const primaryAction = completed ? onEdit : onBag;
+
+  return (
+    <>
+      <Card className="overflow-hidden rounded-[1.75rem] border-white/20 bg-ink/88 p-0 text-white shadow-[0_24px_70px_-24px_rgba(0,0,0,0.7)] backdrop-blur-2xl">
+        {heroPhoto ? (
+          <div
+            className="h-24 bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroPhoto})` }}
+          />
+        ) : (
+          <div className="h-3 bg-gradient-to-r from-primary via-emerald-300 to-sky-300" />
+        )}
+        <div className="space-y-4 p-4">
+          <div className="flex items-start gap-3">
+            <button
+              type="button"
+              className={cn(
+                "mt-1 grid size-11 shrink-0 place-items-center rounded-2xl border shadow-inner",
+                completed
+                  ? "border-emerald-300/50 bg-emerald-400 text-emerald-950"
+                  : "border-white/20 bg-white/10 text-white",
+              )}
+              onClick={primaryAction}
+              aria-label={completed ? `edit ${peak.name}` : `bag ${peak.name}`}
+            >
+              <HugeiconsIcon
+                icon={completed ? CheckmarkCircle02Icon : Backpack03Icon}
+                className="size-5"
+                strokeWidth={1.8}
+              />
+            </button>
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex flex-wrap items-center gap-2">
+                <Badge
+                  variant={completed ? "default" : "secondary"}
+                  className="rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.16em]"
+                >
+                  {completed ? "Bagged" : "Not bagged"}
+                </Badge>
+                {completed && photos.length > 0 && (
+                  <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 font-mono text-[10px] text-white/75">
+                    {photos.length} photo{photos.length === 1 ? "" : "s"}
+                  </span>
+                )}
+              </div>
+              <h2 className="truncate font-display text-2xl italic leading-none tracking-tight">
+                {peak.name}
+              </h2>
+              <p className="mt-1 font-mono text-[11px] text-white/70">
+                #{peak.bookNumber} · {peak.area} · {peak.heightMetres}m ·{" "}
+                {peak.gridReference}
+              </p>
+              {completed && (
+                <p className="mt-2 line-clamp-2 text-sm leading-snug text-white/80">
+                  {entry?.note ||
+                    `Bagged ${formatCompletionDate(entry?.completedAt)}`}
+                </p>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="shrink-0 rounded-full text-white/75 hover:bg-white/10 hover:text-white"
+              onClick={onClose}
+              aria-label="close selected fell"
+            >
+              <HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.8} />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-[1fr_auto_auto] gap-2">
+            <Button
+              className="rounded-full"
+              variant={completed ? "secondary" : "default"}
+              onClick={primaryAction}
+            >
+              <HugeiconsIcon
+                icon={completed ? PencilEdit02Icon : Backpack03Icon}
+                strokeWidth={1.7}
+              />
+              {completed ? "Edit" : "Bag this"}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon-lg"
+              className="rounded-full border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white"
+              onClick={onDetails}
+              aria-label="open fell details"
+            >
+              <HugeiconsIcon icon={EyeIcon} strokeWidth={1.7} />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon-lg"
+              className="rounded-full border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white lg:hidden"
+              onClick={onSearch}
+              aria-label="open search"
+            >
+              <HugeiconsIcon icon={Search01Icon} strokeWidth={1.7} />
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="max-h-[88dvh] overflow-hidden rounded-t-[2rem] border-white/10 bg-ink p-0 text-white">
+          <DrawerHeader className="sr-only">
+            <DrawerTitle>{peak.name} details</DrawerTitle>
+            <DrawerDescription>
+              Fell details, bagged status, notes, and photos.
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="journal-scroll overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+            {heroPhoto ? (
+              <img
+                src={heroPhoto}
+                alt={`${peak.name} bagged photo`}
+                className="h-56 w-full object-cover sm:h-72"
+              />
+            ) : (
+              <div className="grid h-40 place-items-center bg-gradient-to-br from-moss via-primary to-sky-300/70">
+                <HugeiconsIcon
+                  icon={MountainIcon}
+                  className="size-14 text-white/90"
+                  strokeWidth={1.2}
+                />
+              </div>
+            )}
+            <div className="space-y-5 p-5">
+              <div>
+                <Badge
+                  variant={completed ? "default" : "secondary"}
+                  className="rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.18em]"
+                >
+                  {completed ? "Bagged" : "Not bagged"}
+                </Badge>
+                <h2 className="mt-3 font-display text-4xl italic leading-none tracking-tight">
+                  {peak.name}
+                </h2>
+                <p className="mt-2 font-mono text-xs text-white/70">
+                  #{peak.bookNumber} · {peak.area} · {peak.heightMetres}m /{" "}
+                  {peak.heightFt}ft · {peak.gridReference}
+                </p>
+              </div>
+
+              {completed && (
+                <div className="rounded-3xl border border-white/10 bg-white/10 p-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">
+                    logged
+                  </p>
+                  <p className="mt-1 text-sm text-white/85">
+                    {formatCompletionDate(entry?.completedAt)}
+                  </p>
+                  {entry?.note && (
+                    <p className="mt-3 text-sm leading-relaxed text-white/80">
+                      {entry.note}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <SelectedPhotoStrip photos={photos} />
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  className="rounded-full"
+                  variant={completed ? "secondary" : "default"}
+                  onClick={primaryAction}
+                >
+                  <HugeiconsIcon
+                    icon={completed ? PencilEdit02Icon : Backpack03Icon}
+                    strokeWidth={1.7}
+                  />
+                  {completed ? "Edit log" : "Bag this"}
+                </Button>
+                {completed ? (
+                  <Button
+                    variant="outline"
+                    className="rounded-full border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white"
+                    onClick={onUnbag}
+                  >
+                    Unbag
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="rounded-full border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white"
+                    onClick={onSearch}
+                  >
+                    Search
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+          <DrawerFooter className="sr-only" />
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 }
 
@@ -1273,7 +1579,9 @@ function Journal(props: JournalProps) {
   const matchImport = useAction(api.importer.matchImport);
 
   const runBulkMatch = async (text: string) => {
-    const lines = parseDelimitedImportText(text.slice(0, MAX_IMPORT_TEXT_CHARS));
+    const lines = parseDelimitedImportText(
+      text.slice(0, MAX_IMPORT_TEXT_CHARS),
+    );
     if (lines.length === 0) {
       toast.error("Paste a list or upload a file first");
       return;
@@ -1292,7 +1600,9 @@ function Journal(props: JournalProps) {
       );
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Could not match imported fells";
+        error instanceof Error
+          ? error.message
+          : "Could not match imported fells";
       toast.error(message);
     } finally {
       setBulkWorking(false);
@@ -1303,7 +1613,10 @@ function Journal(props: JournalProps) {
     if (!file) return;
     setBulkWorking(true);
     try {
-      const text = (await extractBulkImportText(file)).slice(0, MAX_IMPORT_TEXT_CHARS);
+      const text = (await extractBulkImportText(file)).slice(
+        0,
+        MAX_IMPORT_TEXT_CHARS,
+      );
       setBulkText(text);
       await runBulkMatch(text);
     } catch (error) {
@@ -1336,8 +1649,8 @@ function Journal(props: JournalProps) {
       new Set(
         bulkRows
           .map((row) => row.selectedId)
-          .filter((id): id is string =>
-            typeof id === "string" && !completed.has(id),
+          .filter(
+            (id): id is string => typeof id === "string" && !completed.has(id),
           ),
       ),
     );
@@ -1460,9 +1773,9 @@ function Journal(props: JournalProps) {
                   Fast add from a list
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Paste text or load CSV, Excel, Word .docx, or plain text. AI finds
-                  Wainwright matches; you confirm anything ambiguous before it
-                  changes your journal.
+                  Paste text or load CSV, Excel, Word .docx, or plain text. AI
+                  finds Wainwright matches; you confirm anything ambiguous
+                  before it changes your journal.
                 </p>
               </div>
               {bulkRows.length > 0 && (
@@ -1500,7 +1813,8 @@ function Journal(props: JournalProps) {
                   }}
                 />
                 <span className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-medium shadow-xs transition hover:bg-accent hover:text-accent-foreground">
-                  <HugeiconsIcon icon={Upload04Icon} strokeWidth={1.6} /> Load file
+                  <HugeiconsIcon icon={Upload04Icon} strokeWidth={1.6} /> Load
+                  file
                 </span>
               </label>
               <Button
@@ -1538,7 +1852,9 @@ function Journal(props: JournalProps) {
                             </p>
                           </div>
                           <Badge
-                            variant={row.status === "ready" ? "default" : "secondary"}
+                            variant={
+                              row.status === "ready" ? "default" : "secondary"
+                            }
                             className="shrink-0 rounded-full"
                           >
                             {row.status === "needs-choice"
@@ -1578,7 +1894,9 @@ function Journal(props: JournalProps) {
                                   </span>
                                   <span className="block text-xs text-muted-foreground">
                                     {Math.round(candidate.confidence * 100)}%
-                                    {candidate.reason ? ` · ${candidate.reason}` : ""}
+                                    {candidate.reason
+                                      ? ` · ${candidate.reason}`
+                                      : ""}
                                   </span>
                                 </span>
                               </label>
@@ -1592,7 +1910,10 @@ function Journal(props: JournalProps) {
                 <Button
                   type="button"
                   className="rounded-full"
-                  disabled={bulkWorking || countImportableRows(bulkRows, completed) === 0}
+                  disabled={
+                    bulkWorking ||
+                    countImportableRows(bulkRows, completed) === 0
+                  }
                   onClick={() => void addSelectedBulkRows()}
                 >
                   Add selected fells
@@ -1800,12 +2121,18 @@ function ProgressRing({ percent }: { percent: number }) {
   );
 }
 
-function formatCompletionDate(value: string) {
+function formatCompletionDate(value?: string) {
+  if (!value) return "date not set";
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? `${value}T00:00:00`
+    : value;
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return value;
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
+  }).format(date);
 }
 
 function CompletionDialog({
