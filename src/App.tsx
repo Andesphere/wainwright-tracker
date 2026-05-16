@@ -109,12 +109,10 @@ const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 const ALL_AREAS = "All";
 const SHOW_OPTIONS = ["all", "todo", "done"] as const;
 const HEIGHT_UNITS = ["m", "ft"] as const;
-const MOBILE_SIDEBAR_PAGES = ["search", "configuration"] as const;
 const VALID_WAINWRIGHT_IDS = new Set(WAINWRIGHTS.map((peak) => peak.id));
 
 type ShowOnly = (typeof SHOW_OPTIONS)[number];
 type HeightUnit = (typeof HEIGHT_UNITS)[number];
-type MobileSidebarPage = (typeof MOBILE_SIDEBAR_PAGES)[number];
 type CompletionEntry = {
   completedAt?: string;
   id: string;
@@ -299,8 +297,7 @@ function TrackerApp() {
   );
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [mobileSidebarPage, setMobileSidebarPage] =
-    useState<MobileSidebarPage>("configuration");
+  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
 
   const serverCompleted = useMemo(
     () =>
@@ -1124,10 +1121,7 @@ function TrackerApp() {
             variant="outline"
             size="icon-lg"
             className="rounded-full border-white/50 bg-parchment/85 backdrop-blur-xl lg:hidden"
-            onClick={() => {
-              setMobileSidebarOpen(true);
-              setMobileSidebarPage("configuration");
-            }}
+            onClick={() => setMobileSidebarOpen(true)}
             aria-label="open menu"
           >
             <HugeiconsIcon icon={Menu02Icon} strokeWidth={1.6} />
@@ -1212,7 +1206,7 @@ function TrackerApp() {
           >
             <SheetTitle className="sr-only">menu</SheetTitle>
             <SheetDescription className="sr-only">
-              Open search or configure journal display preferences.
+              Open the configuration settings drawer.
             </SheetDescription>
             <div className="flex h-full flex-col gap-4 overflow-auto px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+1rem)] journal-scroll">
               <div className="rounded-2xl border border-border/70 bg-card/85 p-3">
@@ -1224,52 +1218,69 @@ function TrackerApp() {
                 </h2>
               </div>
 
-              <ToggleGroup
-                type="single"
-                value={mobileSidebarPage}
-                onValueChange={(value) => {
-                  if (
-                    MOBILE_SIDEBAR_PAGES.includes(value as MobileSidebarPage)
-                  ) {
-                    setMobileSidebarPage(value as MobileSidebarPage);
-                  }
+              <button
+                type="button"
+                aria-label="open configuration"
+                className="mobile-configuration-trigger flex w-full items-center justify-between rounded-2xl border border-border/70 bg-background/80 p-4 text-left shadow-xs transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={() => {
+                  setMobileSidebarOpen(false);
+                  setMobileSettingsOpen(true);
                 }}
-                className="mobile-sidebar-page grid grid-cols-2 rounded-2xl bg-muted/60 p-1"
               >
-                <ToggleGroupItem
-                  value="search"
-                  className="rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                >
-                  Search
-                </ToggleGroupItem>
-                <ToggleGroupItem
-                  value="configuration"
-                  className="rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                >
-                  Configuration
-                </ToggleGroupItem>
-              </ToggleGroup>
+                <span>
+                  <span className="block text-lg font-semibold text-foreground">
+                    Configuration
+                  </span>
+                  <span className="mt-1 block text-sm text-muted-foreground">
+                    Display units and map preferences
+                  </span>
+                </span>
+                <span className="text-2xl leading-none text-muted-foreground">›</span>
+              </button>
+            </div>
+          </SheetContent>
+        </Sheet>
 
-              {mobileSidebarPage === "search" ? (
-                <div className="grid gap-3 rounded-2xl border border-border/70 bg-background/70 p-3">
-                  <p className="text-sm text-muted-foreground">
-                    Open the journal search, filters, and fell list.
+        <Sheet open={mobileSettingsOpen} onOpenChange={setMobileSettingsOpen}>
+          <SheetContent
+            side="bottom"
+            className="mobile-settings-drawer h-auto max-h-[70dvh] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl lg:hidden"
+          >
+            <SheetTitle className="sr-only">All settings</SheetTitle>
+            <SheetDescription className="sr-only">
+              Configure display units and map preferences.
+            </SheetDescription>
+            <div className="grid gap-4 overflow-auto px-4 pb-5 pt-5 journal-scroll">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  Configuration
+                </p>
+                <h2 className="mt-1 font-display text-3xl italic text-foreground">
+                  All settings
+                </h2>
+              </div>
+
+              {heightPreferenceControl}
+
+              <div className="grid gap-3 rounded-2xl border border-border/70 bg-background/70 p-3">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    map
                   </p>
-                  <Button
-                    type="button"
-                    className="rounded-full"
-                    onClick={() => {
-                      setMobileSidebarOpen(false);
-                      setMobileSearchOpen(true);
-                    }}
-                  >
-                    <HugeiconsIcon icon={Search01Icon} strokeWidth={1.7} />
-                    Open search
-                  </Button>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Toggle the topo contour overlay on the map.
+                  </p>
                 </div>
-              ) : (
-                heightPreferenceControl
-              )}
+                <Button
+                  type="button"
+                  variant={topoEnabled ? "default" : "outline"}
+                  className="justify-start rounded-full"
+                  onClick={() => setTopoEnabled((value) => !value)}
+                >
+                  <HugeiconsIcon icon={Layers01Icon} strokeWidth={1.7} />
+                  {topoEnabled ? "Topo overlay on" : "Topo overlay off"}
+                </Button>
+              </div>
             </div>
           </SheetContent>
         </Sheet>

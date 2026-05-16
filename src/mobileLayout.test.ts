@@ -86,14 +86,18 @@ describe("mobile map layout", () => {
     expect(appSource).toContain("Search01Icon");
   });
 
-  it("opens a mobile sidebar from the burger with search and configuration pages", () => {
+  it("opens a simple mobile menu whose Configuration title opens a settings drawer", () => {
     expect(appSource).toContain("mobile-sidebar-open");
     expect(appSource).toContain('aria-label="open menu"');
     expect(appSource).toContain('side="right"');
-    expect(appSource).toContain("mobile-sidebar-page");
-    expect(appSource).toContain('value="search"');
-    expect(appSource).toContain('value="configuration"');
-    expect(appSource).toContain("Configuration");
+    expect(appSource).toContain("mobile-configuration-trigger");
+    expect(appSource).toContain('aria-label="open configuration"');
+    expect(appSource).toContain("mobile-settings-drawer");
+    expect(appSource).toContain("All settings");
+
+    expect(appSource).not.toContain("MOBILE_SIDEBAR_PAGES");
+    expect(appSource).not.toContain("mobile-sidebar-page");
+    expect(appSource).not.toContain('value="search"');
   });
 
   it("lets users configure one visible height unit and removes grid refs from list rows", () => {
