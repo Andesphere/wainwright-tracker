@@ -23,6 +23,7 @@ import {
   Layers01Icon,
   Menu02Icon,
   MountainIcon,
+  PencilEdit02Icon,
   ReloadIcon,
   Search01Icon,
   Upload04Icon,
@@ -642,6 +643,7 @@ function TrackerApp() {
     peak: Wainwright,
     metadata: CompletionMetadata = {},
   ) => {
+    const existingEntry = completionEntriesById.get(peak.id);
     setOptimisticCompleted((previous) => {
       const baseline = previous ?? completed;
       const next = new Set(baseline);
@@ -652,7 +654,12 @@ function TrackerApp() {
       const baseline = previous ?? completionEntries;
       return [
         ...baseline.filter((entry) => entry.id !== peak.id),
-        { id: peak.id, ...metadata },
+        {
+          ...existingEntry,
+          id: peak.id,
+          ...metadata,
+          photos: existingEntry?.photos,
+        },
       ].sort((a, b) => a.id.localeCompare(b.id));
     });
 
@@ -859,6 +866,10 @@ function TrackerApp() {
         setMobileOpen(false);
       }}
       onShowOnly={setShowOnly}
+      onEdit={(peak) => {
+        setPendingCompletionPeak(peak);
+        setMobileOpen(false);
+      }}
       onToggle={togglePeak}
       percent={percent}
       query={query}
@@ -871,6 +882,11 @@ function TrackerApp() {
     <main className="relative grid min-h-dvh grid-cols-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_min(440px,38vw)]">
       <CompletionDialog
         key={pendingCompletionPeak?.id ?? "closed"}
+        initialMetadata={
+          pendingCompletionPeak
+            ? completionEntriesById.get(pendingCompletionPeak.id)
+            : undefined
+        }
         onOpenChange={(open) => {
           if (!open) setPendingCompletionPeak(null);
         }}
@@ -1164,6 +1180,7 @@ type JournalProps = {
   onQuery: (query: string) => void;
   onReset: () => void;
   onSelect: (id: string) => void;
+  onEdit: (peak: Wainwright) => void;
   onShowOnly: (value: ShowOnly) => void;
   onToggle: (peak: Wainwright) => void;
   percent: string;
@@ -1186,6 +1203,7 @@ function Journal(props: JournalProps) {
     onQuery,
     onReset,
     onSelect,
+    onEdit,
     onShowOnly,
     onToggle,
     percent,
@@ -1369,6 +1387,7 @@ function Journal(props: JournalProps) {
                 done={done}
                 selected={selected}
                 onSelect={() => onSelect(peak.id)}
+                onEdit={() => onEdit(peak)}
                 onToggle={() => onToggle(peak)}
               />
             </li>
@@ -1500,6 +1519,7 @@ function formatCompletionDate(value: string) {
 }
 
 function CompletionDialog({
+  initialMetadata,
   onOpenChange,
   onPhotoUpload,
   onSave,
@@ -1507,6 +1527,7 @@ function CompletionDialog({
   peak,
   photos,
 }: {
+  initialMetadata?: CompletionEntry;
   onOpenChange: (open: boolean) => void;
   onPhotoUpload: (file: File) => Promise<void>;
   onSave: (metadata: CompletionMetadata) => void;
@@ -1515,9 +1536,13 @@ function CompletionDialog({
   photos: WainwrightPhotoMetadata[];
 }) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const [completedAt, setCompletedAt] = useState("");
-  const [note, setNote] = useState("");
+  const [completedAt, setCompletedAt] = useState(
+    () => initialMetadata?.completedAt ?? "",
+  );
+  const [note, setNote] = useState(() => initialMetadata?.note ?? "");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  const isEditing = Boolean(initialMetadata);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1649,12 +1674,14 @@ function CompletionDialog({
           >
             cancel
           </Button>
-          <Button type="submit">save as bagged</Button>
+          <Button type="submit">
+            {isEditing ? "save changes" : "save as bagged"}
+          </Button>
         </DialogFooter>
       ) : (
         <DrawerFooter>
           <Button type="submit" size="lg">
-            save as bagged
+            {isEditing ? "save changes" : "save as bagged"}
           </Button>
           <Button
             type="button"
@@ -1675,7 +1702,9 @@ function CompletionDialog({
           <DialogHeader>
             <DialogTitle>{peak.name}</DialogTitle>
             <DialogDescription>
-              Add a date and note for this bag. Both are optional.
+              {isEditing
+                ? "Edit the date, note, and photos saved for this bag."
+                : "Add a date and note for this bag. Both are optional."}
             </DialogDescription>
           </DialogHeader>
           {form}
@@ -1690,7 +1719,9 @@ function CompletionDialog({
         <DrawerHeader className="shrink-0">
           <DrawerTitle>{peak.name}</DrawerTitle>
           <DrawerDescription>
-            Add a date and note for this bag. Both are optional.
+            {isEditing
+              ? "Edit the date, note, and photos saved for this bag."
+              : "Add a date and note for this bag. Both are optional."}
           </DrawerDescription>
         </DrawerHeader>
         <div className="completion-drawer-body min-h-0 flex-1 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
@@ -1711,6 +1742,7 @@ function PeakRow({
   done,
   selected,
   onSelect,
+  onEdit,
   onToggle,
 }: {
   peak: Wainwright;
@@ -1718,6 +1750,7 @@ function PeakRow({
   done: boolean;
   selected: boolean;
   onSelect: () => void;
+  onEdit: () => void;
   onToggle: () => void;
 }) {
   const completionMeta = [
@@ -1772,40 +1805,62 @@ function PeakRow({
         )}
       </button>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            onClick={onToggle}
-            aria-label={
-              done ? `mark ${peak.name} unbagged` : `mark ${peak.name} bagged`
-            }
-            className={cn(
-              "flex w-12 items-center justify-center border-l border-border/60 transition-colors",
-              done
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-primary",
-            )}
-          >
-            {done ? (
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="size-5"
-                strokeWidth={1.6}
-              />
-            ) : (
-              <HugeiconsIcon
-                icon={EyeIcon}
-                className="size-4"
-                strokeWidth={1.6}
-              />
-            )}
-          </button>
-        </TooltipTrigger>
-        <TooltipContent>
-          {done ? "mark unbagged" : "mark as bagged"}
-        </TooltipContent>
-      </Tooltip>
+      <div className="flex items-stretch">
+        {done && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={onEdit}
+                aria-label={`edit ${peak.name}`}
+                className="flex w-11 items-center justify-center border-l border-border/60 text-primary transition-colors hover:bg-primary/10 focus-visible:bg-primary/10 focus-visible:outline-none"
+              >
+                <HugeiconsIcon
+                  icon={PencilEdit02Icon}
+                  className="size-4"
+                  strokeWidth={1.7}
+                />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>edit bag details</TooltipContent>
+          </Tooltip>
+        )}
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={onToggle}
+              aria-label={
+                done ? `mark ${peak.name} unbagged` : `mark ${peak.name} bagged`
+              }
+              className={cn(
+                "flex w-12 items-center justify-center border-l border-border/60 transition-colors",
+                done
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-primary",
+              )}
+            >
+              {done ? (
+                <HugeiconsIcon
+                  icon={CheckmarkCircle02Icon}
+                  className="size-5"
+                  strokeWidth={1.6}
+                />
+              ) : (
+                <HugeiconsIcon
+                  icon={EyeIcon}
+                  className="size-4"
+                  strokeWidth={1.6}
+                />
+              )}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {done ? "mark unbagged" : "mark as bagged"}
+          </TooltipContent>
+        </Tooltip>
+      </div>
     </div>
   );
 }

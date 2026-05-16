@@ -60,6 +60,15 @@ describe("mobile map layout", () => {
     expect(brandMarkup).not.toContain("fells journal");
   });
 
+  it("lets users edit a bagged Wainwright from the list with existing details", () => {
+    expect(appSource).toContain("PencilEdit02Icon");
+    expect(appSource).toContain("onEdit");
+    expect(appSource).toContain('aria-label={`edit ${peak.name}`}');
+    expect(appSource).toContain("initialMetadata");
+    expect(appSource).toContain("initialMetadata?.completedAt ?? \"\"");
+    expect(appSource).toContain("initialMetadata?.note ?? \"\"");
+  });
+
   it("turns the bottom mobile drawer trigger into an obvious Search button", () => {
     expect(appSource).toContain("mobile-search-trigger");
     expect(appSource).toContain('aria-label="open search"');
