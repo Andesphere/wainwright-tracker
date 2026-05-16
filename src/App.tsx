@@ -104,12 +104,17 @@ import {
 import { sortWainwrightsForJournal, type JournalSort } from "@/mapSorting";
 
 const STORAGE_KEY = "wainwright-tracker:v1:completed";
+const HEIGHT_UNIT_KEY = "wainwright-tracker:v1:height-unit";
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 const ALL_AREAS = "All";
 const SHOW_OPTIONS = ["all", "todo", "done"] as const;
+const HEIGHT_UNITS = ["m", "ft"] as const;
+const MOBILE_SIDEBAR_PAGES = ["search", "configuration"] as const;
 const VALID_WAINWRIGHT_IDS = new Set(WAINWRIGHTS.map((peak) => peak.id));
 
 type ShowOnly = (typeof SHOW_OPTIONS)[number];
+type HeightUnit = (typeof HEIGHT_UNITS)[number];
+type MobileSidebarPage = (typeof MOBILE_SIDEBAR_PAGES)[number];
 type CompletionEntry = {
   completedAt?: string;
   id: string;
@@ -169,6 +174,27 @@ function saveCompletedMigration(completed: Set<string>) {
     STORAGE_KEY,
     JSON.stringify(Array.from(completed).sort()),
   );
+}
+
+function isHeightUnit(value: string): value is HeightUnit {
+  return HEIGHT_UNITS.includes(value as HeightUnit);
+}
+
+function loadHeightUnitPreference(): HeightUnit {
+  try {
+    const stored = localStorage.getItem(HEIGHT_UNIT_KEY);
+    return stored && isHeightUnit(stored) ? stored : "m";
+  } catch {
+    return "m";
+  }
+}
+
+function storeHeightUnitPreference(unit: HeightUnit) {
+  localStorage.setItem(HEIGHT_UNIT_KEY, unit);
+}
+
+function formatPeakHeight(peak: Wainwright, heightUnit: HeightUnit) {
+  return heightUnit === "ft" ? `${peak.heightFt}ft` : `${peak.heightMetres}m`;
 }
 
 function peakFeature(peak: Wainwright, done: boolean) {
@@ -268,7 +294,13 @@ function TrackerApp() {
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState(false);
   const [topoEnabled, setTopoEnabled] = useState(loadTopoPreference);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [heightUnit, setHeightUnit] = useState<HeightUnit>(
+    loadHeightUnitPreference,
+  );
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mobileSidebarPage, setMobileSidebarPage] =
+    useState<MobileSidebarPage>("configuration");
 
   const serverCompleted = useMemo(
     () =>
@@ -626,6 +658,10 @@ function TrackerApp() {
   }, [topoEnabled]);
 
   useEffect(() => {
+    storeHeightUnitPreference(heightUnit);
+  }, [heightUnit]);
+
+  useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapReady) return;
     if (map.getLayer("topo-layer"))
@@ -893,6 +929,7 @@ function TrackerApp() {
       completionEntriesById={completionEntriesById}
       doneCount={doneCount}
       filtered={filtered}
+      heightUnit={heightUnit}
       onArea={setArea}
       onClearQuery={() => setQuery("")}
       onQuery={setQuery}
@@ -900,12 +937,12 @@ function TrackerApp() {
       onSort={setSortBy}
       onSelect={(id) => {
         setSelectedId(id);
-        setMobileOpen(false);
+        setMobileSearchOpen(false);
       }}
       onShowOnly={setShowOnly}
       onEdit={(peak) => {
         setPendingCompletionPeak(peak);
-        setMobileOpen(false);
+        setMobileSearchOpen(false);
       }}
       onToggle={togglePeak}
       onBulkAdd={bulkAddFells}
@@ -914,6 +951,40 @@ function TrackerApp() {
       showOnly={showOnly}
       sortBy={sortBy}
     />
+  );
+
+  const heightPreferenceControl = (
+    <div className="grid gap-3 rounded-2xl border border-border/70 bg-background/70 p-3">
+      <div>
+        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+          height unit
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Choose the single height measurement shown in fell lists.
+        </p>
+      </div>
+      <ToggleGroup
+        type="single"
+        value={heightUnit}
+        onValueChange={(value) => {
+          if (isHeightUnit(value)) setHeightUnit(value);
+        }}
+        className="grid grid-cols-2 rounded-xl bg-muted/60 p-1"
+      >
+        <ToggleGroupItem
+          value="m"
+          className="rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+        >
+          metres
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="ft"
+          className="rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+        >
+          feet
+        </ToggleGroupItem>
+      </ToggleGroup>
+    </div>
   );
 
   return (
@@ -1053,10 +1124,14 @@ function TrackerApp() {
             variant="outline"
             size="icon-lg"
             className="rounded-full border-white/50 bg-parchment/85 backdrop-blur-xl lg:hidden"
-            onClick={() => setMobileOpen(true)}
+            onClick={() => {
+              setMobileSidebarOpen(true);
+              setMobileSidebarPage("configuration");
+            }}
+            aria-label="open menu"
           >
             <HugeiconsIcon icon={Menu02Icon} strokeWidth={1.6} />
-            <span className="sr-only">open journal</span>
+            <span className="sr-only">open menu</span>
           </Button>
         </div>
 
@@ -1077,6 +1152,7 @@ function TrackerApp() {
             <SelectedFellCard
               completed={completed.has(selectedPeak.id)}
               entry={selectedEntry}
+              heightUnit={heightUnit}
               onBag={() => setPendingCompletionPeak(selectedPeak)}
               onClose={() => {
                 setSelectedId(null);
@@ -1087,7 +1163,7 @@ function TrackerApp() {
               onSearch={() => {
                 setSelectedId(null);
                 setSelectedDetailsOpen(false);
-                setMobileOpen(true);
+                setMobileSearchOpen(true);
               }}
               onUnbag={() => void unbagPeak(selectedPeak)}
               open={selectedDetailsOpen}
@@ -1095,13 +1171,13 @@ function TrackerApp() {
               peak={selectedPeak}
             />
           ) : (
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <Sheet open={mobileSearchOpen} onOpenChange={setMobileSearchOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
                   size="lg"
                   className="mobile-search-trigger h-14 w-full justify-center gap-3 rounded-full border-white/60 bg-parchment/95 px-5 text-xl font-bold text-ink shadow-lg backdrop-blur-xl lg:hidden"
-                  onClick={() => setMobileOpen(true)}
+                  onClick={() => setMobileSearchOpen(true)}
                   aria-label="open search"
                 >
                   <HugeiconsIcon
@@ -1122,12 +1198,81 @@ function TrackerApp() {
                   bagged.
                 </SheetDescription>
                 <div className="h-full overflow-auto journal-scroll">
-                  {mobileOpen && journal}
+                  {mobileSearchOpen && journal}
                 </div>
               </SheetContent>
             </Sheet>
           )}
         </div>
+
+        <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
+          <SheetContent
+            side="right"
+            className="mobile-sidebar-open flex h-dvh w-[min(88vw,22rem)] flex-col overflow-hidden border-border/70 bg-sidebar/95 p-0 backdrop-blur-2xl lg:hidden"
+          >
+            <SheetTitle className="sr-only">menu</SheetTitle>
+            <SheetDescription className="sr-only">
+              Open search or configure journal display preferences.
+            </SheetDescription>
+            <div className="flex h-full flex-col gap-4 overflow-auto px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+1rem)] journal-scroll">
+              <div className="rounded-2xl border border-border/70 bg-card/85 p-3">
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  menu
+                </p>
+                <h2 className="mt-1 font-display text-3xl italic text-foreground">
+                  Fells Journal
+                </h2>
+              </div>
+
+              <ToggleGroup
+                type="single"
+                value={mobileSidebarPage}
+                onValueChange={(value) => {
+                  if (
+                    MOBILE_SIDEBAR_PAGES.includes(value as MobileSidebarPage)
+                  ) {
+                    setMobileSidebarPage(value as MobileSidebarPage);
+                  }
+                }}
+                className="mobile-sidebar-page grid grid-cols-2 rounded-2xl bg-muted/60 p-1"
+              >
+                <ToggleGroupItem
+                  value="search"
+                  className="rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                >
+                  Search
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="configuration"
+                  className="rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                >
+                  Configuration
+                </ToggleGroupItem>
+              </ToggleGroup>
+
+              {mobileSidebarPage === "search" ? (
+                <div className="grid gap-3 rounded-2xl border border-border/70 bg-background/70 p-3">
+                  <p className="text-sm text-muted-foreground">
+                    Open the journal search, filters, and fell list.
+                  </p>
+                  <Button
+                    type="button"
+                    className="rounded-full"
+                    onClick={() => {
+                      setMobileSidebarOpen(false);
+                      setMobileSearchOpen(true);
+                    }}
+                  >
+                    <HugeiconsIcon icon={Search01Icon} strokeWidth={1.7} />
+                    Open search
+                  </Button>
+                </div>
+              ) : (
+                heightPreferenceControl
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
 
         {/* Bottom-left ambient stats — desktop only */}
         <div className="pointer-events-none absolute bottom-8 left-8 z-10 hidden items-center gap-3 rounded-full border border-white/50 bg-parchment/85 px-4 py-2 font-mono text-xs text-ink/80 shadow-md backdrop-blur-xl lg:flex">
@@ -1185,6 +1330,7 @@ function SelectedPhotoStrip({ photos }: { photos: WainwrightPhotoMetadata[] }) {
 type SelectedFellCardProps = {
   completed: boolean;
   entry?: CompletionEntry;
+  heightUnit: HeightUnit;
   onBag: () => void;
   onClose: () => void;
   onDetails: () => void;
@@ -1199,6 +1345,7 @@ type SelectedFellCardProps = {
 function SelectedFellCard({
   completed,
   entry,
+  heightUnit,
   onBag,
   onClose,
   onDetails,
@@ -1261,8 +1408,7 @@ function SelectedFellCard({
                 {peak.name}
               </h2>
               <p className="mt-1 font-mono text-[11px] text-white/70">
-                #{peak.bookNumber} · {peak.area} · {peak.heightMetres}m ·{" "}
-                {peak.gridReference}
+                #{peak.bookNumber} · {peak.area} · {formatPeakHeight(peak, heightUnit)}
               </p>
               {completed && (
                 <p className="mt-2 line-clamp-2 text-sm leading-snug text-white/80">
@@ -1352,8 +1498,7 @@ function SelectedFellCard({
                   {peak.name}
                 </h2>
                 <p className="mt-2 font-mono text-xs text-white/70">
-                  #{peak.bookNumber} · {peak.area} · {peak.heightMetres}m /{" "}
-                  {peak.heightFt}ft · {peak.gridReference}
+                  #{peak.bookNumber} · {peak.area} · {formatPeakHeight(peak, heightUnit)}
                 </p>
               </div>
 
@@ -1473,6 +1618,7 @@ type JournalProps = {
   completionEntriesById: Map<string, CompletionEntry>;
   doneCount: number;
   filtered: Wainwright[];
+  heightUnit: HeightUnit;
   onArea: (area: string) => void;
   onClearQuery: () => void;
   onQuery: (query: string) => void;
@@ -1496,6 +1642,7 @@ function Journal(props: JournalProps) {
     completionEntriesById,
     doneCount,
     filtered,
+    heightUnit,
     onArea,
     onClearQuery,
     onQuery,
@@ -1962,6 +2109,7 @@ function Journal(props: JournalProps) {
           return (
             <li key={peak.id}>
               <PeakRow
+                heightUnit={heightUnit}
                 peak={peak}
                 completionEntry={completionEntriesById.get(peak.id)}
                 done={done}
@@ -2381,6 +2529,7 @@ function PeakRow({
   peak,
   completionEntry,
   done,
+  heightUnit,
   selected,
   onSelect,
   onEdit,
@@ -2389,6 +2538,7 @@ function PeakRow({
   peak: Wainwright;
   completionEntry?: CompletionEntry;
   done: boolean;
+  heightUnit: HeightUnit;
   selected: boolean;
   onSelect: () => void;
   onEdit: () => void;
@@ -2436,8 +2586,7 @@ function PeakRow({
           )}
         </div>
         <div className="mt-1 truncate font-mono text-[11px] tracking-wide text-muted-foreground">
-          {peak.heightMetres}m · {peak.heightFt}ft · {peak.gridReference} ·{" "}
-          {peak.area.toLowerCase()}
+          {formatPeakHeight(peak, heightUnit)} · {peak.area.toLowerCase()}
         </div>
         {done && completionMeta.length > 0 && (
           <div className="mt-2 line-clamp-2 text-xs leading-snug text-muted-foreground">

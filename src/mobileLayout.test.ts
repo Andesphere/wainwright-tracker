@@ -86,6 +86,30 @@ describe("mobile map layout", () => {
     expect(appSource).toContain("Search01Icon");
   });
 
+  it("opens a mobile sidebar from the burger with search and configuration pages", () => {
+    expect(appSource).toContain("mobile-sidebar-open");
+    expect(appSource).toContain('aria-label="open menu"');
+    expect(appSource).toContain('side="right"');
+    expect(appSource).toContain("mobile-sidebar-page");
+    expect(appSource).toContain('value="search"');
+    expect(appSource).toContain('value="configuration"');
+    expect(appSource).toContain("Configuration");
+  });
+
+  it("lets users configure one visible height unit and removes grid refs from list rows", () => {
+    expect(appSource).toContain("HeightUnit");
+    expect(appSource).toContain("loadHeightUnitPreference");
+    expect(appSource).toContain("storeHeightUnitPreference");
+    expect(appSource).toContain("formatPeakHeight(peak, heightUnit)");
+    expect(appSource).toContain('value="m"');
+    expect(appSource).toContain('value="ft"');
+
+    const peakRowStart = appSource.indexOf("function PeakRow");
+    const peakRowMarkup = appSource.slice(peakRowStart);
+    expect(peakRowMarkup).not.toContain("heightMetres}m · {peak.heightFt}ft");
+    expect(peakRowMarkup).not.toContain("peak.gridReference");
+  });
+
   it("does not duplicate the tally card inside the search journal", () => {
     const journalStart = appSource.indexOf("function Journal");
     const resultsStart = appSource.indexOf("{/* Result meta */}", journalStart);
