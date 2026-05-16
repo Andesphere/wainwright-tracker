@@ -940,8 +940,11 @@ function TrackerApp() {
         <div className="pointer-events-none absolute inset-2.5 rounded-[1.35rem] ring-1 ring-white/30 sm:inset-4 sm:rounded-3xl lg:inset-5" />
 
         {/* Floating top-left progress card */}
-        <div className="mobile-map-brand absolute left-4 right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-10 flex items-center gap-3 rounded-2xl border border-white/50 bg-parchment/90 px-3 py-2.5 shadow-lg backdrop-blur-xl sm:left-8 sm:right-auto sm:top-8 sm:min-w-[13rem] sm:max-w-[88vw] sm:gap-4 sm:px-4 sm:py-3">
-          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+        <div
+          className="mobile-map-brand absolute left-4 right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-10 flex items-center justify-between gap-3 rounded-2xl border border-white/50 bg-parchment/90 px-3 py-2.5 shadow-lg backdrop-blur-xl sm:left-8 sm:right-auto sm:top-8 sm:min-w-[13rem] sm:max-w-[88vw] sm:gap-4 sm:px-4 sm:py-3"
+          aria-label={`${doneCount} of ${TOTAL_WAINWRIGHTS} Wainwrights bagged, ${percent}% complete`}
+        >
+          <div className="mobile-brand-progress flex min-w-0 items-center gap-2.5 sm:gap-3">
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-inner sm:size-10">
               <HugeiconsIcon
                 icon={MountainIcon}
@@ -949,18 +952,13 @@ function TrackerApp() {
                 strokeWidth={1.6}
               />
             </span>
-            <div
-              className="mobile-brand-progress flex shrink-0 items-end gap-2 pl-1 text-left sm:gap-3"
-              aria-label={`${doneCount} of ${TOTAL_WAINWRIGHTS} Wainwrights bagged, ${percent}% complete`}
-            >
-              <span className="font-mono text-[15px] font-semibold leading-none tracking-tight text-ink sm:text-base">
-                {doneCount}/{TOTAL_WAINWRIGHTS}
-              </span>
-              <span className="font-display text-[22px] italic leading-none text-ink sm:text-2xl">
-                {percent}%
-              </span>
-            </div>
+            <span className="font-mono text-[15px] font-semibold leading-none tracking-tight text-ink sm:text-base">
+              {doneCount}/{TOTAL_WAINWRIGHTS}
+            </span>
           </div>
+          <span className="mobile-brand-percent ml-auto shrink-0 font-display text-[22px] italic leading-none text-ink sm:text-2xl">
+            {percent}%
+          </span>
         </div>
 
         {/* Floating top-right map controls */}

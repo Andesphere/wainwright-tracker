@@ -48,7 +48,7 @@ describe("mobile map layout", () => {
     expect(cssSource).toContain("height: 48px;");
   });
 
-  it("uses progress as the left header copy instead of mobile brand text", () => {
+  it("uses progress as the header copy instead of mobile brand text", () => {
     const brandStart = appSource.indexOf("mobile-map-brand");
     const controlsStart = appSource.indexOf("mobile-map-controls");
     const brandMarkup = appSource.slice(brandStart, controlsStart);
@@ -58,6 +58,16 @@ describe("mobile map layout", () => {
     expect(brandMarkup).toContain("{percent}%");
     expect(brandMarkup).not.toContain("the lake district · 214 fells");
     expect(brandMarkup).not.toContain("fells journal");
+  });
+
+  it("pins the mobile completion percent to the right side of the header", () => {
+    const brandStart = appSource.indexOf("mobile-map-brand");
+    const controlsStart = appSource.indexOf("mobile-map-controls");
+    const brandMarkup = appSource.slice(brandStart, controlsStart);
+
+    expect(brandMarkup).toContain("justify-between");
+    expect(brandMarkup).toContain("mobile-brand-percent");
+    expect(brandMarkup).toContain("ml-auto");
   });
 
   it("lets users edit a bagged Wainwright from the list with existing details", () => {
