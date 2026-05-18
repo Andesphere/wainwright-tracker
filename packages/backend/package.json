@@ -1,0 +1,32 @@
+{
+  "name": "@wainwrights/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "bunx --bun convex dev --typecheck=disable",
+    "deploy": "bunx --bun convex deploy --typecheck=disable",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:strict": "bunx --bun convex dev --once --typecheck=enable --codegen=enable --tail-logs=disable",
+    "test:unit": "bun run typecheck",
+    "test:watch": "bun run typecheck",
+    "test:coverage": "bun run typecheck",
+    "check": "bun run typecheck",
+    "check:strict": "bun run typecheck:strict",
+    "build": "bun run typecheck",
+    "format": "prettier -w . --ignore-path ../../.prettierignore"
+  },
+  "dependencies": {
+    "@wainwrights/catalog": "workspace:*",
+    "ai": "^6.0.185",
+    "convex": "^1.39.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.0",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.2"
+  },
+  "exports": {
+    "./convex/_generated/api": "./convex/_generated/api.js",
+    "./convex/_generated/dataModel": "./convex/_generated/dataModel.d.ts"
+  }
+}

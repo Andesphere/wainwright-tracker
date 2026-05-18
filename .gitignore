@@ -10,7 +10,21 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+build
+coverage
+playwright-report
+test-results
+.turbo
+.next
+/apps/*/.next/
+/apps/mobile/.expo/
+/apps/mobile/.expo-shared/
+/apps/mobile/dist/
+/apps/mobile/android/
+/apps/mobile/ios/
 *.local
+*.tsbuildinfo
+next-env.d.ts
 
 # Editor directories and files
 .vscode/*

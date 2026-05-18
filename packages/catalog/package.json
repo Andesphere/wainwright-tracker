@@ -1,0 +1,26 @@
+{
+  "name": "@wainwrights/catalog",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "bun run typecheck",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:strict": "tsc --noEmit -p tsconfig.json",
+    "test:unit": "bun run typecheck",
+    "test:watch": "bun run typecheck",
+    "test:coverage": "bun run typecheck",
+    "check": "bun run typecheck && bun run lint",
+    "check:strict": "bun run typecheck:strict && bun run lint",
+    "format": "prettier -w . --ignore-path ../../.prettierignore"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.3",
+    "eslint": "^9",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.2"
+  },
+  "exports": {
+    "./wainwrights": "./src/wainwrights.ts"
+  }
+}

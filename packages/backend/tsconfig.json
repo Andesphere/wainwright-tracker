@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ES2022", "dom"],
+    "jsx": "react-jsx",
+    "types": ["node"],
+    "paths": {
+      "@wainwrights/catalog/*": ["../catalog/src/*"]
+    }
+  },
+  "include": ["convex/**/*.ts"],
+  "exclude": [
+    "convex/_generated",
+    "convex/**/*.test.ts",
+    "convex/**/*.test.tsx"
+  ]
+}
