@@ -3,6 +3,7 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient } from "convex/react";
 import { Component, type ErrorInfo, type ReactNode, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import { registerSW } from "virtual:pwa-register";
 import "./index.css";
 import App from "./App.tsx";
@@ -56,7 +57,9 @@ createRoot(document.getElementById("root")!).render(
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         <ErrorBoundary>
           <TooltipProvider delayDuration={200}>
-            <App />
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
           </TooltipProvider>
         </ErrorBoundary>
       </ConvexProviderWithClerk>

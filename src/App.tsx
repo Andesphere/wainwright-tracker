@@ -10,12 +10,12 @@ import {
 } from "react";
 import {
   SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
   UserButton,
+  useAuth,
 } from "@clerk/clerk-react";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
+import { Navigate, Route, Routes } from "react-router-dom";
+
 import { useAction, useMutation, useQuery } from "convex/react";
 import maplibregl, { Map as MaplibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -124,6 +124,9 @@ import {
 } from "@/albums";
 import { buildAlbumExportDocument, openAlbumPrintWindow } from "@/albumExport";
 import { sortWainwrightsForJournal, type JournalSort } from "@/mapSorting";
+import { BlogPage } from "@/pages/BlogPage";
+import { BlogPostPage } from "@/pages/BlogPostPage";
+import { LandingPage } from "@/pages/LandingPage";
 
 const STORAGE_KEY = "wainwright-tracker:v1:completed";
 const HEIGHT_UNIT_KEY = "wainwright-tracker:v1:height-unit";
@@ -304,20 +307,43 @@ function useMediaQuery(query: string) {
   return matches;
 }
 
-function App() {
+/** Marketing routes pass through Clerk sign-in state for header CTAs. */
+function MarketingRoute({ page }: { page: "home" | "blog" | "post" }) {
+  const { isSignedIn } = useAuth();
+  const signedIn = isSignedIn ?? false;
+
+  if (page === "home") return <LandingPage signedIn={signedIn} />;
+  if (page === "blog") return <BlogPage signedIn={signedIn} />;
+  return <BlogPostPage signedIn={signedIn} />;
+}
+
+function TrackerRoute() {
   return (
-    <AppErrorBoundary>
+    <>
       <Authenticated>
         <TrackerApp />
       </Authenticated>
       <Unauthenticated>
-        <SignedOut>
-          <AuthGate />
-        </SignedOut>
+        <Navigate to="/" replace />
       </Unauthenticated>
       <AuthLoading>
         <LoadingGate />
       </AuthLoading>
+      <Toaster richColors position="top-center" />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <AppErrorBoundary>
+      <Routes>
+        <Route path="/" element={<MarketingRoute page="home" />} />
+        <Route path="/blog" element={<MarketingRoute page="blog" />} />
+        <Route path="/blog/:slug" element={<MarketingRoute page="post" />} />
+        <Route path="/app" element={<TrackerRoute />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </AppErrorBoundary>
   );
 }
@@ -1415,7 +1441,7 @@ function TrackerApp() {
                   side="bottom"
                   className="h-[92dvh] max-h-[760px] overflow-hidden rounded-t-3xl border-border/70 bg-sidebar/95 p-0 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl"
                 >
-                  <SheetTitle className="sr-only">fells journal</SheetTitle>
+                  <SheetTitle className="sr-only">Journal</SheetTitle>
                   <SheetDescription className="sr-only">
                     Search, filter, import, export, and mark Wainwright fells as
                     bagged.
@@ -1475,7 +1501,7 @@ function TrackerApp() {
                   menu
                 </p>
                 <h2 className="mt-1 font-display text-3xl italic text-foreground">
-                  Fells Journal
+                  Journal
                 </h2>
               </div>
 
@@ -2664,43 +2690,6 @@ function SelectedFellCard({
         </DrawerContent>
       </Drawer>
     </>
-  );
-}
-
-function AuthGate() {
-  return (
-    <main className="grid min-h-dvh place-items-center bg-parchment p-5 text-ink">
-      <Card className="w-full max-w-md border-border/70 bg-card/90 p-6 shadow-sm">
-        <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground">
-          <HugeiconsIcon
-            icon={MountainIcon}
-            className="size-5"
-            strokeWidth={1.6}
-          />
-        </span>
-        <p className="mt-5 font-mono text-[10px] tracking-[0.22em] text-muted-foreground">
-          the lake district · 214 fells
-        </p>
-        <h1 className="mt-1 font-display text-4xl italic leading-none">
-          fells journal
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Sign in to keep your Wainwright progress private and synced through
-          Convex.
-        </p>
-        <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-          <SignInButton mode="modal">
-            <Button className="rounded-full">sign in</Button>
-          </SignInButton>
-          <SignUpButton mode="modal">
-            <Button variant="outline" className="rounded-full">
-              create account
-            </Button>
-          </SignUpButton>
-        </div>
-      </Card>
-      <Toaster richColors position="top-center" />
-    </main>
   );
 }
 
