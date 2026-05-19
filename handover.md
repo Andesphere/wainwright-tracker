@@ -32,8 +32,9 @@ Known good precedent app:
 - Bundle ID: `com.wainwrightsbaggers.mobile`
 - App Store Connect app ID: `6771147426`
 - First working TestFlight build: `0.1.0 (11)`
-- EAS build ID: `2c1a4bd6-9122-41f8-929e-ef2711660211`
-- EAS submission ID: `812d046e-b547-4613-af97-cc361f9acc43`
+- Current sync-enabled TestFlight build: `0.1.0 (12)`
+- Current EAS build ID: `4971650b-4c8b-4d01-ae74-cd45457ccfe0`
+- Current EAS submission ID: `81f47216-3d40-4de1-a576-baafd8ec37f9`
 
 Do not reuse the Wainwrights Expo project ID, bundle ID, or App Store Connect app ID for a new app. Create a new Expo project and a new unique iOS bundle identifier for each app.
 
@@ -216,9 +217,10 @@ Required public env var:
 
 ```sh
 EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=
+EXPO_PUBLIC_CONVEX_URL=
 ```
 
-Set that env var locally and in EAS for every relevant environment:
+Set these env vars locally and in EAS for every relevant environment:
 
 - `development`
 - `preview`

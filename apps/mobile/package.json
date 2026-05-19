@@ -16,7 +16,9 @@
   },
   "dependencies": {
     "@clerk/expo": "^3.2.10",
+    "@wainwrights/backend": "workspace:*",
     "@wainwrights/catalog": "workspace:*",
+    "convex": "^1.39.1",
     "expo": "^54.0.0",
     "expo-auth-session": "~7.0.11",
     "expo-constants": "~18.0.13",

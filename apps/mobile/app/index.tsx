@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth, useClerk, useUser } from "@clerk/expo";
 import { AuthView, UserButton } from "@clerk/expo/native";
+import { useMutation, useQuery } from "convex/react";
 import * as SecureStore from "expo-secure-store";
 import {
   ActivityIndicator,
@@ -17,6 +18,7 @@ import {
   WAINWRIGHTS,
   type Wainwright,
 } from "@wainwrights/catalog/wainwrights";
+import { api } from "@wainwrights/backend/convex/_generated/api";
 
 const STORAGE_KEY = "wainwrightsbaggers:completed:v1";
 const ALL_AREAS = "All areas";
@@ -46,6 +48,15 @@ function saveCompletedIds(completedIds: Set<string>) {
   );
 }
 
+function validCompletedIds(ids: string[]) {
+  const validIds = new Set(WAINWRIGHTS.map((peak) => peak.id));
+  return ids.filter((id) => validIds.has(id));
+}
+
+function sortedCompletedIds(completedIds: Set<string>) {
+  return Array.from(completedIds).sort();
+}
+
 function matchesSearch(peak: Wainwright, query: string) {
   const target =
     `${peak.name} ${peak.area} ${peak.gridReference}`.toLowerCase();
@@ -63,13 +74,55 @@ export default function WainwrightsMobileScreen() {
   const { signOut } = useClerk();
   const { user } = useUser();
   const [completedIds, setCompletedIds] = useState(() => new Set<string>());
+  const [localProgressLoaded, setLocalProgressLoaded] = useState(false);
   const [areaFilter, setAreaFilter] = useState(ALL_AREAS);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [query, setQuery] = useState("");
+  const progress = useQuery(api.progress.get, isSignedIn ? {} : "skip");
+  const replaceProgress = useMutation(api.progress.replace);
+  const setBagged = useMutation(api.progress.setBagged);
+  const mergedLocalProgressRef = useRef(false);
 
   useEffect(() => {
-    void loadCompletedIds().then(setCompletedIds);
+    void loadCompletedIds().then((storedCompletedIds) => {
+      setCompletedIds(storedCompletedIds);
+      setLocalProgressLoaded(true);
+    });
   }, []);
+
+  useEffect(() => {
+    if (
+      !isSignedIn ||
+      !localProgressLoaded ||
+      !progress ||
+      mergedLocalProgressRef.current
+    ) {
+      return;
+    }
+
+    mergedLocalProgressRef.current = true;
+
+    const serverCompletedIds = new Set(validCompletedIds(progress));
+    const mergedCompletedIds = new Set([
+      ...serverCompletedIds,
+      ...validCompletedIds(sortedCompletedIds(completedIds)),
+    ]);
+
+    setCompletedIds(mergedCompletedIds);
+    void saveCompletedIds(mergedCompletedIds);
+
+    if (mergedCompletedIds.size === serverCompletedIds.size) return;
+
+    void replaceProgress({
+      completed: sortedCompletedIds(mergedCompletedIds),
+    });
+  }, [
+    completedIds,
+    isSignedIn,
+    localProgressLoaded,
+    progress,
+    replaceProgress,
+  ]);
 
   const completedCount = completedIds.size;
   const completionPercent = Math.round(
@@ -92,8 +145,9 @@ export default function WainwrightsMobileScreen() {
 
   const togglePeak = (peakId: string) => {
     const nextCompletedIds = new Set(completedIds);
+    const wasCompleted = nextCompletedIds.has(peakId);
 
-    if (nextCompletedIds.has(peakId)) {
+    if (wasCompleted) {
       nextCompletedIds.delete(peakId);
     } else {
       nextCompletedIds.add(peakId);
@@ -101,6 +155,10 @@ export default function WainwrightsMobileScreen() {
 
     setCompletedIds(nextCompletedIds);
     void saveCompletedIds(nextCompletedIds);
+    void setBagged({ bagged: !wasCompleted, id: peakId }).catch(() => {
+      setCompletedIds(completedIds);
+      void saveCompletedIds(completedIds);
+    });
   };
 
   if (!isLoaded) {
@@ -145,7 +203,7 @@ export default function WainwrightsMobileScreen() {
           </Text>
           <Text className="text-base leading-6 text-[#5b675a]">
             Mark summits off as you walk them. Your signed-in session is stored
-            securely, and this first build keeps progress on this iPhone.
+            securely, and progress syncs with your web account.
           </Text>
         </View>
 

@@ -21,9 +21,9 @@ The iOS Expo app has shipped its first working TestFlight build.
 - iOS bundle ID: `com.wainwrightsbaggers.mobile`
 - App Store Connect app ID: `6771147426`
 - Current app version: `0.1.0`
-- Latest shipped TestFlight build number: `11`
-- Latest EAS build ID: `2c1a4bd6-9122-41f8-929e-ef2711660211`
-- Latest EAS submission ID: `812d046e-b547-4613-af97-cc361f9acc43`
+- Latest shipped TestFlight build number: `12`
+- Latest EAS build ID: `4971650b-4c8b-4d01-ae74-cd45457ccfe0`
+- Latest EAS submission ID: `81f47216-3d40-4de1-a576-baafd8ec37f9`
 - TestFlight state at shipment: Apple processing `VALID`, internal build state `IN_BETA_TESTING`.
 
 Do not change the Expo project ID, Expo owner, app slug, App Store Connect app, or iOS bundle identifier unless the user explicitly asks for a new app/listing.
@@ -33,25 +33,28 @@ Do not change the Expo project ID, Expo owner, app slug, App Store Connect app, 
 `apps/mobile/app/index.tsx` is the first usable mobile version. It provides:
 
 - Clerk sign-in/sign-up via `@clerk/expo`.
+- Convex sync using the same backend and Clerk auth project as the web app.
 - A Wainwrights checklist sourced from `@wainwrights/catalog/wainwrights`.
 - Area, status, and search filters.
-- On-device progress persistence using `expo-secure-store`.
+- On-device progress cache/migration using `expo-secure-store`.
 
-The current progress store is intentionally local to the iPhone:
+Progress now syncs to Convex:
 
 - SecureStore key: `wainwrightsbaggers:completed:v1`
-- Progress is not yet synced to Convex or any backend.
-- Changing the storage model needs a migration plan if users already have local progress.
+- Mobile reads and writes `api.progress.get`, `api.progress.replace`, and `api.progress.setBagged`.
+- On first signed-in load, mobile merges existing local SecureStore progress into Convex so the first TestFlight users do not lose phone-only progress.
+- Future storage changes still need a migration plan if users already have local progress.
 
 ## Auth And Env
 
 Mobile auth requires:
 
 - `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `EXPO_PUBLIC_CONVEX_URL`
 
-This key is listed in `.env.example` and should exist in local `.env.local` for local development. It is also configured in EAS environment variables for `development`, `preview`, and `production`.
+These values are listed in `.env.example` and should exist in local `.env.local` for local development. They are also configured in EAS environment variables for `development`, `preview`, and `production`.
 
-The app hard-fails in `apps/mobile/app/_layout.tsx` if `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` is missing. That is deliberate, because a broken auth build should fail early.
+The app hard-fails in `apps/mobile/app/_layout.tsx` if `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` or `EXPO_PUBLIC_CONVEX_URL` is missing. That is deliberate, because a broken auth/sync build should fail early.
 
 Do not commit:
 
