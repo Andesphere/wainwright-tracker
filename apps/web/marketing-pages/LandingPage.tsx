@@ -5,6 +5,7 @@
 // feature cards and the quiet bottom CTA.
 
 import { SignUpButton } from "@clerk/clerk-react";
+import Image from "next/image";
 import { Link } from "react-router-dom";
 
 import { SlopeNav } from "@/components/marketing/SlopeNav";
@@ -68,10 +69,13 @@ export function LandingPage({ signedIn = false }: LandingPageProps) {
     <SlopeShell signedIn={signedIn}>
       {/* ── HERO — image fills the section, nav sits transparently over it */}
       <section className="hero">
-        <img
+        <Image
           src="/hero-slope.png"
           alt="Lake District fells at midday"
           className="hero-illu"
+          fill
+          priority
+          sizes="100vw"
         />
         {/* soft top-down gradient keeps light copy legible over pale sky */}
         <div className="hero-scrim" aria-hidden />
@@ -143,7 +147,14 @@ export function LandingPage({ signedIn = false }: LandingPageProps) {
               on the same mountain it opened on */}
       <section className="quiet-cta" id="journal">
         <div className="quiet-cta-bg">
-          <img src="/hero-slope.png" alt="" className="hero-illu" aria-hidden />
+          <Image
+            src="/hero-slope.png"
+            alt=""
+            className="hero-illu"
+            aria-hidden
+            fill
+            sizes="100vw"
+          />
           <div className="hero-scrim hero-scrim-strong" aria-hidden />
         </div>
         <div className="quiet-cta-inner">

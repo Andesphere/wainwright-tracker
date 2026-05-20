@@ -18,11 +18,6 @@ type SlopeShellProps = {
 export function SlopeShell({ children, signedIn = false }: SlopeShellProps) {
   return (
     <div className="design-slope">
-      {/* Google Fonts — loaded once per page. Vite handles dedupe. */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
-      />
       <main className="slope-main">{children}</main>
       <SlopeFooter signedIn={signedIn} />
     </div>

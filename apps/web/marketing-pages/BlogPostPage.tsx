@@ -2,6 +2,7 @@
 // Rich editorial layout using the same Slope design language as the rest of
 // the marketing surface, with hero photography, tables, callouts and CTAs.
 
+import Image from "next/image";
 import { Link, Navigate, useParams } from "react-router-dom";
 
 import { SlopeNav } from "@/components/marketing/SlopeNav";
@@ -53,7 +54,14 @@ export function BlogPostPage({ signedIn = false }: BlogPostPageProps) {
         </header>
 
         <figure className="post-hero-media">
-          <img src={post.heroImage} alt={post.heroImageAlt} />
+          <Image
+            src={post.heroImage}
+            alt={post.heroImageAlt}
+            width={1200}
+            height={670}
+            priority
+            sizes="(min-width: 1100px) 1040px, 100vw"
+          />
         </figure>
 
         <div className="post-layout">
@@ -136,7 +144,13 @@ function BlogBlockView({ block }: { block: BlogBlock }) {
   if (block.type === "image") {
     return (
       <figure className="post-inline-image">
-        <img src={block.src} alt={block.alt} />
+        <Image
+          src={block.src}
+          alt={block.alt}
+          width={1200}
+          height={670}
+          sizes="(min-width: 900px) 760px, 100vw"
+        />
         {block.caption ? <figcaption>{block.caption}</figcaption> : null}
       </figure>
     );

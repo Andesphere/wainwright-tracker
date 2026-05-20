@@ -2,6 +2,7 @@
 // Same Slope design language as the landing, upgraded with editorial cards,
 // thumbnails and richer metadata for SEO-led posts.
 
+import Image from "next/image";
 import { Link } from "react-router-dom";
 
 import { SlopeNav } from "@/components/marketing/SlopeNav";
@@ -34,11 +35,13 @@ export function BlogPage({ signedIn = false }: BlogPageProps) {
         {BLOG_POSTS.map((post) => (
           <li key={post.slug} className="post-card post-card-rich">
             <Link to={`/blog/${post.slug}`}>
-              <img
+              <Image
                 src={post.heroImage}
                 alt={post.heroImageAlt}
                 className="post-card-image"
-                loading="lazy"
+                width={1200}
+                height={670}
+                sizes="(min-width: 900px) 38vw, 100vw"
               />
               <div className="post-card-copy">
                 <div className="post-meta">
