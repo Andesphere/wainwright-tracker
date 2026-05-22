@@ -182,3 +182,16 @@ Before the first TestFlight shipment, these passed:
 - `bunx expo-doctor` from `apps/mobile`, with `17/17 checks passed`
 
 The user confirmed the TestFlight app installed and worked on their iPhone after accepting the invite.
+
+## SEO / growth
+
+Repo-local `.seo/` per `/Users/jorge/SEO_GROWTH_WORKSPACE_PLAYBOOK.md`.
+
+- Entry: `.seo/README.md`
+- **Backlog (start here):** `.seo/backlog.md`
+- Context: `.seo/strategy.md`, `.seo/audit.md`
+- Backlinks: `.seo/backlinks/work-log.md`, `.seo/backlinks/summary.md`
+- Positioning: `.agents/product-marketing.md`
+- Skills: `.agents/skills/` (`bunx skills add coreyhaines31/marketingskills` from repo root)
+
+Live site: `https://wainwrightsbaggers.com`. Market: UK English, Wainwright baggers. Bun + Vercel git deploy. Do not print secrets. Update `.seo/backlog.md` after each ticket; touch strategy/audit only if context changed.
