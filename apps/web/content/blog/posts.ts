@@ -33,6 +33,169 @@ export type BlogPost = {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "easy-wainwright-walks-map",
+    title: "Easy Wainwright Walks Map: Gentle Fell Days",
+    excerpt:
+      "Use an easy Wainwright walks map to choose gentle Lake District fell days, avoid common planning traps, and log every summit properly during your 214.",
+    publishedAt: "2026-05-22",
+    readMinutes: 8,
+    author: "Wainwrights Baggers",
+    category: "Route planning",
+    keywords: [
+      "easy Wainwright walks map",
+      "beginner Wainwright walks",
+      "Lake District fell walking",
+      "Wainwright checklist",
+    ],
+    heroImage: "/images/blog/easy-wainwright-walks-map-hero.jpg",
+    heroImageAlt:
+      "Easy Wainwright walks map with gentle Lake District fells and a walking journal",
+    ogImage: "/images/blog/easy-wainwright-walks-map-og.jpg",
+    body: [
+      {
+        type: "paragraph",
+        text: "An easy Wainwright walk is not just a short line on a map. The gentlest fell day is the one where distance, ascent, parking, paths, weather, daylight and your own legs all line up. That is why an easy Wainwright walks map is useful: it helps you spot approachable clusters before you commit to a route. The 214 fells reward patience, not bravado.",
+      },
+      {
+        type: "paragraph",
+        text: "Search results for this topic tend to split into two camps. Some pages list beginner fells without showing how they sit together. Others show every summit on a map, but leave new baggers to decide which hills make sense for a first outing. This guide joins those two needs: use the map for judgement, then use a checklist and journal to keep the round tidy. If you already track progress in /app or compare tools on /blog/best-wainwright-app, this is the planning layer before the tick.",
+      },
+      {
+        type: "heading",
+        text: "What an easy Wainwright walks map should show",
+      },
+      {
+        type: "paragraph",
+        text: "A useful map for easy Wainwright walks should do more than scatter pins across the Lake District. It should make clusters visible. A beginner looking at Latrigg, Castle Crag, Loughrigg Fell, Sale Fell, High Rigg or Hallin Fell needs to know where each hill sits, which valley or car park it belongs to, and whether nearby fells could turn a gentle morning into a much harder day.",
+      },
+      {
+        type: "paragraph",
+        text: "The Lake District National Park explains that conditions on the fells can change quickly, and the Met Office mountain forecast gives area-specific weather for the Cumbrian fells. Those two sources matter because easy on paper can become awkward in wind, low cloud or winter ice. OS Maps or a paper Ordnance Survey map still belongs in the planning pile; a Wainwright-specific map is best used to track the challenge and compare options.",
+      },
+      {
+        type: "table",
+        table: {
+          caption: "Beginner-friendly Wainwright map checks",
+          columns: ["Map question", "Why it matters", "Practical sign"],
+          rows: [
+            [
+              "Is the fell isolated or clustered?",
+              "Clustered fells tempt you to overextend the walk.",
+              "Choose one or two modest summits first, not a whole horseshoe.",
+            ],
+            [
+              "How much ascent is involved?",
+              "A short walk can still feel hard if it climbs steeply.",
+              "Check contour spacing and total climb before distance.",
+            ],
+            [
+              "Where is the safe start point?",
+              "Parking and road walking affect the feel of the day.",
+              "Plan from an obvious village, pass or recognised car park.",
+            ],
+            [
+              "Can you retreat easily?",
+              "Beginners need options if weather or energy changes.",
+              "Avoid committing ridges until your confidence grows.",
+            ],
+          ],
+        },
+      },
+      {
+        type: "heading",
+        text: "How to choose gentle Wainwright walks in practice",
+      },
+      {
+        type: "paragraph",
+        text: "Start with geography, not a trophy list. A map-first approach lets you group the fells by valley and travel day. From Keswick, Latrigg is a classic gentle option with a strong sense of place. From Borrowdale, Castle Crag offers a compact fell day with memorable views. Around Ambleside and Grasmere, Loughrigg Fell feels approachable but still needs proper navigation when paths braid across the lower ground.",
+      },
+      {
+        type: "paragraph",
+        text: "Northern and north-western options such as Sale Fell, Ling Fell and High Rigg often suit walkers who want quieter starts to the 214. Hallin Fell above Ullswater is another short, satisfying summit when the weather behaves. None of these names should be treated as guaranteed safe or effortless. Check the forecast, confirm public access and paths, carry waterproofs, and turn back early if visibility or footing deteriorates.",
+      },
+      {
+        type: "image",
+        src: "https://images.unsplash.com/photo-1617458414741-3315467f1dfb?w=1080&q=80",
+        alt: "Easy Wainwright walks map planning across green Lake District fells",
+        caption:
+          "Use the map to judge clusters, escape options and effort before you chase extra summits.",
+      },
+      {
+        type: "list",
+        items: [
+          "Pick one modest Wainwright as the main objective, then mark optional nearby fells separately.",
+          "Check ascent, not just miles; steep grass can make a short route feel slow.",
+          "Read the Met Office mountain forecast and local daylight times before leaving home.",
+          "Carry a paper map or offline map, compass, layers, food, water and a head torch.",
+          "Log the fell afterwards with date, notes and photos so your 214 record stays trustworthy.",
+        ],
+      },
+      {
+        type: "heading",
+        text: "Easy does not mean navigation-free",
+      },
+      {
+        type: "paragraph",
+        text: "The most common beginner mistake is treating easy Wainwrights as park walks. Some are close to towns, cafes or popular paths, but they are still fell country. Mist can erase landmarks. Wet rock changes the character of a descent. A quiet shoulder that looked obvious on a phone screen can feel different when a path fades into grass. The map helps you choose; it does not walk the route for you.",
+      },
+      {
+        type: "paragraph",
+        text: "Good planning uses several layers. Use a Wainwright tracker for the canon of 214 fells and your personal progress. Use OS mapping for rights of way, contours and route detail. Use the Met Office and AdventureSmart safety guidance for weather and hill preparation. Use recent local reports with caution, because path conditions, parking rules and seasonal restrictions can change. Sources worth checking include https://www.metoffice.gov.uk/weather/specialist-forecasts/mountain, https://www.adventuresmart.uk/ and https://explore.osmaps.com/.",
+      },
+      {
+        type: "image",
+        src: "https://images.unsplash.com/photo-1617565436074-56b2f85a03f6?w=1080&q=80",
+        alt: "Lake District tarn and trees near an easy Wainwright walking route",
+        caption:
+          "Gentle days still deserve proper weather checks, daylight planning and navigation backup.",
+      },
+      {
+        type: "heading",
+        text: "A simple map workflow for the first ten fells",
+      },
+      {
+        type: "paragraph",
+        text: "For the first ten Wainwrights, keep the system deliberately boring. Open the tracker, filter the map to one area, and shortlist fells that sit near a sensible base. Read a proper route description elsewhere, then return to the Wainwright map to understand how that summit fits your wider round. This prevents random ticking, where your completed fells end up scattered across the Lakes with no memory of why you chose them.",
+      },
+      {
+        type: "paragraph",
+        text: "After each walk, record more than the tick. Note the date, route, weather, who came with you, how the climb felt, and whether you would recommend it to another beginner. Add photos if they help you remember the day. Over time, your easy Wainwright walks map becomes a private field journal: which areas you know well, which valleys need another visit, and which remaining fells deserve a longer summer day.",
+      },
+      {
+        type: "heading",
+        text: "Common mistakes when mapping easy Wainwright walks",
+      },
+      {
+        type: "paragraph",
+        text: "First, walkers often chase lists copied from the web without checking whether the suggested fell suits the day. Second, they combine too many nearby summits because the map makes them look close. Third, they ignore descent difficulty; tired legs make the way down feel longer. Fourth, they forget to log failed or shortened days, even though those notes are useful for future planning. Fifth, they treat phone signal as a plan rather than a bonus.",
+      },
+      {
+        type: "paragraph",
+        text: "Avoid those traps by separating ambition from the base route. Mark one objective as the walk, then keep extensions optional. Save a note in your Wainwright checklist before you go: planned start point, likely route, weather concern and bail-out option. When you come home, update the record while the memory is fresh. The habit matters more than the technology; the app just makes the habit easier to keep.",
+      },
+      {
+        type: "heading",
+        text: "Key takeaways for beginner Wainwright baggers",
+      },
+      {
+        type: "list",
+        items: [
+          "An easy Wainwright walks map should show clusters, ascent, start points and sensible restraint.",
+          "Beginner-friendly fells can still need proper navigation, weather judgement and spare layers.",
+          "Use authoritative sources such as the Met Office, Lake District National Park and OS Maps for route planning context.",
+          "Track your progress in /app so every completed fell has a date, note and memory attached.",
+          "Read more planning notes on /blog, then choose the next fell by conditions rather than ego.",
+        ],
+      },
+      {
+        type: "cta",
+        title: "Plan the next gentle Wainwright",
+        text: "Open Wainwrights Baggers, mark the fells you have already climbed, and use the map to choose a modest next objective. The round is easier to enjoy when every tick has context, memory and a sensible plan behind it.",
+        href: "/app",
+        label: "Open the tracker",
+      },
+    ],
+  },  {
     slug: "best-beginner-wainwrights",
     title: "Best Beginner Wainwrights: 9 Gentle First Fells",
     excerpt:
