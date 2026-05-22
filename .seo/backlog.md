@@ -14,7 +14,6 @@ Current focus: none
 
 | ID | P | Area | Ticket | Verify |
 | --- | --- | --- | --- | --- |
-| SEO-002 | P0 | analytics | Add Vercel Analytics + events: `cta_click`, `signup_click`, `blog_cta_click` | Events visible on production dashboard |
 | SEO-003 | P1 | ctr | After GSC baseline: rewrite titles/meta for high-impression low-CTR URLs | CTR improvement over 2–4 weeks |
 | SEO-004 | P2 | cwv | Lighthouse mobile + desktop on production homepage + one blog post | LCP/CLS/INP recorded in audit.md |
 | SEO-005 | P2 | schema | Rich Results Test on home + one article after changes | No critical schema errors |
@@ -46,3 +45,4 @@ Current focus: none
 | SEO-000 | 2026-05-22 | Playbook `.seo/` bootstrap; technical SEO baseline in code (metadata, sitemap, robots, JSON-LD, 4 blog posts, `/app` noindex) |
 | SEO-000b | 2026-05-22 | Migrated flat root SEO files → `.seo/` layout per master playbook |
 | SEO-001 | 2026-05-22 | GSC domain property verified via Vercel DNS; `https://wainwrightsbaggers.com/sitemap.xml` submitted with Success, last read 22 May 2026, 6 discovered pages; baseline saved in `.seo/reports/gsc-2026-05-22.md` |
+| SEO-002 | 2026-05-22 | Vercel project/domain migrated to Andesphere Pro; Web Analytics enabled; `cta_click`, `signup_click`, and `blog_cta_click` visible in production dashboard |

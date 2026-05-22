@@ -9,6 +9,7 @@
 import { SignInButton } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 
+import { trackCtaClick, trackSignupClick } from "@/lib/analytics";
 import { SlopeMark } from "./SlopeMark";
 
 type SlopeNavProps = {
@@ -23,12 +24,20 @@ export function SlopeNav({
 }: SlopeNavProps) {
   // Right-hand button — Clerk sign-in modal, or deep-link into the tracker.
   const cta = signedIn ? (
-    <Link to="/app" className="slope-nav-cta">
+    <Link
+      to="/app"
+      className="slope-nav-cta"
+      onClick={() => trackCtaClick("nav", "Open journal")}
+    >
       Open journal
     </Link>
   ) : (
     <SignInButton mode="modal">
-      <button type="button" className="slope-nav-cta">
+      <button
+        type="button"
+        className="slope-nav-cta"
+        onClick={() => trackSignupClick("nav", "Sign in")}
+      >
         Sign in
       </button>
     </SignInButton>

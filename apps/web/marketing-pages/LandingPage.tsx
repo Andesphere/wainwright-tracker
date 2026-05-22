@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 
 import { SlopeNav } from "@/components/marketing/SlopeNav";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
+import { trackCtaClick, trackSignupClick } from "@/lib/analytics";
 
 type LandingPageProps = {
   /** When true, CTAs deep-link into /app; otherwise they open Clerk modals. */
@@ -44,12 +45,21 @@ const NUMBERS = [
 export function LandingPage({ signedIn = false }: LandingPageProps) {
   // Primary CTA renders the same visual button whether the user is signed in
   // (Link to /app) or not (Clerk sign-up modal). Keeps the markup tidy.
-  const primaryCta = (label: string, variant: "light" | "dark" = "light") => {
+  const primaryCta = (
+    label: string,
+    variant: "light" | "dark" = "light",
+    location = "home_hero",
+  ) => {
     const className =
       variant === "dark" ? "btn-pill btn-pill-light" : "btn-pill";
+    const trackClick = () => {
+      trackCtaClick(location, label);
+      if (!signedIn) trackSignupClick(location, label);
+    };
+
     if (signedIn) {
       return (
-        <Link to="/app" className={className}>
+        <Link to="/app" className={className} onClick={trackClick}>
           {label}
           <i className="btn-arr" />
         </Link>
@@ -57,7 +67,7 @@ export function LandingPage({ signedIn = false }: LandingPageProps) {
     }
     return (
       <SignUpButton mode="modal">
-        <button type="button" className={className}>
+        <button type="button" className={className} onClick={trackClick}>
           {label}
           <i className="btn-arr" />
         </button>
@@ -167,7 +177,7 @@ export function LandingPage({ signedIn = false }: LandingPageProps) {
             Two hundred and fourteen fells. No deadline, no streak, no badge for
             finishing. Just a journal you keep for as long as you walk.
           </p>
-          {primaryCta("Open the journal", "dark")}
+          {primaryCta("Open the journal", "dark", "home_bottom")}
         </div>
       </section>
     </SlopeShell>

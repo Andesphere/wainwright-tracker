@@ -195,7 +195,8 @@ export const BLOG_POSTS: BlogPost[] = [
         label: "Open the tracker",
       },
     ],
-  },  {
+  },
+  {
     slug: "best-beginner-wainwrights",
     title: "Best Beginner Wainwrights: 9 Gentle First Fells",
     excerpt:

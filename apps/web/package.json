@@ -23,6 +23,7 @@
     "@hugeicons/core-free-icons": "^4.1.4",
     "@hugeicons/react": "^1.1.6",
     "@types/geojson": "^7946.0.16",
+    "@vercel/analytics": "^2.0.1",
     "@wainwrights/backend": "workspace:*",
     "@wainwrights/catalog": "workspace:*",
     "ai": "^6.0.184",

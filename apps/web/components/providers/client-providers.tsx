@@ -1,6 +1,7 @@
 "use client";
 
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
+import { Analytics } from "@vercel/analytics/react";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import {
@@ -92,6 +93,10 @@ export function ClientProviders({ children }: ClientProvidersProps) {
         <RequiredRuntimeProviders>
           <TooltipProvider delayDuration={200}>
             {mounted ? <BrowserRouter>{children}</BrowserRouter> : null}
+            <Analytics
+              framework="react"
+              scriptSrc="https://va.vercel-scripts.com/v1/script.js"
+            />
           </TooltipProvider>
         </RequiredRuntimeProviders>
       </ErrorBoundary>

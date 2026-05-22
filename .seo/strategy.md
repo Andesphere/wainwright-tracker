@@ -17,10 +17,11 @@ Last updated: 2026-05-22
 | Tool | Status |
 | --- | --- |
 | **Production URL** | `https://wainwrightsbaggers.com` |
-| **Deploy** | Vercel (git push → production; Next.js) |
+| **GitHub** | `Andesphere/wainwright-tracker` |
+| **Deploy** | Vercel team `andesphere` (Pro), git push to `main` → production; Next.js |
 | **Search Console** | Domain property verified: `sc-domain:wainwrightsbaggers.com`; sitemap submitted successfully |
 | **GSC API** | Not set up — optional `.seo/scripts/gsc-api.mjs` |
-| **Analytics** | None in `apps/web` (no Vercel Analytics, GA4, GTM, Plausible) |
+| **Analytics** | Vercel Web Analytics enabled; custom events: `cta_click`, `signup_click`, `blog_cta_click` |
 | **Auth** | Clerk |
 | **Email / forms** | No marketing contact form; Clerk sign-up only |
 | **Calendar** | N/A |
@@ -44,14 +45,13 @@ Last updated: 2026-05-22
 
 **Gaps (tracked as backlog tickets):**
 
-- No analytics on CTA clicks or sign-up funnel (`SEO-002`)
 - Search Console processing first baseline after verification (`SEO-001`)
 - `/app` is `noindex` (correct); marketing pages must carry search intent
 
 ## Latest reports
 
 - GSC: `.seo/reports/gsc-2026-05-22.md`
-- Analytics: none yet
+- Analytics: Vercel dashboard under `andesphere/wainwright-tracker`
 
 ## Operational notes
 

@@ -9,9 +9,9 @@ Last updated: 2026-05-22
 
 The marketing site has a **solid technical SEO foundation** in code: Next.js metadata API, canonical URLs, robots/sitemap, structured data, four indexable blog posts, and correct `noindex` on `/app`. Production responds with **HTTP 200**, and `robots.txt` / `sitemap.xml` are healthy (5 URLs: `/`, `/blog`, 4 posts).
 
-**Gaps:** no Search Console or analytics in repo yet; no CWV baseline; backlinks not started; homepage OG is not standard 1200×630. Conversion is simple (free sign-up → journal) but untracked.
+**Gaps:** no CWV baseline; backlinks not started; homepage OG is not standard 1200×630. Conversion is simple (free sign-up → journal) and now has basic CTA tracking.
 
-**Backlog:** see [backlog.md](backlog.md) — next tickets `SEO-001` (GSC), `SEO-002` (analytics).
+**Backlog:** see [backlog.md](backlog.md) — next tickets `SEO-003` (CTR after GSC data), `SEO-004` (CWV).
 
 ## Sources checked
 
@@ -25,7 +25,7 @@ The marketing site has a **solid technical SEO foundation** in code: Next.js met
 | Live `curl` homepage | 200, title/meta/JSON-LD match code |
 | Live `robots.txt` / `sitemap.xml` | Valid |
 | Search Console | Domain property verified; sitemap submitted successfully — `SEO-001` |
-| Analytics | None in repo — `SEO-002` |
+| Analytics | Vercel Web Analytics enabled with production custom events — `SEO-002` |
 
 ## Search Console findings
 
@@ -79,11 +79,15 @@ CTR rewrites after GSC data: `SEO-003`. Homepage OG: `SEO-007`.
 
 - Single primary CTA on hero; appropriate for free tool
 - Blog and “how it works” mitigate cold-traffic clarity risk
-- Analytics and CTA review: `SEO-002`, `SEO-006`
+- CTA review: `SEO-006`
 
 ## Analytics review
 
-No marketing analytics tags. Instrumentation blocked on decisions until `SEO-002`.
+Vercel Web Analytics is installed in the hydrated client provider layer. Production dashboard shows page views plus custom events:
+
+- `cta_click`
+- `signup_click`
+- `blog_cta_click`
 
 ## Schema review
 

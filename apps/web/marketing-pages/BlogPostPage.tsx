@@ -12,6 +12,7 @@ import {
   formatBlogDate,
   getBlogPost,
 } from "@/content/blog/posts";
+import { trackBlogCtaClick } from "@/lib/analytics";
 
 type BlogPostPageProps = {
   signedIn?: boolean;
@@ -74,7 +75,11 @@ export function BlogPostPage({ signedIn = false }: BlogPostPageProps) {
 
           <div className="post-prose post-prose-rich">
             {post.body.map((block, index) => (
-              <BlogBlockView block={block} key={`${block.type}-${index}`} />
+              <BlogBlockView
+                block={block}
+                key={`${block.type}-${index}`}
+                slug={post.slug}
+              />
             ))}
           </div>
         </div>
@@ -83,7 +88,7 @@ export function BlogPostPage({ signedIn = false }: BlogPostPageProps) {
   );
 }
 
-function BlogBlockView({ block }: { block: BlogBlock }) {
+function BlogBlockView({ block, slug }: { block: BlogBlock; slug: string }) {
   if (block.type === "heading") {
     return <h2>{block.text}</h2>;
   }
@@ -160,7 +165,11 @@ function BlogBlockView({ block }: { block: BlogBlock }) {
     <aside className="post-cta-box">
       <h2>{block.title}</h2>
       <p>{block.text}</p>
-      <Link to={block.href} className="btn-pill btn-pill-light">
+      <Link
+        to={block.href}
+        className="btn-pill btn-pill-light"
+        onClick={() => trackBlogCtaClick(slug, block.label, block.href)}
+      >
         {block.label}
         <i className="btn-arr" />
       </Link>
