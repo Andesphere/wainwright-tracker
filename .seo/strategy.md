@@ -18,7 +18,7 @@ Last updated: 2026-05-22
 | --- | --- |
 | **Production URL** | `https://wainwrightsbaggers.com` |
 | **Deploy** | Vercel (git push → production; Next.js) |
-| **Search Console** | Not configured in repo — verify property in browser; suggest `sc-domain:wainwrightsbaggers.com` |
+| **Search Console** | Domain property verified: `sc-domain:wainwrightsbaggers.com`; sitemap submitted successfully |
 | **GSC API** | Not set up — optional `.seo/scripts/gsc-api.mjs` |
 | **Analytics** | None in `apps/web` (no Vercel Analytics, GA4, GTM, Plausible) |
 | **Auth** | Clerk |
@@ -45,12 +45,12 @@ Last updated: 2026-05-22
 **Gaps (tracked as backlog tickets):**
 
 - No analytics on CTA clicks or sign-up funnel (`SEO-002`)
-- Search Console not baselined (`SEO-001`)
+- Search Console processing first baseline after verification (`SEO-001`)
 - `/app` is `noindex` (correct); marketing pages must carry search intent
 
 ## Latest reports
 
-- GSC: none yet — add `.seo/reports/gsc-YYYY-MM-DD.md` after `SEO-001`
+- GSC: `.seo/reports/gsc-2026-05-22.md`
 - Analytics: none yet
 
 ## Operational notes

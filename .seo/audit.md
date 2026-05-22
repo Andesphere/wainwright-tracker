@@ -24,20 +24,25 @@ The marketing site has a **solid technical SEO foundation** in code: Next.js met
 | `apps/web/marketing-pages/LandingPage.tsx` | CTAs |
 | Live `curl` homepage | 200, title/meta/JSON-LD match code |
 | Live `robots.txt` / `sitemap.xml` | Valid |
-| Search Console | Not accessed — `SEO-001` |
+| Search Console | Domain property verified; sitemap submitted successfully — `SEO-001` |
 | Analytics | None in repo — `SEO-002` |
 
 ## Search Console findings
 
-_Pending `SEO-001`._ Expected property:
+Property verified on 2026-05-22:
 
 `https://search.google.com/search-console/index?resource_id=sc-domain%3Awainwrightsbaggers.com`
 
-Suggested checks when authenticated:
+Sitemap submitted:
 
-1. Performance (3 months): “Wainwright app”, “Wainwright checklist”, “214 Wainwrights”, “easy Wainwright walks”
-2. Indexing: 5 sitemap URLs vs indexed count
-3. Priority pages: `/blog/best-wainwright-app`, `/blog/easy-wainwright-walks-map`
+- `https://wainwrightsbaggers.com/sitemap.xml`
+- Status: Success
+- Last read: 22 May 2026
+- Discovered pages: 6
+
+Baseline report: [reports/gsc-2026-05-22.md](reports/gsc-2026-05-22.md).
+
+Initial Performance and Page indexing reports were still processing immediately after verification. Re-check before `SEO-003`.
 
 ## Technical SEO
 
