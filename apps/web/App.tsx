@@ -119,7 +119,11 @@ import {
   getProgressivelyDisclosedAlbums,
   type WainwrightAlbumItem,
 } from "@/albums";
-import { buildAlbumExportDocument, openAlbumPrintWindow } from "@/albumExport";
+import {
+  buildAlbumExportDocument,
+  openAlbumPrintWindow,
+  type AlbumExportLayout,
+} from "@/albumExport";
 import { sortWainwrightsForJournal, type JournalSort } from "@/mapSorting";
 import { BlogPage } from "@/marketing-pages/BlogPage";
 import { BlogPostPage } from "@/marketing-pages/BlogPostPage";
@@ -1867,7 +1871,12 @@ function AlbumPage({
   selectedAlbumKey: string;
 }) {
   const [albumListExpanded, setAlbumListExpanded] = useState(false);
+  const [exportLayout, setExportLayout] =
+    useState<AlbumExportLayout>("portraitPair");
+  const [coverTopoMap, setCoverTopoMap] = useState(true);
+  const [dayMiniMaps, setDayMiniMaps] = useState(true);
   const wholeHistoryItems = flattenAlbumsChronologically(albums);
+  const isWholeHistory = selectedAlbumKey === WHOLE_HISTORY_ALBUM;
   const selectedAlbum = albums.find(
     (album) => album.dateKey === selectedAlbumKey,
   );
@@ -1894,6 +1903,17 @@ function AlbumPage({
       ? `${visibleItems.length} Wainwrights across ${albums.length} dated album${albums.length === 1 ? "" : "s"}.`
       : `${visibleItems.length} Wainwright${visibleItems.length === 1 ? "" : "s"} bagged on ${title}.`;
 
+  const exportDayGroups = isWholeHistory
+    ? [...albums]
+        .sort((a, b) => a.dateKey.localeCompare(b.dateKey))
+        .map((album) => ({
+          dateKey: album.dateKey,
+          items: album.items,
+        }))
+    : selectedAlbum
+      ? [{ dateKey: selectedAlbum.dateKey, items: selectedAlbum.items }]
+      : [];
+
   const downloadAlbumPdf = () => {
     if (visibleItems.length === 0) {
       toast("Add dated Wainwrights before exporting an album PDF");
@@ -1907,6 +1927,12 @@ function AlbumPage({
           items: visibleItems,
           subtitle: exportSubtitle,
           title,
+          exportOptions: {
+            layout: exportLayout,
+            coverTopoMap,
+            dayMiniMaps: isWholeHistory && dayMiniMaps,
+            dayGroups: exportDayGroups,
+          },
         }),
       );
     } catch (error) {
@@ -1935,6 +1961,62 @@ function AlbumPage({
           <StatPill label="photos" value={photoCount} />
           <StatPill label="albums" value={albums.length} />
         </div>
+        <div className="mt-4 grid gap-3 rounded-2xl border border-border/70 bg-background/70 p-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            PDF options
+          </p>
+          <div className="grid gap-2">
+            <label className="text-xs text-muted-foreground" htmlFor="pdf-layout">
+              Layout
+            </label>
+            <Select
+              value={exportLayout}
+              onValueChange={(value) =>
+                setExportLayout(value as AlbumExportLayout)
+              }
+            >
+              <SelectTrigger id="pdf-layout" className="rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="portraitPair">
+                  Portrait album (2 fells / 4 photos per page)
+                </SelectItem>
+                <SelectItem value="classic">Classic (1 fell per block)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <label className="flex items-start gap-2 text-sm leading-snug text-foreground">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={coverTopoMap}
+              onChange={(event) => setCoverTopoMap(event.target.checked)}
+            />
+            <span>
+              Cover topo map on page 1
+              <span className="block text-xs text-muted-foreground">
+                OpenTopoMap overview of all exported Wainwrights
+              </span>
+            </span>
+          </label>
+          {isWholeHistory ? (
+            <label className="flex items-start gap-2 text-sm leading-snug text-foreground">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={dayMiniMaps}
+                onChange={(event) => setDayMiniMaps(event.target.checked)}
+              />
+              <span>
+                Mini topo map per day
+                <span className="block text-xs text-muted-foreground">
+                  Keeps each two-fell day together when possible
+                </span>
+              </span>
+            </label>
+          ) : null}
+        </div>
         <Button
           type="button"
           className="mt-4 w-full rounded-full"
@@ -1944,8 +2026,9 @@ function AlbumPage({
           Download print PDF
         </Button>
         <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
-          Opens a polished A4 print layout with a map thumbnail and photo pages;
-          choose “Save as PDF” in your browser print dialog.
+          Opens an A4 print layout (portrait album by default) with optional
+          topographical maps; choose “Save as PDF” in your browser print dialog.
+          Maps need a brief moment online to load before printing.
         </p>
       </div>
 

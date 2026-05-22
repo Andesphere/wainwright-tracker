@@ -34,6 +34,7 @@ function fell(
 function item(
   peak: Wainwright,
   completedAt = "2024-05-02",
+  photos?: WainwrightAlbumItem["entry"]["photos"],
 ): WainwrightAlbumItem {
   return {
     completedAt,
@@ -43,20 +44,28 @@ function item(
       id: peak.id,
       completedAt,
       note: `${peak.name} summit note`,
-      photos: [
-        {
-          storageId: `${peak.id}-photo`,
-          url: `https://example.com/${peak.id}.jpg`,
-          originalName: `${peak.name} ridge photo`,
-          uploadedAt: `${completedAt}T12:00:00Z`,
-        },
-      ],
+      photos:
+        photos ??
+        [
+          {
+            storageId: `${peak.id}-photo-a`,
+            url: `https://example.com/${peak.id}-a.jpg`,
+            originalName: `${peak.name} ridge photo`,
+            uploadedAt: `${completedAt}T12:00:00Z`,
+          },
+          {
+            storageId: `${peak.id}-photo-b`,
+            url: `https://example.com/${peak.id}-b.jpg`,
+            originalName: `${peak.name} summit photo`,
+            uploadedAt: `${completedAt}T12:30:00Z`,
+          },
+        ],
     },
   };
 }
 
 describe("album PDF export document", () => {
-  it("creates a print-ready A4 document with a top map thumbnail and all album fells", () => {
+  it("creates a portrait album with cover map page and pair pages by default", () => {
     const html = buildAlbumExportDocument({
       title: "2 May 2024",
       subtitle: "A day album from the Lake District",
@@ -68,12 +77,79 @@ describe("album PDF export document", () => {
     });
 
     expect(html).toContain("@page");
-    expect(html).toContain("2 May 2024");
-    expect(html).toContain("map-thumb");
-    expect(html).toContain("All Wainwrights in this export");
+    expect(html).toContain("A4 portrait");
+    expect(html).toContain("cover-map-page");
+    expect(html).toContain("page-break-after: always");
+    expect(html).toContain('id="cover-map"');
+    expect(html).toContain("fell-pair-page");
+    expect(html).toContain("object-fit: contain");
     expect(html).toContain("Skiddaw");
     expect(html).toContain("Helvellyn");
-    expect(html.match(/class="map-pin"/g)).toHaveLength(2);
+    expect(html).toContain("https://example.com/skiddaw-a.jpg");
+    expect(html).toContain("https://example.com/skiddaw-b.jpg");
+    expect(html).not.toContain("https://example.com/skiddaw-c.jpg");
+    expect(html).toContain("map.once('idle'");
+    expect(html).toContain("tile.opentopomap.org");
+  });
+
+  it("groups whole history by day with topo mini maps when enabled", () => {
+    const html = buildAlbumExportDocument({
+      title: "Whole history",
+      subtitle: "Three Wainwrights across two albums",
+      items: [
+        item(fell("skiddaw", "Skiddaw", 1, 54.65, -3.15), "2024-05-02"),
+        item(fell("helvellyn", "Helvellyn", 2, 54.52, -3.02), "2024-05-03"),
+        item(fell("catbells", "Catbells", 3, 54.56, -3.17), "2024-05-03"),
+      ],
+      heightUnit: "m",
+      exportOptions: {
+        layout: "portraitPair",
+        coverTopoMap: true,
+        dayMiniMaps: true,
+        dayGroups: [
+          {
+            dateKey: "2024-05-02",
+            items: [item(fell("skiddaw", "Skiddaw", 1, 54.65, -3.15), "2024-05-02")],
+          },
+          {
+            dateKey: "2024-05-03",
+            items: [
+              item(fell("helvellyn", "Helvellyn", 2, 54.52, -3.02), "2024-05-03"),
+              item(fell("catbells", "Catbells", 3, 54.56, -3.17), "2024-05-03"),
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(html).toContain("day-chapter");
+    expect(html).toContain("day-chapter--compact");
+    expect(html).toContain('id="mini-map-2024-05-02"');
+    expect(html).toContain('id="mini-map-2024-05-03"');
+    expect(html).toContain("2 May 2024");
+    expect(html).toContain("3 May 2024");
+  });
+
+  it("uses classic layout with decorative map when topo cover is disabled", () => {
+    const html = buildAlbumExportDocument({
+      title: "2 May 2024",
+      subtitle: "Classic export",
+      items: [item(fell("skiddaw", "Skiddaw", 1, 54.65, -3.15))],
+      heightUnit: "m",
+      exportOptions: {
+        layout: "classic",
+        coverTopoMap: false,
+        dayMiniMaps: false,
+      },
+    });
+
+    expect(html).toContain("layout-classic");
+    expect(html).toContain("map-thumb");
+    expect(html).toContain("fell-card");
+    expect(html).toContain("object-fit: cover");
+    expect(html).not.toContain("fell-pair-page");
+    expect(html).toContain("setTimeout(() => window.print(), 250)");
+    expect(html).not.toContain("map.once('idle'");
   });
 
   it("uses a scalable photo layout and renders saved photos, notes, and placeholders", () => {
@@ -90,10 +166,11 @@ describe("album PDF export document", () => {
       subtitle: "Three Wainwrights across two albums",
       items: [item(fell("arnison", "Arnison Crag", 4, 54.53, -2.93)), bareItem],
       heightUnit: "ft",
+      exportOptions: { layout: "classic", coverTopoMap: false, dayMiniMaps: false },
     });
 
     expect(html).toContain("photo-mosaic");
-    expect(html).toContain("https://example.com/arnison.jpg");
+    expect(html).toContain("https://example.com/arnison-a.jpg");
     expect(html).toContain("Arnison Crag summit note");
     expect(html).toContain("No photo saved yet");
     expect(html).toContain("ft");
@@ -123,6 +200,7 @@ describe("album PDF export document", () => {
         },
       ],
       heightUnit: "m",
+      exportOptions: { layout: "classic", coverTopoMap: false, dayMiniMaps: false },
     });
 
     expect(html).toContain("&lt;Whole &amp; &quot;history&quot;&gt;");
