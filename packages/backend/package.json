@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "bunx --bun convex dev --typecheck=disable",
+    "dev:local": "bunx --bun convex dev --typecheck=disable",
+    "setup:local": "bunx --bun convex deployment create local --select 2>/dev/null || bunx --bun convex deployment select local",
+    "deploy:local": "bunx --bun convex dev --once --typecheck=disable",
     "deploy": "bunx --bun convex deploy --typecheck=disable",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "typecheck:strict": "bunx --bun convex dev --once --typecheck=enable --codegen=enable --tail-logs=disable",

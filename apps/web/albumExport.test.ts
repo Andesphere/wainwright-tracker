@@ -130,6 +130,26 @@ describe("album PDF export document", () => {
     expect(html).toContain("3 May 2024");
   });
 
+  it("renders a sized topo map in classic layout when cover topo is enabled", () => {
+    const html = buildAlbumExportDocument({
+      title: "2 May 2024",
+      subtitle: "Classic export with topo",
+      items: [item(fell("skiddaw", "Skiddaw", 1, 54.65, -3.15))],
+      heightUnit: "m",
+      exportOptions: {
+        layout: "classic",
+        coverTopoMap: true,
+        dayMiniMaps: false,
+      },
+    });
+
+    expect(html).toContain('class="topo-map topo-map-cover" id="cover-map"');
+    expect(html).toContain("hero .topo-map");
+    expect(html).toContain("min-height: 260px");
+    expect(html).toContain("map.once('idle'");
+    expect(html).not.toContain('class="map-thumb"');
+  });
+
   it("uses classic layout with decorative map when topo cover is disabled", () => {
     const html = buildAlbumExportDocument({
       title: "2 May 2024",

@@ -274,6 +274,7 @@ function buildTopoMapInitScript(mapConfigs: MapConfigEntry[]) {
           }
 
           map.once('idle', () => {
+            map.resize();
             pending -= 1;
             schedulePrint();
           });
@@ -420,6 +421,49 @@ function buildClassicBody(
 }
 
 function buildSharedStyles(layout: AlbumExportLayout, hasTopoMaps: boolean) {
+  const topoMapStyles = hasTopoMaps
+    ? `
+    .topo-map {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: #e8ebe2;
+    }
+    .topo-map-mini {
+      min-height: 120px;
+      height: 120px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      border: 1px solid #e5e5ea;
+    }
+    .topo-map-cover {
+      min-height: 240mm;
+      border-radius: 20px;
+      border: 1px solid #e5e5ea;
+      flex: 1;
+    }
+    .hero .topo-map {
+      min-height: 260px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.22);
+    }
+    .maplibre-pin {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      border-radius: 999px;
+      background: #0071e3;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 0 6px 16px rgba(0,0,0,.28);
+      outline: 3px solid rgba(255,255,255,.92);
+    }
+    .maplibre-pin-mini { width: 22px; height: 22px; font-size: 10px; }
+    `
+    : "";
+
   const portraitStyles =
     layout === "portraitPair"
       ? `
@@ -442,36 +486,6 @@ function buildSharedStyles(layout: AlbumExportLayout, hasTopoMaps: boolean) {
       color: #6e6e73;
     }
     .cover-header .stat strong { color: #1d1d1f; }
-    .topo-map {
-      position: relative;
-      width: 100%;
-      min-height: 240mm;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid #e5e5ea;
-      background: #e8ebe2;
-    }
-    .topo-map-mini {
-      min-height: 120px;
-      height: 120px;
-      border-radius: 16px;
-      margin-bottom: 12px;
-    }
-    .topo-map-cover { flex: 1; }
-    .maplibre-pin {
-      display: grid;
-      width: 28px;
-      height: 28px;
-      place-items: center;
-      border-radius: 999px;
-      background: #0071e3;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      box-shadow: 0 6px 16px rgba(0,0,0,.28);
-      outline: 3px solid rgba(255,255,255,.92);
-    }
-    .maplibre-pin-mini { width: 22px; height: 22px; font-size: 10px; }
     .album-content { display: grid; gap: 0; }
     .day-chapter { margin-bottom: 8px; }
     .day-chapter--compact { break-inside: avoid; page-break-inside: avoid; }
@@ -583,6 +597,7 @@ function buildSharedStyles(layout: AlbumExportLayout, hasTopoMaps: boolean) {
     : "";
 
   return `
+    ${topoMapStyles}
     ${portraitStyles}
     ${mapStatusStyles}
     @page { size: A4${layout === "portraitPair" ? " portrait" : ""}; margin: ${layout === "portraitPair" ? "12mm" : "13mm"}; }
