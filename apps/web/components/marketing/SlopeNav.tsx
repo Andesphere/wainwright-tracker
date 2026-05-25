@@ -53,6 +53,7 @@ export function SlopeNav({
         <Link to="/#features">The Round</Link>
         <Link to="/#journal">Journal</Link>
         <Link to="/blog">Field Notes</Link>
+        <Link to="/contact">Contact</Link>
       </nav>
       {cta}
     </header>

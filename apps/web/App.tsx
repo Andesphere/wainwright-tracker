@@ -10,7 +10,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { SignedIn, UserButton, useAuth } from "@clerk/clerk-react";
+import { SignedIn, UserButton, useAuth, useUser } from "@clerk/clerk-react";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
@@ -128,6 +128,8 @@ import { sortWainwrightsForJournal, type JournalSort } from "@/mapSorting";
 import { BlogPage } from "@/marketing-pages/BlogPage";
 import { BlogPostPage } from "@/marketing-pages/BlogPostPage";
 import { LandingPage } from "@/marketing-pages/LandingPage";
+import { SlopeNav } from "@/components/marketing/SlopeNav";
+import { SlopeShell } from "@/components/marketing/SlopeShell";
 
 const STORAGE_KEY = "wainwright-tracker:v1:completed";
 const HEIGHT_UNIT_KEY = "wainwright-tracker:v1:height-unit";
@@ -340,12 +342,241 @@ function App() {
     <AppErrorBoundary>
       <Routes>
         <Route path="/" element={<MarketingRoute page="home" />} />
+        <Route path="/contact" element={<ContactRoute />} />
         <Route path="/blog" element={<MarketingRoute page="blog" />} />
         <Route path="/blog/:slug" element={<MarketingRoute page="post" />} />
         <Route path="/app" element={<TrackerRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppErrorBoundary>
+  );
+}
+
+function ContactRoute() {
+  const { isSignedIn } = useAuth();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "sent" | "error"
+  >("idle");
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (status === "submitting") return;
+
+    setStatus("submitting");
+    const response = await fetch("/api/relay/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        email,
+        message,
+        currentUrl: window.location.href,
+      }),
+    });
+
+    if (response.ok) {
+      setName("");
+      setEmail("");
+      setMessage("");
+      setStatus("sent");
+      return;
+    }
+
+    setStatus("error");
+  };
+
+  return (
+    <SlopeShell signedIn={isSignedIn ?? false}>
+      <section className="min-h-dvh bg-parchment px-4 py-8 text-ink">
+        <SlopeNav signedIn={isSignedIn ?? false} variant="solid" />
+        <div className="mx-auto grid max-w-3xl gap-6 pt-16">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              contact
+            </p>
+            <h1 className="mt-2 font-display text-5xl italic text-foreground">
+              Send a note
+            </h1>
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="grid gap-4 rounded-3xl border border-border bg-card/80 p-5 shadow-sm"
+          >
+            <Input
+              required
+              minLength={2}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Name"
+            />
+            <Input
+              required
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="Email"
+            />
+            <Textarea
+              required
+              minLength={10}
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              placeholder="What should we know?"
+            />
+            {status === "sent" ? (
+              <p className="text-sm text-primary">
+                Thanks, your note was sent.
+              </p>
+            ) : null}
+            {status === "error" ? (
+              <p className="text-sm text-destructive">
+                We could not send that. Try again in a moment.
+              </p>
+            ) : null}
+            <Button
+              type="submit"
+              className="justify-self-start rounded-full"
+              disabled={status === "submitting"}
+            >
+              {status === "submitting" ? "Sending..." : "Send message"}
+            </Button>
+          </form>
+        </div>
+      </section>
+    </SlopeShell>
+  );
+}
+
+function FeedbackDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { user } = useUser();
+  const [type, setType] = useState("comment");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "sent" | "error"
+  >("idle");
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = message.trim();
+    if (!user || !trimmed || status === "submitting") {
+      return;
+    }
+
+    setStatus("submitting");
+    const response = await fetch("/api/relay/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.id,
+        email: user.primaryEmailAddress?.emailAddress,
+        name: user.fullName ?? user.username ?? undefined,
+        type,
+        message: trimmed,
+        currentUrl: window.location.href,
+        userAgent: window.navigator.userAgent,
+      }),
+    });
+
+    if (response.ok) {
+      setMessage("");
+      setStatus("sent");
+      return;
+    }
+
+    setStatus("error");
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      setStatus("idle");
+    }
+    onOpenChange(nextOpen);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Send feedback</DialogTitle>
+          <DialogDescription>
+            Share what broke, what is missing, or what would make the journal
+            better.
+          </DialogDescription>
+        </DialogHeader>
+
+        {status === "sent" ? (
+          <>
+            <div className="grid justify-items-center gap-3 py-3 text-center">
+              <span className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary">
+                <HugeiconsIcon icon={CheckmarkCircle02Icon} strokeWidth={1.8} />
+              </span>
+              <p className="text-sm text-muted-foreground">
+                Thanks, your feedback was sent.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button type="button" onClick={() => onOpenChange(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <form className="grid gap-4" onSubmit={handleSubmit}>
+            <Select
+              value={type}
+              onValueChange={setType}
+              disabled={status === "submitting"}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Feedback type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="comment">Comment</SelectItem>
+                <SelectItem value="problem">Problem</SelectItem>
+                <SelectItem value="feature_request">Feature request</SelectItem>
+                <SelectItem value="question">Question</SelectItem>
+              </SelectContent>
+            </Select>
+            <Textarea
+              required
+              minLength={2}
+              maxLength={4000}
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              placeholder="Write your feedback..."
+              disabled={status === "submitting"}
+            />
+            {status === "error" ? (
+              <p className="text-sm text-destructive">
+                We could not send that. Try again in a moment.
+              </p>
+            ) : null}
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={status === "submitting"}>
+                {status === "submitting" ? "Sending..." : "Send feedback"}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -431,9 +662,11 @@ function FeatureErrorBoundary({ children }: { children: ReactNode }) {
 }
 
 function TrackerApp() {
+  const { user } = useUser();
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MaplibreMap | null>(null);
   const completedMarkersRef = useRef<maplibregl.Marker[]>([]);
+  const trackedAccountRef = useRef<string | null>(null);
 
   const progress = useQuery(api.progress.get);
   const progressEntries = useQuery(api.progress.getEntries);
@@ -480,6 +713,7 @@ function TrackerApp() {
   const [mobileAlbumsOpen, setMobileAlbumsOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
 
   const serverCompleted = useMemo(
     () =>
@@ -504,6 +738,30 @@ function TrackerApp() {
   const selectedEntry = selectedPeak
     ? completionEntriesById.get(selectedPeak.id)
     : undefined;
+
+  useEffect(() => {
+    if (!user || trackedAccountRef.current === user.id) {
+      return;
+    }
+
+    trackedAccountRef.current = user.id;
+    const email = user.primaryEmailAddress?.emailAddress;
+    if (!email) {
+      return;
+    }
+
+    void fetch("/api/relay/account-created", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.id,
+        email,
+        name: user.fullName ?? user.username ?? undefined,
+      }),
+    }).catch((error) => {
+      console.warn("Failed to track Andes Relay account creation", error);
+    });
+  }, [user]);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -1549,6 +1807,28 @@ function TrackerApp() {
                   ›
                 </span>
               </button>
+
+              <button
+                type="button"
+                aria-label="send feedback"
+                className="flex w-full items-center justify-between rounded-2xl border border-border/70 bg-background/80 p-4 text-left shadow-xs transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={() => {
+                  setMobileSidebarOpen(false);
+                  setFeedbackDialogOpen(true);
+                }}
+              >
+                <span>
+                  <span className="block text-lg font-semibold text-foreground">
+                    Send feedback
+                  </span>
+                  <span className="mt-1 block text-sm text-muted-foreground">
+                    Report a problem or request an improvement
+                  </span>
+                </span>
+                <span className="text-2xl leading-none text-muted-foreground">
+                  ›
+                </span>
+              </button>
             </div>
           </SheetContent>
         </Sheet>
@@ -1645,6 +1925,14 @@ function TrackerApp() {
             >
               Albums
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full"
+              onClick={() => setFeedbackDialogOpen(true)}
+            >
+              Feedback
+            </Button>
           </div>
           <div className="min-h-0 overflow-auto journal-scroll">
             {sidebarPage === "albums" ? albumPage : journal}
@@ -1653,6 +1941,10 @@ function TrackerApp() {
       </aside>
 
       <Toaster richColors position="top-center" />
+      <FeedbackDialog
+        open={feedbackDialogOpen}
+        onOpenChange={setFeedbackDialogOpen}
+      />
       <ProfileOnboardingGate
         profile={currentProfile}
         onComplete={handleCompleteOnboarding}
@@ -1966,7 +2258,10 @@ function AlbumPage({
             PDF options
           </p>
           <div className="grid gap-2">
-            <label className="text-xs text-muted-foreground" htmlFor="pdf-layout">
+            <label
+              className="text-xs text-muted-foreground"
+              htmlFor="pdf-layout"
+            >
               Layout
             </label>
             <Select
@@ -1982,7 +2277,9 @@ function AlbumPage({
                 <SelectItem value="portraitPair">
                   Portrait album (2 fells / 4 photos per page)
                 </SelectItem>
-                <SelectItem value="classic">Classic (1 fell per block)</SelectItem>
+                <SelectItem value="classic">
+                  Classic (1 fell per block)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>

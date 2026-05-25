@@ -66,6 +66,7 @@
         "@fontsource-variable/geist": "^5.2.8",
         "@hugeicons/core-free-icons": "^4.1.4",
         "@hugeicons/react": "^1.1.6",
+        "@openandes/relay-sdk": "^0.2.1",
         "@types/geojson": "^7946.0.16",
         "@vercel/analytics": "^2.0.1",
         "@wainwrights/backend": "workspace:*",
@@ -659,6 +660,8 @@
     "@nodelib/fs.walk": ["@nodelib/fs.walk@1.2.8", "", { "dependencies": { "@nodelib/fs.scandir": "2.1.5", "fastq": "^1.6.0" } }, "sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg=="],
 
     "@nolyfill/is-core-module": ["@nolyfill/is-core-module@1.0.39", "", {}, "sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA=="],
+
+    "@openandes/relay-sdk": ["@openandes/relay-sdk@0.2.1", "", {}, "sha512-vpfBD/GXRZhN5ihxLZ32H6TBVCxU/CeP54JRUR2B36wzznS18p+8z0hGHPnun14ffLARFki08kQ8/3dfZFeDYQ=="],
 
     "@opentelemetry/api": ["@opentelemetry/api@1.9.1", "", {}, "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="],
 
