@@ -14,7 +14,7 @@ export const getAndesRelayClient = () => {
   return createAndesRelayClient({
     endpoint,
     secret,
-    workspaceKey: "wainwrights",
+    workspaceKey: "andesphere",
     productKey: "wainwrights-baggers",
     environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV,
   });
