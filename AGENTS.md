@@ -185,13 +185,11 @@ The user confirmed the TestFlight app installed and worked on their iPhone after
 
 ## SEO / growth
 
-Repo-local `.seo/` per `/Users/jorge/SEO_GROWTH_WORKSPACE_PLAYBOOK.md`.
+SEO strategy, backlog, and history live in the Matias hub (repo `JorgeMenaDev/matias`) at `/Users/jorge/.hermes/profiles/matias/.seo/sites/wainwrightsbaggers/` (seo-growth-workspace v3 hub mode; registry: `/Users/jorge/.hermes/profiles/matias/.seo/registry.md`).
 
-- Entry: `.seo/README.md`
-- **Backlog (start here):** `.seo/backlog.md`
-- Context: `.seo/strategy.md`, `.seo/audit.md`
-- Backlinks: `.seo/backlinks/work-log.md`, `.seo/backlinks/summary.md`
-- Positioning: `.agents/product-marketing.md`
+- Entry: that workspace's `README.md`; **backlog (start here):** its `backlog.md`
+- Positioning stays repo-local: `.agents/product-marketing.md`
 - Skills: `.agents/skills/` (`bunx skills add coreyhaines31/marketingskills` from repo root)
+- Do not recreate a repo-local `.seo/`; this repo is the implementation surface.
 
-Live site: `https://wainwrightsbaggers.com`. Market: UK English, Wainwright baggers. Bun + Vercel git deploy. Do not print secrets. Update `.seo/backlog.md` after each ticket; touch strategy/audit only if context changed.
+Live site: `https://wainwrightsbaggers.com`. Market: UK English, Wainwright baggers. Bun + Vercel git deploy. Do not print secrets. Update the hub workspace's `backlog.md` after each ticket; touch strategy/audit only if context changed.
