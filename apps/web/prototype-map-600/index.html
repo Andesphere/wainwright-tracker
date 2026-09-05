@@ -141,6 +141,9 @@ input,select{font:inherit}
 @media (min-width:721px){ body{padding-bottom:84px} }
 
 /* Correction pass: product first; scenario controls stay inspectable in the lab. */
+body{height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:84px}
+.proto-banner,.brand,#scenario-status{flex:none}
+.variant.active{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
 button,input,select,summary{min-height:44px}
 button{touch-action:manipulation}
 [hidden]{display:none!important}
@@ -149,9 +152,9 @@ button{touch-action:manipulation}
 .brand .name{font-size:17px}
 .brand .tag{font-size:12px}
 #diagnostics{margin-left:auto;font-size:12px}
-#diagnostics summary{display:flex;align-items:center;padding:0 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-weight:700;list-style:none}
-#diagnostics summary::after{content:' +';margin-left:6px}
-#diagnostics[open] summary::after{content:' −'}
+#diagnostics [data-lab]{display:flex;align-items:center;padding:0 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-weight:700;list-style:none}
+#diagnostics [data-lab]::after{content:' +';margin-left:6px}
+#diagnostics [data-lab][aria-expanded=true]::after{content:' −'}
 .lab-body{position:absolute;z-index:55;right:8px;top:100%;width:min(520px,calc(100vw - 16px));max-height:70dvh;overflow:auto;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
 .lab-body h2{font-size:20px}.lab-body p{font-size:13px}.lab-body label{display:grid;gap:4px}.lab-body button{margin:8px 4px 0 0}.lab-body select{width:100%}
 .state-strip{display:grid;margin-top:12px;border-radius:8px;gap:6px;padding:12px}
@@ -189,7 +192,7 @@ button{touch-action:manipulation}
 .sheet-tabs{display:flex;border-bottom:1px solid var(--line);padding:0 10px;gap:8px}
 .sheet-tabs button{background:none;border:0;color:var(--ink-soft);padding:0 12px}
 .sheet-tabs button[aria-pressed=true]{color:var(--moss);box-shadow:inset 0 -3px var(--moss);font-weight:700}
-#sheet .detail{border:0;border-radius:0}.sheet-content .fell-list{overflow:visible}
+#sheet .detail{border:0;border-radius:0}#sheet.peek .detail>.facts{display:none}.sheet-content .fell-list{overflow:visible}
 #c-shell{grid-template-columns:minmax(0,1fr) minmax(340px,42%)}
 #c-listcol{border:1px solid var(--line);border-radius:14px;overflow:hidden}#c-listcol .fell-list{max-height:60dvh}
 .queue .qcard{flex-basis:190px}.queue .qcard b{font-family:Georgia,serif;font-size:18px;font-weight:500}.queue .qcard .btn{width:100%}
@@ -199,7 +202,7 @@ button{touch-action:manipulation}
 #switcher button{flex:none}#switcher a{display:none}
 @media(max-width:720px){
   .brand{padding:8px 12px}.brand .boot{width:28px;height:32px}.brand .name{font-size:15px}.brand .tag{font-size:11px}
-  #diagnostics summary{padding:0 8px;font-size:11px}
+  #diagnostics [data-lab]{padding:0 8px;font-size:11px}
   .toolbar,#b-search{padding:8px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .toolbar input[type=search],#b-search input{grid-column:1/-1;width:100%}
   .toolbar .count{grid-column:1/-1;width:auto;margin:0;font-size:11px}
@@ -221,7 +224,7 @@ button{touch-action:manipulation}
 <body>
 <div class="proto-banner"><strong>Prototype</strong> · Schematic map · Simulated GPS · Memory only</div>
 <header class="brand"><span class="boot" aria-hidden="true">▲</span><span><span class="name">Wainwrights Baggers</span><br><span class="tag">Your round of 214 fells</span></span>
-<details id="diagnostics"><summary>Prototype lab</summary><div class="lab-body">
+<div id="diagnostics"><button data-lab aria-expanded="false" aria-controls="lab-panel">Prototype lab</button><div class="lab-body" id="lab-panel" role="region" aria-label="Prototype scenarios and state" hidden>
   <h2>Scenario controls</h2><p>Throwaway comparison for issue 600. Terrain is illustrative, not navigation data or a supplier choice. GPS and connection changes are simulated. No account or saved progress is touched. Reload loses every change.</p>
   <label>Location outcome <select data-locmode aria-label="Location simulation"><option value="fix">Simulated fix</option><option value="denied">Denied</option><option value="unavailable">Unavailable</option></select></label>
   <button class="btn ghost" data-locate type="button">Try location</button>
@@ -236,7 +239,7 @@ button{touch-action:manipulation}
   </div>
   <p>Online maps at launch; offline downloads later. No route planning or GPS recording. C's tallest-first cards compare a layout, not a recommended walk or approved ranking.</p>
   <p>Catalogue: <a href="https://github.com/thomaswilsonxyz/wainwright-peaks">wainwright-peaks</a>, derived from DoBIH v17.4, CC BY 4.0. Fields shortened from the shared catalogue.</p>
-</div></details></header>
+</div></div></header>
 <div id="scenario-status" aria-live="polite">
   <div class="banner offline" data-offline>Connection lost (simulated). Live tiles paused; schematic retained for review. <span data-pending></span> <button class="btn small" data-reconnect type="button">Reconnect</button></div>
   <div class="banner locerr" data-locerr></div>
@@ -458,7 +461,7 @@ function detailHTML(f){
     `<p class="facts">${done?"✓ Bagged":"○ Not bagged"} · ${isPending?'Pending connection (demo)':'Saved in demo memory only'}</p>`+
     `<div class="row"><button class="btn" data-bag="${f.id}" aria-pressed="${done}" type="button">${done?"Unbag this fell":"Bag this fell"}</button>`+
     `<button class="btn ghost" data-focus-list="${f.id}" type="button">Show in checklist</button></div>`+
-    `<details><summary>Fell facts</summary><dl><dt>Height</dt><dd>${f.h} m (${f.ft} ft)</dd><dt>Guidebook order</dt><dd>No. ${f.book}</dd>`+
+    `<details><summary>Fell facts</summary><dl><dt>Area</dt><dd>${esc(f.area)}</dd><dt>Grid ref</dt><dd>${esc(f.grid)}</dd><dt>Height</dt><dd>${f.h} m (${f.ft} ft)</dd><dt>Guidebook order</dt><dd>No. ${f.book}</dd>`+
     `<dt>Position</dt><dd>${f.lat.toFixed(4)}, ${f.lon.toFixed(4)}</dd></dl></details>`;
 }
 function select(id){
@@ -525,7 +528,7 @@ function render(){
   document.querySelectorAll('[data-btab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.btab===state.bTab)));
   const sheet=document.getElementById('sheet');sheet.className=SHEETS[state.sheetStep];
   const shell=document.getElementById('b-shell');
-  const heights=[170,240,Math.max(300,shell.clientHeight-145)];
+  const heights=[210,260,Math.max(300,shell.clientHeight-145)];
   shell.style.setProperty('--sheet-height',heights[state.sheetStep]+'px');
   document.querySelector('[data-sheet]').textContent=`Sheet: ${SHEETS[state.sheetStep]} · resize`;
   renderVariant(activeRoot());redrawMap();
@@ -534,7 +537,7 @@ function render(){
   const fields={variant:state.variant+' · '+NAMES[state.variant],bagged:state.bagged.size+'/214',showing:filtered().length,sel:byId(state.sel)?.name||'none',loc:state.loc==='fix'?SIM_FIX.label:state.loc,net:state.online?'online (simulated)':'offline (simulated)',sync:`${state.saved.size} bagged in saved demo state · ${pending().length} pending changes`,filters:`Search ${state.q||'empty'} · ${state.area} · ${state.status}`,panels:`A ${state.aTab} · B ${SHEETS[state.sheetStep]} / ${state.bTab} · C ${state.cTab}`,map:`${state.view.zoom.toFixed(1)}× · centre ${state.view.x.toFixed(0)}, ${state.view.y.toFixed(0)}`};
   Object.entries(fields).forEach(([key,value])=>{document.getElementById('st-'+key).textContent=value;});
   document.querySelector('[data-offline]').classList.toggle('show',!state.online);
-  document.querySelector('[data-pending]').textContent=`${pending().length} changes pending in memory.`;
+  document.querySelector('[data-pending]').textContent=`${pending().length} change${pending().length===1?'':'s'} pending in memory.`;
   const locerr=document.querySelector('[data-locerr]');
   locerr.classList.toggle('show',['denied','unavailable'].includes(state.loc));
   locerr.textContent=state.loc==='denied'?'Location denied (simulated). Browse fells or choose another outcome in Prototype lab. No real position was requested.':'Location unavailable (simulated). Try Locate again or choose a fix in Prototype lab. Tile connectivity is independent.';
@@ -543,7 +546,7 @@ function render(){
   const url=new URL(location.href);url.searchParams.set('variant',state.variant);history.replaceState(null,'',url);
   if(focusId && !focus.isConnected) activeRoot().querySelector(`[data-${focusKey}="${CSS.escape(focusId)}"]`)?.focus({preventScroll:true});
 }
-function setVariant(v){if(ORDER.includes(v)){state.variant=v;state.choices=[];render();window.scrollTo(0,0);}}
+function setVariant(v){if(ORDER.includes(v)){state.variant=v;state.choices=[];render();activeRoot().scrollTop=0;}}
 function changeFilters(){
   state.choices=[];
   if(state.sel && !filtered().some(f=>f.id===state.sel)) state.sel=null;
@@ -551,6 +554,7 @@ function changeFilters(){
 }
 document.addEventListener('click',e=>{
   const t=e.target;
+  if(t.closest('[data-lab]')){const panel=document.getElementById('lab-panel');panel.hidden=!panel.hidden;t.closest('[data-lab]').setAttribute('aria-expanded',String(!panel.hidden));return;}
   if(t.closest('[data-map]') && suppressMapClick){suppressMapClick=false;return;}
   const pin=t.closest('[data-pin]');if(pin){select(pin.dataset.pin);return;}
   const cluster=t.closest('[data-cluster]');if(cluster){state.choices=cluster.dataset.cluster.split(',');redrawMap();return;}
@@ -576,11 +580,11 @@ document.addEventListener('click',e=>{
   if(t.closest('#sw-next')){setVariant(ORDER[(ORDER.indexOf(state.variant)+1)%3]);return;}
   if(t.closest('#st-reset')){
     Object.assign(state,{q:'',area:'All',status:'All',sel:null,bagged:initialBagged(),saved:initialBagged(),locMode:'fix',loc:'off',online:true,sheetStep:1,aTab:'map',cTab:'map',bTab:'list',view:initialView(),choices:[],message:''});
-    render();document.querySelectorAll('.fell-list,.sheet-content').forEach(el=>el.scrollTop=0);
+    render();document.querySelectorAll('.fell-list,.sheet-content,.variant').forEach(el=>el.scrollTop=0);
   }
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){state.choices=[];document.getElementById('diagnostics').open=false;redrawMap();return;}
+  if(e.key==='Escape'){state.choices=[];document.getElementById('lab-panel').hidden=true;document.querySelector('[data-lab]').setAttribute('aria-expanded','false');redrawMap();return;}
   if(e.target.closest('input,textarea,select,[contenteditable]')) return;
   if((e.key==='Enter'||e.key===' ') && e.target.closest('[data-pin],[data-cluster]')){e.preventDefault();e.target.closest('[data-pin],[data-cluster]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return;}
   if(e.target.matches('[data-map]') && e.key.startsWith('Arrow')){
