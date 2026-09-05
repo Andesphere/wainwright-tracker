@@ -1,10 +1,10 @@
 // Throwaway prototype server for issue #600 (branch prototype/map-600).
-// Serves the dependency-free ./index.html + ./fells.js on a fixed high port.
+// Serves the dependency-free ./index.html + ./fells.js on a high loopback port.
 // Usage: bun ./apps/web/prototype-map-600/server.ts
 import { join } from "node:path";
 
 const dir = import.meta.dir;
-const port = Number(process.env.PROTOTYPE_MAP_PORT ?? 4627);
+const port = Number(process.env.PROTOTYPE_MAP_PORT ?? 49627);
 
 const types: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -14,6 +14,7 @@ const types: Record<string, string> = {
 
 Bun.serve({
   port,
+  hostname: "127.0.0.1",
   async fetch(req) {
     const url = new URL(req.url);
     let path = decodeURIComponent(url.pathname);
@@ -29,4 +30,4 @@ Bun.serve({
   },
 });
 
-console.log(`Prototype map-600 on http://localhost:${port}/?variant=A`);
+console.log(`PID ${process.pid} · Prototype map-600 on http://localhost:${port}/?variant=A`);
