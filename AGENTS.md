@@ -193,3 +193,13 @@ SEO strategy, backlog, and history live in the Matias hub (repo `JorgeMenaDev/ma
 - Do not recreate a repo-local `.seo/`; this repo is the implementation surface.
 
 Live site: `https://wainwrightsbaggers.com`. Market: UK English, Wainwright baggers. Bun + Vercel git deploy. Do not print secrets. Update the hub workspace's `backlog.md` after each ticket; touch strategy/audit only if context changed.
+
+## Synthetic QA workflow (throwaway prototype branches only)
+
+On synthetic/prototype branches (e.g. `prototype/map-600` for issue 600),
+never use Playwright or agent-browser for inspection. Prefer the runtime's
+in-app Browser/Chrome preview tools against a Bun-only static server on a
+unique high port (never 3214/3215/8081); capture the spawned PID and stop
+it before finishing. No installs, no shared-runtime restarts, no .env
+copies. If no preview tooling is exposed, ship the runnable artifact plus
+an explicit UI-proof gap for the parent — never invented screenshots.

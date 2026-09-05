@@ -1,0 +1,513 @@
+<!doctype html>
+<!-- Three variants of the Wainwrights Baggers map experience, switchable via ?variant=A/B/C.
+     Throwaway prototype for https://github.com/JorgeMenaDev/matias/issues/600 (decision only).
+     Schematic SVG terrain + simulated GPS. No accounts, no network, no persistence: all state is in memory. -->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wainwrights Baggers — Map prototype (issue 600)</title>
+<script src="./fells.js"></script>
+<style>
+:root{
+  --ink:#22301f; --ink-soft:#4a5a45; --paper:#f6f1e5; --card:#fffdf6;
+  --moss:#2f6b3c; --moss-dark:#1e4a27; --gold:#b98a12; --line:#ddd2b8;
+  --accent:#2f6b3c; --danger:#a33327; --info:#1d5fa8; --radius:14px;
+  --shadow:0 8px 28px rgba(34,48,31,.16);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font:16px/1.45 "Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;min-width:320px}
+h1,h2,h3{letter-spacing:-.01em;margin:0}
+button{font:inherit;cursor:pointer}
+input,select{font:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+/* Prototype disclosure banner */
+.proto-banner{background:#22301f;color:#f6f1e5;font-size:13px;padding:8px 12px;text-align:center}
+.proto-banner strong{color:#ffd97a}
+/* App identity header */
+.brand{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+.brand .boot{width:34px;height:34px;border-radius:10px;background:var(--moss);color:#fff;display:grid;place-items:center;font-weight:800}
+.brand .name{font-weight:800;font-size:18px}
+.brand .tag{font-size:12px;color:var(--ink-soft)}
+/* Toolbar / filters */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+.toolbar input[type=search]{flex:1 1 160px;min-width:140px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.toolbar select{padding:8px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.toolbar .count{font-size:13px;color:var(--ink-soft);margin-left:auto;white-space:nowrap}
+/* Connection + location banners */
+.banner{display:none;margin:10px 16px 0;padding:10px 12px;border-radius:10px;font-size:14px}
+.banner.show{display:block}
+.banner.offline{background:#fbe9e7;color:#7a211a;border:1px solid #e5a49d}
+.banner.locerr{background:#e8f0fd;color:#173f6b;border:1px solid #a9c4ea}
+.banner button{margin-left:8px}
+/* Map */
+.mapwrap{position:relative;background:#e9e4d2;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.mapwrap svg{display:block;width:100%;height:auto}
+.map-note{position:absolute;left:8px;bottom:8px;font-size:11px;background:rgba(255,253,246,.9);border:1px solid var(--line);border-radius:8px;padding:3px 8px;color:var(--ink-soft)}
+.map-tools{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px}
+.map-tools button{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;box-shadow:var(--shadow)}
+.pin{cursor:pointer}
+.pin .hit{fill:transparent}
+.pin.dim{opacity:.14}
+.pin text{font-size:11px;fill:#22301f;paint-order:stroke;stroke:#f6f1e5;stroke-width:3px}
+.pin.selected .ring{stroke:var(--gold);stroke-width:3;fill:none}
+.pin.flash .ring{animation:ping 1s ease-out 2}
+@keyframes ping{0%{stroke-width:6;opacity:1}100%{stroke-width:1;opacity:.2}}
+.locdot{fill:#1d5fa8;stroke:#fff;stroke-width:2}
+.locacc{fill:rgba(29,95,168,.15);stroke:rgba(29,95,168,.5)}
+/* Checklist */
+.fell-list{list-style:none;margin:0;padding:0;overflow:auto}
+.fell-list li{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--card)}
+.fell-list li[aria-selected=true]{background:#eef4e6;box-shadow:inset 4px 0 0 var(--moss)}
+.fell-list li.flash{animation:rowflash 1.2s ease-out 1}
+@keyframes rowflash{0%{background:#fff3c4}100%{background:var(--card)}}
+.fell-list .meta{min-width:0;flex:1;text-align:left;background:none;border:0;padding:0;color:inherit}
+.fell-list .meta .t{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fell-list .meta .s{font-size:12px;color:var(--ink-soft)}
+.tick{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid var(--moss);background:#fff;color:var(--moss);font-weight:800;font-size:16px;line-height:1}
+.tick[aria-pressed=true]{background:var(--moss);color:#fff}
+.areadot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:baseline}
+/* Detail */
+.detail{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.detail h2{font-size:20px}
+.detail dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:14px;margin:10px 0}
+.detail dt{color:var(--ink-soft)} .detail dd{margin:0;font-weight:600}
+.detail .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn{background:var(--moss);color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700}
+.btn.ghost{background:#fff;color:var(--moss);border:2px solid var(--moss)}
+.btn.warn{background:#fff;color:var(--danger);border:2px solid var(--danger)}
+.btn.small{padding:6px 10px;font-size:13px}
+/* State strip */
+.state-strip{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px;background:#22301f;color:#f6f1e5;padding:8px 16px}
+.state-strip b{color:#ffd97a}
+.state-strip button{margin-left:auto;background:transparent;color:#ffd97a;border:1px solid #ffd97a;border-radius:8px;padding:4px 10px;font-size:13px}
+/* Variant shells */
+.variant{display:none}
+.variant.active{display:block}
+/* A: split explorer */
+#a-shell{display:grid;grid-template-columns:minmax(300px,400px) 1fr;gap:12px;padding:12px 16px;align-items:start}
+#a-listcol{display:flex;flex-direction:column;max-height:calc(100dvh - 320px);min-height:300px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+#a-listcol .fell-list{max-height:100%}
+#a-mapcol{display:flex;flex-direction:column;gap:12px}
+#a-mapcol .mapwrap svg{max-height:calc(100dvh - 340px)}
+.seg{display:none;gap:6px;padding:8px 16px 0}
+.seg button{flex:1;border:2px solid var(--moss);background:#fff;color:var(--moss);border-radius:10px;padding:8px;font-weight:700}
+.seg button[aria-pressed=true]{background:var(--moss);color:#fff}
+/* B: full-map sheet */
+#b-shell{position:relative;height:calc(100dvh - 230px);min-height:420px;margin:12px 16px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#e9e4d2}
+#b-shell .mapwrap{position:absolute;inset:0;border:0;border-radius:0}
+#b-shell .mapwrap svg{height:100%}
+#b-search{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:6px}
+#b-search input{flex:1;padding:10px;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+#b-search select{padding:10px;border:1px solid var(--line);border-radius:12px;max-width:130px}
+#sheet{position:absolute;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--moss);border-radius:16px 16px 0 0;box-shadow:0 -8px 28px rgba(34,48,31,.25);display:flex;flex-direction:column;transition:height .2s ease}
+#sheet.peek{height:34%} #sheet.half{height:56%} #sheet.full{height:88%}
+#sheet .grab{padding:6px;text-align:center}
+#sheet .grab button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:2px 18px;color:var(--ink-soft)}
+#sheet .sheethead{padding:0 12px 6px;font-size:13px;color:var(--ink-soft);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#sheet .fell-list{flex:1}
+/* C: queue journal */
+#c-shell{display:grid;grid-template-columns:1fr minmax(280px,380px);gap:12px;padding:12px 16px;align-items:start}
+.queue{display:flex;gap:8px;overflow-x:auto;padding:4px 16px 10px}
+.queue .qcard{flex:0 0 200px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+.queue .qcard b{display:block;font-size:14px}
+.queue .qcard span{font-size:12px;color:var(--ink-soft)}
+.stats{display:flex;gap:14px;padding:10px 16px 0;font-size:14px;flex-wrap:wrap}
+.stats b{font-size:20px}
+#c-drawer{position:sticky;top:10px;display:flex;flex-direction:column;gap:10px}
+#c-drawer .mapwrap svg{max-height:44dvh}
+/* Switcher */
+#switcher{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));z-index:50;display:flex;align-items:center;gap:4px;background:#22301f;color:#f6f1e5;border-radius:999px;padding:6px 8px;box-shadow:var(--shadow)}
+#switcher button{background:transparent;border:1px solid #8aa086;color:#f6f1e5;border-radius:999px;min-width:40px;min-height:40px;font-size:18px}
+#switcher .vlabel{padding:0 10px;font-size:14px;white-space:nowrap}
+#switcher .vlabel b{color:#ffd97a}
+#switcher a{color:#f6f1e5;font-size:13px;padding:8px;text-decoration:none}
+#switcher a[aria-current=true]{color:#ffd97a;font-weight:800;text-decoration:underline}
+/* iPhone dimensions */
+@media (max-width:720px){
+  #a-shell{grid-template-columns:1fr}
+  #a-shell.listmode #a-mapcol{display:none}
+  #a-shell.mapmode #a-listcol{display:none}
+  #a-shell.mapmode #a-detail{display:none}
+  .seg{display:flex}
+  #a-listcol{max-height:calc(100dvh - 380px)}
+  #c-shell{grid-template-columns:1fr}
+  #c-drawer{position:static}
+  #b-shell{height:calc(100dvh - 260px);margin:8px}
+  .toolbar .count{width:100%;margin-left:0}
+  body{padding-bottom:76px}
+}
+@media (min-width:721px){ body{padding-bottom:76px} }
+</style>
+</head>
+<body>
+<div class="proto-banner"><strong>Prototype</strong> for issue 600 — throwaway comparison of 3 map ideas. Schematic terrain and simulated GPS only (not a supplier decision). Progress stays in memory and resets on reload.</div>
+<header class="brand"><span class="boot" aria-hidden="true">▲</span><span><span class="name">Wainwrights Baggers</span><br><span class="tag">Bag all 214 — map ideas for the focused launch</span></span></header>
+
+<div class="state-strip" role="status" aria-label="Prototype state">
+  <span>Variant <b id="st-variant">A</b></span>
+  <span>Bagged <b id="st-bagged">0/214</b></span>
+  <span>Showing <b id="st-showing">0</b></span>
+  <span>Selected <b id="st-sel">none</b></span>
+  <span>GPS <b id="st-loc">off</b></span>
+  <span>Link <b id="st-net">online</b></span>
+  <button id="st-reset" type="button">Reset prototype</button>
+</div>
+
+<!-- ============ VARIANT A : split explorer ============ -->
+<section class="variant" id="variant-A" aria-label="Variant A, split explorer">
+  <div class="toolbar" data-toolbar="A">
+    <input type="search" data-q placeholder="Search 214 fells…" aria-label="Search fells">
+    <select data-area aria-label="Filter by area"></select>
+    <select data-status aria-label="Filter by status">
+      <option value="All">All fells</option><option value="done">Bagged</option><option value="todo">Not bagged</option>
+    </select>
+    <select data-locmode aria-label="Location simulation">
+      <option value="fix">Simulated GPS fix</option><option value="denied">Location denied (simulated)</option><option value="unavailable">Location unavailable (simulated)</option>
+    </select>
+    <button class="btn small ghost" data-locate type="button">Use my location</button>
+    <button class="btn small ghost" data-net type="button">Simulate lost connection</button>
+    <span class="count" data-count></span>
+  </div>
+  <div class="seg" role="group" aria-label="Map or list">
+    <button type="button" data-atab="map" aria-pressed="true">Map</button>
+    <button type="button" data-atab="list" aria-pressed="false">Checklist</button>
+  </div>
+  <div class="banner offline" data-offline>Connection lost (simulated). Schematic map still renders; live tiles would pause here. <button class="btn small" data-reconnect type="button">Reconnect</button></div>
+  <div class="banner locerr" data-locerr></div>
+  <div id="a-shell" class="mapmode">
+    <div id="a-listcol"><ol class="fell-list" data-list></ol></div>
+    <div id="a-mapcol">
+      <div class="mapwrap"><svg data-map role="img" aria-label="Schematic map of the Lake District fells"></svg>
+        <div class="map-tools"><button type="button" data-locate>◎ Locate</button></div>
+        <span class="map-note">Schematic terrain — illustrative only, not a map supplier</span></div>
+      <div class="detail" data-detail><p>Select a fell on the map or in the checklist.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VARIANT B : full-map sheet ============ -->
+<section class="variant" id="variant-B" aria-label="Variant B, full map with bottom sheet">
+  <div id="b-shell">
+    <div class="mapwrap"><svg data-map role="img" aria-label="Schematic full-screen map of the Lake District fells"></svg>
+      <span class="map-note">Schematic terrain — illustrative only, not a map supplier</span></div>
+    <div id="b-search">
+      <input type="search" data-q placeholder="Search fells…" aria-label="Search fells">
+      <select data-area aria-label="Filter by area"></select>
+      <select data-status aria-label="Filter by status">
+        <option value="All">All</option><option value="done">Bagged</option><option value="todo">Not bagged</option>
+      </select>
+    </div>
+    <div id="sheet" class="half">
+      <div class="grab"><button type="button" data-sheet aria-label="Change sheet size">— drag handle (tap to resize) —</button></div>
+      <div class="sheethead">
+        <span data-count></span>
+        <select data-locmode aria-label="Location simulation">
+          <option value="fix">Simulated GPS fix</option><option value="denied">Location denied (simulated)</option><option value="unavailable">Location unavailable (simulated)</option>
+        </select>
+        <button class="btn small ghost" data-locate type="button">◎ Locate</button>
+        <button class="btn small ghost" data-net type="button">Simulate lost connection</button>
+      </div>
+      <div class="banner offline" data-offline>Connection lost (simulated). <button class="btn small" data-reconnect type="button">Reconnect</button></div>
+      <div class="banner locerr" data-locerr></div>
+      <div class="detail" data-detail hidden></div>
+      <ol class="fell-list" data-list></ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VARIANT C : queue journal ============ -->
+<section class="variant" id="variant-C" aria-label="Variant C, queue journal with map rail">
+  <div class="toolbar" data-toolbar="C">
+    <input type="search" data-q placeholder="Search 214 fells…" aria-label="Search fells">
+    <select data-area aria-label="Filter by area"></select>
+    <select data-status aria-label="Filter by status">
+      <option value="All">All fells</option><option value="done">Bagged</option><option value="todo">Not bagged</option>
+    </select>
+    <select data-locmode aria-label="Location simulation">
+      <option value="fix">Simulated GPS fix</option><option value="denied">Location denied (simulated)</option><option value="unavailable">Location unavailable (simulated)</option>
+    </select>
+    <button class="btn small ghost" data-locate type="button">Use my location</button>
+    <button class="btn small ghost" data-net type="button">Simulate lost connection</button>
+    <span class="count" data-count></span>
+  </div>
+  <div class="stats"><span><b data-stat-bagged>0</b> bagged</span><span><b data-stat-left>214</b> to go</span><span data-stat-pct>0% of the round</span></div>
+  <h2 style="padding:8px 16px 0;font-size:15px">Up next — tallest still unbagged</h2>
+  <div class="queue" data-queue></div>
+  <div class="banner offline" data-offline>Connection lost (simulated). Schematic map still renders; live tiles would pause here. <button class="btn small" data-reconnect type="button">Reconnect</button></div>
+  <div class="banner locerr" data-locerr></div>
+  <div id="c-shell">
+    <div><ol class="fell-list" data-list style="border:1px solid var(--line);border-radius:var(--radius);max-height:70dvh"></ol></div>
+    <div id="c-drawer">
+      <div class="mapwrap"><svg data-map role="img" aria-label="Schematic slim map of the Lake District fells"></svg>
+        <div class="map-tools"><button type="button" data-locate>◎</button></div>
+        <span class="map-note">Schematic terrain — illustrative only</span></div>
+      <div class="detail" data-detail><p>Pick a fell from the queue or checklist.</p></div>
+    </div>
+  </div>
+</section>
+
+<nav id="switcher" aria-label="Prototype variant switcher">
+  <button type="button" id="sw-prev" aria-label="Previous variant">‹</button>
+  <span class="vlabel"><b id="sw-key">A</b> — <span id="sw-name">Split explorer</span></span>
+  <button type="button" id="sw-next" aria-label="Next variant">›</button>
+  <a href="?variant=A" data-v="A">A</a><a href="?variant=B" data-v="B">B</a><a href="?variant=C" data-v="C">C</a>
+</nav>
+
+<script>
+"use strict";
+/* Shared state — in memory only, resets on reload. */
+const FELLS = (window.FELLS || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
+const AREAS = [...new Set(FELLS.map(f=>f.area))].sort();
+const AREA_COLOURS = {"Central":"#7a5c00","Eastern":"#1d5fa8","Far Eastern":"#6a3fa0","North Western":"#0f766e","Northern":"#b3541e","Southern":"#a33327","Western":"#2f6b3c"};
+const SEED = ["scafell-pike","helvellyn","skiddaw","great-gable","blencathra-hallsfell-top","catbells","haystacks-buttermere","the-old-man-of-coniston-coniston-old-man","bowfell","crinkle-crags-long-top-second-crinkle","pillar","dale-head","fairfield","red-screes"];
+const NAMES = {A:"Split explorer",B:"Full map + sheet",C:"Queue journal"};
+const ORDER = ["A","B","C"];
+const LAT0=54.36,LAT1=54.72,LON0=-3.43,LON1=-2.76;
+const X = lon => (lon-LON0)/(LON1-LON0)*1000;
+const Y = lat => (1-(lat-LAT0)/(LAT1-LAT0))*640;
+const SIM_FIX = {lat:54.428, lon:-2.962, label:"Ambleside (simulated)"};
+const TOP_LABELS = new Set([...FELLS].sort((a,b)=>b.h-a.h).slice(0,12).map(f=>f.id));
+
+const params = new URLSearchParams(location.search);
+const state = {
+  variant: ORDER.includes((params.get("variant")||"A").toUpperCase()) ? (params.get("variant")||"A").toUpperCase() : "A",
+  q:"", area:"All", status:"All", sel:null,
+  bagged:new Set(SEED.filter(id=>FELLS.some(f=>f.id===id))),
+  locMode:"fix", loc:"off", online:true, sheetStep:1, aTab:"map",
+};
+const SHEETS = ["peek","half","full"];
+const byId = id => FELLS.find(f=>f.id===id);
+
+function filtered(){
+  const q = state.q.trim().toLowerCase();
+  return FELLS.filter(f=>{
+    if(state.area!=="All" && f.area!==state.area) return false;
+    const done = state.bagged.has(f.id);
+    if(state.status==="done" && !done) return false;
+    if(state.status==="todo" && done) return false;
+    if(q && !(f.name.toLowerCase().includes(q) || f.grid.toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+/* Static schematic terrain (same shapes for all three maps; uid keeps gradient ids unique). */
+function terrain(uid){
+  return `<defs>
+    <radialGradient id="terr-${uid}" cx="45%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#f2ecd9"/><stop offset="55%" stop-color="#e2dabd"/><stop offset="100%" stop-color="#cfc49e"/>
+    </radialGradient></defs>
+  <rect x="0" y="0" width="1000" height="640" fill="url(#terr-${uid})"/>
+  ${[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9].map(t=>`<line x1="${t*1000}" y1="0" x2="${t*1000}" y2="640" stroke="#d8cfae" stroke-width="1"/>`).join("")}
+  ${[0.15,0.3,0.45,0.6,0.75,0.9].map(t=>`<line x1="0" y1="${t*640}" x2="1000" y2="${t*640}" stroke="#d8cfae" stroke-width="1"/>`).join("")}
+  <g fill="none" stroke="#c9bd97" stroke-width="2" opacity=".9">
+    <path d="M120,430 C200,340 260,360 330,300 C400,240 470,260 560,220 C650,180 720,200 800,150"/>
+    <path d="M90,470 C190,390 250,410 330,350 C420,285 490,305 580,265 C670,225 740,240 830,195"/>
+    <path d="M150,390 C230,310 300,325 370,270 C450,210 520,235 610,195 C690,160 760,180 840,135"/>
+    <path d="M200,520 C300,450 360,460 450,410 C540,360 620,375 710,330 C780,295 830,300 900,265"/>
+  </g>
+  <g fill="#b9cdd6" stroke="#8fb0bd" stroke-width="2" opacity=".95">
+    <ellipse cx="640" cy="470" rx="26" ry="95" transform="rotate(18 640 470)"/>
+    <ellipse cx="430" cy="400" rx="16" ry="55" transform="rotate(-12 430 400)"/>
+    <ellipse cx="540" cy="300" rx="12" ry="38"/>
+  </g>
+  <g font-size="13" fill="#7a6f4d" font-style="italic">
+    <text x="655" y="475" transform="rotate(72 655 475)">Windermere (schematic)</text>
+  </g>`;
+}
+
+function pinsHTML(list, visible){
+  const vis = new Set(visible.map(f=>f.id));
+  let li = 0;
+  return list.map(f=>{
+    const done = state.bagged.has(f.id);
+    const x = X(f.lon).toFixed(1), y = Y(f.lat).toFixed(1);
+    const c = AREA_COLOURS[f.area] || "#2f6b3c";
+    const cls = "pin" + (vis.has(f.id)?"":" dim") + (state.sel===f.id?" selected":"");
+    const dot = done
+      ? `<circle cx="${x}" cy="${y}" r="7" fill="#2f6b3c" stroke="#fff" stroke-width="2"/><path d="M${x-3.4},${y} l2.4,2.6 l4.4,-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>`
+      : `<circle cx="${x}" cy="${y}" r="6" fill="#fffdf6" stroke="${c}" stroke-width="2.5"/>`;
+    let label = "";
+    if((TOP_LABELS.has(f.id) || state.sel===f.id) && vis.has(f.id)){
+      const below = (li++ % 2) === 1; // stagger to reduce collisions in dense clusters
+      const ly = below ? (+y+20).toFixed(1) : (+y-11).toFixed(1);
+      label = `<text x="${x}" y="${ly}" text-anchor="middle">${esc(f.name.length>20?f.name.slice(0,19)+"…":f.name)}</text>`;
+    }
+    return `<g class="${cls}" data-pin="${f.id}" tabindex="0" role="button" aria-label="${esc(f.name)}${done?", bagged":""}">` +
+      `<circle class="ring" cx="${x}" cy="${y}" r="12"/><circle class="hit" cx="${x}" cy="${y}" r="13"/>${dot}${label}</g>`;
+  }).join("");
+}
+function locHTML(){
+  if(state.loc!=="fix") return "";
+  const x=X(SIM_FIX.lon).toFixed(1), y=Y(SIM_FIX.lat).toFixed(1);
+  return `<g aria-label="Simulated current location"><circle class="locacc" cx="${x}" cy="${y}" r="26"/><circle class="locdot" cx="${x}" cy="${y}" r="8"/><text x="${x}" y="${(+y+34).toFixed(1)}" text-anchor="middle" font-size="11" fill="#173f6b">You (simulated)</text></g>`;
+}
+function drawMap(svg, uid){
+  const vis = filtered();
+  svg.setAttribute("viewBox","0 0 1000 640");
+  svg.innerHTML = terrain(uid) + `<g>${pinsHTML(FELLS, vis)}</g><g>${locHTML()}</g>`;
+}
+
+function rowHTML(f){
+  const done = state.bagged.has(f.id);
+  const c = AREA_COLOURS[f.area] || "#2f6b3c";
+  return `<li data-row="${f.id}" aria-selected="${state.sel===f.id}">`+
+    `<button class="meta" data-open="${f.id}"><span class="t"><span class="areadot" style="background:${c}"></span>${esc(f.name)}</span><br>`+
+    `<span class="s">${esc(f.area)} · ${f.h} m · ${esc(f.grid)}</span></button>`+
+    `<button class="tick" data-bag="${f.id}" aria-pressed="${done}" aria-label="${done?"Unbag":"Bag"} ${esc(f.name)}">${done?"✓":"○"}</button></li>`;
+}
+function detailHTML(f){
+  if(!f) return `<p>Select a fell on the map or in the checklist.</p>`;
+  const done = state.bagged.has(f.id);
+  return `<h2>${esc(f.name)}</h2>`+
+    `<p style="margin:4px 0;font-size:13px;color:var(--ink-soft)">${done?"✓ Bagged (in memory this session)":"Not bagged yet"}</p>`+
+    `<dl><dt>Area</dt><dd>${esc(f.area)}</dd><dt>Height</dt><dd>${f.h} m (${f.ft} ft)</dd>`+
+    `<dt>Grid ref</dt><dd>${esc(f.grid)}</dd><dt>Guidebook</dt><dd>No. ${f.book}</dd>`+
+    `<dt>Position</dt><dd>${f.lat.toFixed(4)}, ${f.lon.toFixed(4)}</dd></dl>`+
+    `<div class="row"><button class="btn" data-bag="${f.id}" aria-pressed="${done}" type="button">${done?"Unbag this fell":"Bag this fell"}</button>`+
+    `<button class="btn ghost" data-focus-list="${f.id}" type="button">Show in checklist</button></div>`;
+}
+
+function select(id, from){
+  state.sel = id;
+  render();
+  requestAnimationFrame(()=>{
+    document.querySelectorAll(`[data-pin="${CSS.escape(id)}"]`).forEach(el=>{
+      el.classList.remove("flash"); void el.getBoundingClientRect(); el.classList.add("flash");
+    });
+    if(from!=="list"){
+      const row = document.querySelector(`#variant-${state.variant} [data-row="${CSS.escape(id)}"]`);
+      if(row){ row.classList.remove("flash"); void row.offsetWidth; row.classList.add("flash"); row.scrollIntoView({block:"nearest"}); }
+    }
+    const det = document.querySelector(`#variant-${state.variant} [data-detail]`);
+    if(det && from==="map") det.scrollIntoView({block:"nearest"});
+  });
+}
+function toggleBag(id){
+  if(state.bagged.has(id)) state.bagged.delete(id); else state.bagged.add(id);
+  render();
+}
+
+function renderVariant(root){
+  const vis = filtered();
+  const total = FELLS.length, done = state.bagged.size;
+  root.querySelectorAll("[data-list]").forEach(ol=>{ ol.innerHTML = vis.map(rowHTML).join("") || `<li style="padding:16px">No fells match these filters.</li>`; });
+  root.querySelectorAll("[data-map]").forEach((svg,i)=>drawMap(svg, root.id+"-"+i));
+  root.querySelectorAll("[data-detail]").forEach(d=>{
+    const f = state.sel ? byId(state.sel) : null;
+    if(root.id==="variant-B"){ d.hidden = !f; if(f) d.innerHTML = detailHTML(f); }
+    else d.innerHTML = detailHTML(f);
+  });
+  root.querySelectorAll("[data-count]").forEach(el=>{ el.textContent = `${vis.length} of ${total} shown · ${done} bagged`; });
+  root.querySelectorAll("[data-offline]").forEach(el=>el.classList.toggle("show", !state.online));
+  root.querySelectorAll("[data-locerr]").forEach(el=>{
+    el.classList.remove("show"); el.textContent = "";
+    if(state.loc==="denied"){ el.textContent = "Location denied (simulated). Enable location in the device prompt to see the blue dot — no real position was read."; el.classList.add("show"); }
+    if(state.loc==="unavailable"){ el.textContent = "Location unavailable (simulated). Try again — the map below is unaffected."; el.classList.add("show"); }
+  });
+  root.querySelectorAll("[data-net]").forEach(b=>{ b.textContent = state.online ? "Simulate lost connection" : "Reconnect"; });
+  root.querySelectorAll("[data-locmode]").forEach(s=>{ s.value = state.locMode; });
+  const q = root.querySelector("[data-queue]");
+  if(q){
+    const next = FELLS.filter(f=>!state.bagged.has(f.id)).sort((a,b)=>b.h-a.h).slice(0,6);
+    q.innerHTML = next.map(f=>`<div class="qcard"><b>${esc(f.name)}</b><span>${esc(f.area)} · ${f.h} m</span><br><button class="btn small" data-open="${f.id}" type="button" style="margin-top:6px">Focus</button></div>`).join("") || `<p>Round complete (in memory). Reset to start over.</p>`;
+    root.querySelector("[data-stat-bagged]").textContent = done;
+    root.querySelector("[data-stat-left]").textContent = total-done;
+    root.querySelector("[data-stat-pct]").textContent = Math.round(done/total*100)+"% of the round";
+  }
+}
+
+/* Area selects */
+document.querySelectorAll("[data-area]").forEach(sel=>{
+  sel.innerHTML = `<option value="All">All areas</option>` + AREAS.map(a=>`<option>${esc(a)}</option>`).join("");
+});
+
+function render(){
+  ORDER.forEach(v=>document.getElementById("variant-"+v).classList.toggle("active", v===state.variant));
+  document.getElementById("sw-key").textContent = state.variant;
+  document.getElementById("sw-name").textContent = NAMES[state.variant];
+  document.querySelectorAll("#switcher a").forEach(a=>a.setAttribute("aria-current", a.dataset.v===state.variant ? "true":"false"));
+  renderVariant(document.getElementById("variant-"+state.variant));
+  document.getElementById("st-variant").textContent = state.variant+" — "+NAMES[state.variant];
+  document.getElementById("st-bagged").textContent = state.bagged.size+"/214";
+  document.getElementById("st-showing").textContent = filtered().length;
+  document.getElementById("st-sel").textContent = state.sel ? byId(state.sel).name : "none";
+  document.getElementById("st-loc").textContent = state.loc==="fix" ? SIM_FIX.label : state.loc;
+  document.getElementById("st-net").textContent = state.online ? "online" : "offline (simulated)";
+  const url = new URL(location.href); url.searchParams.set("variant", state.variant); history.replaceState(null,"",url);
+  document.querySelectorAll('[data-atab]').forEach(b=>b.setAttribute("aria-pressed", String((b.dataset.atab==="map") === (state.aTab==="map"))));
+  document.getElementById("a-shell").classList.toggle("mapmode", state.aTab==="map");
+  document.getElementById("a-shell").classList.toggle("listmode", state.aTab!=="map");
+  document.getElementById("sheet").className = SHEETS[state.sheetStep];
+}
+function setVariant(v){
+  if(!ORDER.includes(v)) return;
+  state.variant = v; render();
+}
+
+/* Delegated events */
+document.addEventListener("click", e=>{
+  const t = e.target;
+  const pin = t.closest("[data-pin]");
+  if(pin){ select(pin.dataset.pin, "map"); return; }
+  const bag = t.closest("[data-bag]");
+  if(bag){ toggleBag(bag.dataset.bag); return; }
+  const open = t.closest("[data-open]");
+  if(open){ select(open.dataset.open, "list"); return; }
+  const fl = t.closest("[data-focus-list]");
+  if(fl){ select(fl.dataset.focusList, "list"); return; }
+  const loc = t.closest("[data-locate]");
+  if(loc){
+    if(!state.online){ state.loc = "unavailable"; }
+    else if(state.locMode==="fix"){ state.loc = "fix"; }
+    else state.loc = state.locMode;
+    render(); return;
+  }
+  const net = t.closest("[data-net]");
+  if(net){ state.online = !state.online; if(!state.online) state.loc = "off"; render(); return; }
+  const rec = t.closest("[data-reconnect]");
+  if(rec){ state.online = true; render(); return; }
+  const at = t.closest("[data-atab]");
+  if(at){ state.aTab = at.dataset.atab; render(); return; }
+  if(t.closest("[data-sheet]")){ state.sheetStep = (state.sheetStep+1)%3; render(); return; }
+  if(t.closest("#sw-prev")){ setVariant(ORDER[(ORDER.indexOf(state.variant)+2)%3]); return; }
+  if(t.closest("#sw-next")){ setVariant(ORDER[(ORDER.indexOf(state.variant)+1)%3]); return; }
+  const link = t.closest('#switcher a');
+  if(link){ e.preventDefault(); setVariant(link.dataset.v); return; }
+  if(t.closest("#st-reset")){
+    state.q=""; state.area="All"; state.status="All"; state.sel=null;
+    state.bagged = new Set(SEED.filter(id=>FELLS.some(f=>f.id===id)));
+    state.locMode="fix"; state.loc="off"; state.online=true;
+    document.querySelectorAll("[data-q]").forEach(i=>i.value="");
+    document.querySelectorAll("[data-area]").forEach(s=>s.value="All");
+    document.querySelectorAll("[data-status]").forEach(s=>s.value="All");
+    render(); return;
+  }
+});
+document.addEventListener("keydown", e=>{
+  if(e.key==="Enter" || e.key===" "){
+    const pin = e.target.closest && e.target.closest("[data-pin]");
+    if(pin){ e.preventDefault(); select(pin.dataset.pin,"map"); }
+    return;
+  }
+  if(e.key!=="ArrowLeft" && e.key!=="ArrowRight") return;
+  const el = e.target;
+  if(el.closest && el.closest("input,textarea,select,[contenteditable]")) return;
+  e.preventDefault();
+  const d = e.key==="ArrowRight" ? 1 : 2;
+  setVariant(ORDER[(ORDER.indexOf(state.variant)+d)%3]);
+});
+document.addEventListener("input", e=>{
+  if(e.target.matches("[data-q]")){ state.q = e.target.value; render(); }
+});
+document.addEventListener("change", e=>{
+  if(e.target.matches("[data-area]")){ state.area = e.target.value; render(); }
+  if(e.target.matches("[data-status]")){ state.status = e.target.value; render(); }
+  if(e.target.matches("[data-locmode]")){ state.locMode = e.target.value; state.loc = "off"; render(); }
+});
+render();
+</script>
+</body>
+</html>
