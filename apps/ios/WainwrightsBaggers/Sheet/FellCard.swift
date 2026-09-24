@@ -44,6 +44,7 @@ struct FellCard: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Close")
+                    .accessibilityIdentifier("card.close")
                 }
 
                 HStack(spacing: 10) {

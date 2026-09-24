@@ -66,7 +66,7 @@ struct JournalSection: View {
                 .environment(progress)
         }
         .fullScreenCover(item: $viewing) { photo in
-            PhotoViewer(fell: fell, photos: photos, start: photo)
+            PhotoViewer(fell: fell, photos: photos, start: photo) { viewing = nil }
                 .environment(progress)
         }
         .confirmationDialog("Remove this photo?", isPresented: .constant(removing != nil), titleVisibility: .visible, presenting: removing) { photo in
@@ -298,9 +298,9 @@ struct PhotoViewer: View {
     let fell: Fell
     let photos: [JournalPhoto]
     let start: JournalPhoto
+    let close: () -> Void
 
     @Environment(ProgressStore.self) private var progress
-    @Environment(\.dismiss) private var dismiss
     @State private var current: String = ""
     @State private var confirmingRemove = false
 
@@ -318,13 +318,15 @@ struct PhotoViewer: View {
         }
         .overlay(alignment: .top) {
             HStack {
-                Button { dismiss() } label: {
+                Button(action: close) {
                     Image(systemName: "xmark")
                         .font(.system(size: 15, weight: .bold))
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
+                        .glassBackground(in: Circle())
+                        .contentShape(Circle())
                 }
-                .glassBackground(in: Circle(), interactive: true)
                 .accessibilityLabel("Close")
+                .accessibilityIdentifier("viewer.close")
                 Spacer()
                 VStack(spacing: 1) {
                     Text(fell.name)
@@ -339,9 +341,10 @@ struct PhotoViewer: View {
                 Button { confirmingRemove = true } label: {
                     Image(systemName: "trash")
                         .font(.system(size: 15, weight: .semibold))
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
+                        .glassBackground(in: Circle())
+                        .contentShape(Circle())
                 }
-                .glassBackground(in: Circle(), interactive: true)
                 .accessibilityLabel("Remove photo")
             }
             .buttonStyle(.plain)
@@ -353,7 +356,7 @@ struct PhotoViewer: View {
         .confirmationDialog("Remove this photo?", isPresented: $confirmingRemove, titleVisibility: .visible) {
             Button("Remove photo", role: .destructive) {
                 guard let photo = photos.first(where: { $0.id == current }) else { return }
-                dismiss()
+                close()
                 Task { await progress.removePhoto(photo, from: fell) }
             }
         }

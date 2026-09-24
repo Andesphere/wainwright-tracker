@@ -25,7 +25,7 @@ struct JournalView: View {
                 ForEach(groups) { group in
                     VStack(alignment: .leading, spacing: 14) {
                         header(group)
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 18) {
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12, alignment: .top), GridItem(.flexible(), spacing: 12, alignment: .top)], spacing: 18) {
                             ForEach(group.entries) { entry in
                                 if let fell = entry.fell {
                                     AlbumTile(entry: entry, fell: fell) { open(fell) }

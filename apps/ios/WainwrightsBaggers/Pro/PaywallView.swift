@@ -28,11 +28,11 @@ struct PaywallView: View {
             VStack(spacing: 0) {
                 PaywallHero()
                 benefits
-                    .padding(.horizontal, 20)
-                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 14)
                 plans
                     .padding(.horizontal, 20)
-                    .padding(.top, 28)
+                    .padding(.top, 16)
                 legal
                     .padding(.horizontal, 24)
                     .padding(.top, 22)
@@ -61,29 +61,29 @@ struct PaywallView: View {
     // MARK: - Benefits
 
     private var benefits: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 2) {
             ForEach(ProFeature.allCases) { feature in
-                HStack(spacing: 14) {
+                HStack(spacing: 12) {
                     Image(systemName: feature.symbol)
-                        .font(.system(size: 19, weight: .medium))
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(Color.cream)
-                        .frame(width: 44, height: 44)
+                        .frame(width: 36, height: 36)
                         .background(
                             LinearGradient(colors: [Color(Palette.leaf), Color(Palette.moss)], startPoint: .topLeading, endPoint: .bottomTrailing),
-                            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            in: RoundedRectangle(cornerRadius: 10, style: .continuous)
                         )
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 1) {
                         Text(feature.title)
-                            .font(.headline)
-                        Text(feature.detail)
-                            .font(.subheadline)
+                            .font(.subheadline.weight(.semibold))
+                        Text(feature.pitch)
+                            .font(.footnote)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     Spacer(minLength: 0)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 9)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
                 .background(
                     feature == highlight ? Color.bagged.opacity(0.14) : .clear,
                     in: RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -144,7 +144,7 @@ struct PaywallView: View {
             return "\(trial.subscriptionPeriod.trialLabel) free trial, then \(product.localizedPriceString)/year"
         }
         if let perMonth = product.localizedPricePerMonth {
-            return "Just \(perMonth) a month"
+            return "\(perMonth) a month, billed yearly"
         }
         return "Billed once a year"
     }
@@ -260,6 +260,7 @@ struct PaywallView: View {
         .padding(.top, 16)
         .padding(.trailing, 16)
         .accessibilityLabel("Close")
+        .accessibilityIdentifier("paywall.close")
         .disabled(working != nil)
     }
 
@@ -392,7 +393,7 @@ private struct PaywallHero: View {
                     .padding(.vertical, 4)
                     .background(Color.bagged, in: Capsule())
                 Text("Wainwrights\nBaggers Pro")
-                    .font(.system(size: 34, weight: .semibold, design: .serif))
+                    .font(.system(size: 32, weight: .semibold, design: .serif))
                     .foregroundStyle(Color.cream)
                     .fixedSize(horizontal: false, vertical: true)
                 Text("Keep the story of every fell you bag.")
@@ -400,11 +401,11 @@ private struct PaywallHero: View {
                     .foregroundStyle(Color.cream.opacity(0.8))
             }
             .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .padding(.bottom, 20)
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isHeader)
         }
-        .frame(height: 300)
+        .frame(height: 226)
         .clipped()
         .onAppear {
             withAnimation(.smooth(duration: 1.1)) { appeared = true }

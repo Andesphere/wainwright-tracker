@@ -102,10 +102,10 @@ private struct CoverPage: View {
                 .foregroundStyle(moss)
                 .padding(.top, -8)
 
-            ContourArtwork(color: Color.pine, opacity: 1.6, summit: UnitPoint(x: 0.62, y: 0.5), rings: 14, spacing: 16)
+            ContourArtwork(color: Color.pine, opacity: 1.6, summit: UnitPoint(x: 0.62, y: 0.55), rings: 13, spacing: 16, showsNeighbour: false)
                 .frame(height: 330)
                 .padding(.horizontal, -48)
-                .padding(.top, 20)
+                .padding(.top, 36)
 
             HStack(alignment: .top, spacing: 28) {
                 fact(value: "\(items.count)", label: items.count == 1 ? "Wainwright" : "Wainwrights")

@@ -109,12 +109,13 @@ enum ProFeature: String, CaseIterable, Identifiable {
         }
     }
 
-    var detail: String {
+    /// One line for the paywall.
+    var pitch: String {
         switch self {
-        case .journal: "A note and two photos for every fell you bag."
-        case .albums: "Each year on the fells as an album you can print."
-        case .layers: "Satellite imagery and detailed contour lines."
-        case .stats: "Fells per year, every book, your highest and lowest."
+        case .journal: "Notes and two photos for every fell."
+        case .albums: "Each year as an album you can print."
+        case .layers: "Satellite imagery and detailed contours."
+        case .stats: "Years, books, highest and lowest."
         }
     }
 

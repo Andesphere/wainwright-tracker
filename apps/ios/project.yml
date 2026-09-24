@@ -82,11 +82,32 @@ targets:
         CADisableMinimumFrameDurationOnPhone: true
         UIStatusBarStyle: UIStatusBarStyleDefault
 
+  WainwrightsBaggersUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: WainwrightsBaggersUITests
+    dependencies:
+      - target: WainwrightsBaggers
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wainwrightsbaggers.mobile.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: WainwrightsBaggers
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_VERSION: "5.0"
+        SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
+
 schemes:
   WainwrightsBaggers:
     build:
       targets:
         WainwrightsBaggers: all
+        WainwrightsBaggersUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - WainwrightsBaggersUITests
     run:
       config: Debug
       # Local purchases in the Simulator and from Xcode. TestFlight and the App Store use the real products.

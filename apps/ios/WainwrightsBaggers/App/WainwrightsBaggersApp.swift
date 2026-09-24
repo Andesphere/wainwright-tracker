@@ -13,7 +13,7 @@ struct WainwrightsBaggersApp: App {
         Clerk.configure(publishableKey: AppConfig.string("ClerkPublishableKey"))
         let progress = ProgressStore(deploymentURL: AppConfig.string("ConvexDeploymentURL"))
         _progress = State(initialValue: progress)
-        _pro = State(initialValue: ProStore(client: progress.client, apiKey: AppConfig.string("RevenueCatAPIKey")))
+        _pro = State(initialValue: ProStore(client: progress.client, apiKey: Self.revenueCatKey))
     }
 
     var body: some Scene {
@@ -27,6 +27,19 @@ struct WainwrightsBaggersApp: App {
                 .prefetchClerkImages()
                 .environment(Clerk.shared)
         }
+    }
+}
+
+extension WainwrightsBaggersApp {
+    /// The App Store key. Debug builds take RevenueCat's Test Store key from the launch environment
+    /// instead, so UI tests can buy Pro in the Simulator without StoreKit (see the UI tests).
+    static var revenueCatKey: String {
+        #if DEBUG
+        if let testStore = ProcessInfo.processInfo.environment["REVENUECAT_TEST_STORE_KEY"], testStore.hasPrefix("test_") {
+            return testStore
+        }
+        #endif
+        return AppConfig.string("RevenueCatAPIKey")
     }
 }
 

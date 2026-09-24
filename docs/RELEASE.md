@@ -43,19 +43,20 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 - [ ] RevenueCat: Andesphere account, project, iOS app `com.wainwrightsbaggers.mobile`, entitlement `pro`, offering with both products.
 - [ ] App Store Connect In-App Purchase key for RevenueCat, and App Store Server Notifications (V2) pointed at RevenueCat.
 - [ ] Check the Paid Apps agreement, tax and banking are active in App Store Connect > Business.
-- [ ] iOS: RevenueCat SDK with the Clerk user ID as app user ID, paywall, restore purchases, manage-subscription link.
-- [ ] Convex: RevenueCat webhook into an entitlements table; Pro-only operations checked on the server, not only in the app.
-- [ ] Pro features on iOS: photo journal, albums, extra map layers, stats.
-- [ ] Sandbox and TestFlight tests: buy, trial, restore, cancel, expiry, refund, switch account.
+- [x] iOS: RevenueCat SDK with the Clerk user ID as app user ID, paywall, restore purchases, manage-subscription link.
+- [x] Convex: RevenueCat webhook into an `entitlements` table, recomputed from RevenueCat API v2; `billing.mine`, `billing.refresh`. Proven on prod with a dashboard test event and a Test Store purchase.
+- [ ] Convex: Pro-only operations checked on the server (`requirePro` is ready; wire it with web gating in [#733](https://github.com/JorgeMenaDev/matias/issues/733) so web users are not cut off).
+- [x] Pro features on iOS: photo journal, albums with PDF print export, extra map layers, stats.
+- [ ] Sandbox and TestFlight tests: buy, trial, restore, cancel, expiry, refund, switch account. Simulator runs pass on RevenueCat's Test Store (`ProFlowUITests`); real sandbox purchases wait for the Paid Apps agreement.
 - [ ] Review screenshot of the paywall and review notes on both plans (both show `MISSING_METADATA` now).
 - [ ] Jorge: consider enrolling in the Apple Small Business Program (15% commission instead of 30%).
 
 ### 2. iOS before submission
 
-- [ ] Sign in with Apple in the app: entitlement plus native flow (Clerk production already has Apple on).
+- [x] Sign in with Apple in the app: entitlement plus native flow (Clerk's sign-in sheet shows Continue with Apple; still to try on a real iPhone, below).
 - [ ] Real app icon (a placeholder ships now).
 - [ ] On a real iPhone: smooth panning, Google sign-in, Apple sign-in, location.
-- [ ] App privacy manifest (`PrivacyInfo.xcprivacy`) for the app's own API use.
+- [x] App privacy manifest (`PrivacyInfo.xcprivacy`) for the app's own API use.
 - [ ] Crash reporting (Sentry for iOS).
 - [ ] Mapbox: add a card before launch (free tier: 25,000 iPhone users a month), and use a dedicated token for the app.
 
@@ -69,7 +70,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 
 ### 4. Sign-in and data hygiene
 
-- [ ] Clerk `user.deleted` webhook to Convex, so deletions made outside the apps still clean up.
+- [x] Clerk `user.deleted` webhook to Convex, so deletions made outside the apps still clean up.
 - [ ] Register Clerk's sending domain with Apple's private email relay, so codes reach "Hide My Email" users.
 - [ ] App Review demo account: production asks for an emailed code on each new device, which a reviewer cannot receive. Give the reviewer an account that signs in without it.
 - [ ] Turn on Convex backups for production.

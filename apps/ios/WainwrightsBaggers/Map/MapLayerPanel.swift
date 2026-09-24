@@ -19,6 +19,7 @@ struct MapLayerPanel: View {
             }
         }
         .padding(12)
+        .fixedSize()
         .glassBackground(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
@@ -56,7 +57,9 @@ struct MapLayerPanel: View {
                 Text(layer.title)
                     .font(.caption.weight(selected ? .semibold : .regular))
                     .foregroundStyle(selected ? Color.brand : .primary)
+                    .lineLimit(1)
             }
+            .frame(width: 70)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

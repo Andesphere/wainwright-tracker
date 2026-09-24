@@ -26,11 +26,12 @@ http.route({
       return new Response("Invalid JSON", { status: 400 });
     }
 
-    const type = (event as { type?: unknown } | undefined)?.type;
-    if (type === "TEST") {
-      console.log("RevenueCat test event received");
-      return new Response(null, { status: 200 });
-    }
+    const { type, environment } = (event ?? {}) as {
+      type?: unknown;
+      environment?: unknown;
+    };
+    console.log(`RevenueCat ${String(type)} event (${String(environment)})`);
+    if (type === "TEST") return new Response(null, { status: 200 });
     for (const userId of webhookUserIds(event)) {
       await ctx.scheduler.runAfter(0, internal.billing.recompute, { userId });
     }
