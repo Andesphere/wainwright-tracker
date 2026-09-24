@@ -1,0 +1,348 @@
+/* The web tracker, styled after the iPhone app (apps/ios/WainwrightsBaggers/App/Theme.swift).
+ * Tokens live on <html> while the tracker is mounted, so dialogs portalled to <body> share them. */
+
+html.wb-tracker-root {
+  --wb-moss: #3e6e54;
+  --wb-leaf: #5c946f;
+  --wb-pine: #1f4232;
+  --wb-ink: #112318;
+  --wb-cream: #fafae8;
+  --wb-bracken: #e3a23b;
+  --wb-brand: var(--wb-moss);
+  --wb-paper: var(--wb-cream);
+  --wb-card: #ffffff;
+  --wb-label: var(--wb-ink);
+  --wb-secondary: rgba(17, 35, 24, 0.6);
+  --wb-tertiary: rgba(17, 35, 24, 0.32);
+  --wb-fill: rgba(17, 35, 24, 0.06);
+  --wb-fill-strong: rgba(17, 35, 24, 0.09);
+  --wb-separator: rgba(17, 35, 24, 0.12);
+  --wb-glass-bg: rgba(244, 247, 234, 0.74);
+  --wb-glass-edge: rgba(255, 255, 255, 0.55);
+  --wb-shadow: 0 18px 44px -18px rgba(17, 35, 24, 0.45);
+  --wb-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --wb-serif:
+    ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  color-scheme: light;
+  overscroll-behavior: none;
+}
+
+html.wb-tracker-root.dark {
+  --wb-brand: var(--wb-leaf);
+  --wb-paper: #0d1912;
+  --wb-card: #17271e;
+  --wb-label: #f3f1e4;
+  --wb-secondary: rgba(235, 238, 225, 0.62);
+  --wb-tertiary: rgba(235, 238, 225, 0.3);
+  --wb-fill: rgba(255, 255, 255, 0.08);
+  --wb-fill-strong: rgba(255, 255, 255, 0.12);
+  --wb-separator: rgba(255, 255, 255, 0.12);
+  --wb-glass-bg: rgba(18, 30, 23, 0.74);
+  --wb-glass-edge: rgba(255, 255, 255, 0.1);
+  --wb-shadow: 0 18px 44px -18px rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
+}
+
+html.wb-tracker-root body {
+  overflow: hidden;
+  background: var(--wb-paper);
+}
+
+.wb-tracker {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  font-family: var(--wb-sans);
+  color: var(--wb-label);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wb-serif {
+  font-family: var(--wb-serif);
+  letter-spacing: -0.01em;
+}
+
+.wb-surface {
+  font-family: var(--wb-sans);
+  color: var(--wb-label);
+}
+
+/* Glass: a translucent floating layer with the map showing through. */
+.wb-glass {
+  background: var(--wb-glass-bg);
+  -webkit-backdrop-filter: blur(26px) saturate(170%);
+  backdrop-filter: blur(26px) saturate(170%);
+  box-shadow:
+    inset 0 0.5px 0 var(--wb-glass-edge),
+    0 0 0 0.5px rgba(17, 35, 24, 0.1),
+    var(--wb-shadow);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .wb-glass {
+    background: var(--wb-paper);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.wb-focus:focus-visible,
+.wb-tracker button:focus-visible,
+.wb-surface button:focus-visible,
+.wb-tracker a:focus-visible,
+.wb-surface a:focus-visible {
+  outline: 2.5px solid var(--wb-brand);
+  outline-offset: 2px;
+}
+
+.wb-press {
+  transition:
+    transform 120ms ease-out,
+    opacity 120ms ease-out,
+    background-color 160ms ease-out;
+}
+.wb-press:active {
+  transform: scale(0.97);
+}
+
+/* Map controls. */
+.wb-map-controls {
+  top: calc(env(safe-area-inset-top) + 12px);
+  right: 12px;
+}
+@media (min-width: 1024px) {
+  .wb-map-controls {
+    top: 16px;
+    right: 16px;
+  }
+}
+
+.wb-control-button {
+  display: grid;
+  width: 48px;
+  height: 46px;
+  place-items: center;
+  color: var(--wb-label);
+  border-radius: 20px;
+  transition:
+    opacity 120ms ease-out,
+    transform 120ms ease-out;
+}
+.wb-control-button:active {
+  opacity: 0.6;
+  transform: scale(0.92);
+}
+.wb-control-divider {
+  display: block;
+  width: 30px;
+  height: 1px;
+  background: var(--wb-separator);
+}
+.wb-compass {
+  color: var(--wb-label);
+  animation: wb-pop 350ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+.wb-pop-in {
+  transform-origin: top right;
+  animation: wb-pop 350ms cubic-bezier(0.34, 1.3, 0.64, 1) both;
+}
+
+/* Mapbox logo and attribution sit clear of the panel or the sheet. */
+.wb-map .mapboxgl-ctrl-bottom-left {
+  left: var(--wb-map-inset-left, 0px);
+  bottom: var(--wb-map-inset-bottom, 0px);
+  transition: bottom 300ms ease;
+}
+.wb-map .mapboxgl-ctrl-bottom-right {
+  bottom: var(--wb-map-inset-bottom, 0px);
+  transition: bottom 300ms ease;
+}
+.wb-map .mapboxgl-ctrl-top-left {
+  display: none;
+}
+.wb-map .mapboxgl-canvas:focus-visible {
+  outline: none;
+}
+
+/* The selected fell's pin. Mapbox positions the marker element, so motion lives on the body. */
+.wb-pin {
+  width: 44px;
+  pointer-events: none;
+}
+.wb-pin-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  animation: wb-pin-in 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.wb-pin-head {
+  position: relative;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 999px;
+  color: #1f4232;
+  background: #fafae8;
+  box-shadow: inset 0 0 0 2.5px #1f4232;
+  transition: background-color 300ms ease;
+}
+.wb-pin-head svg {
+  grid-area: 1 / 1;
+  transition:
+    transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 200ms ease;
+}
+.wb-pin-bagged {
+  opacity: 0;
+  transform: scale(0.4);
+}
+.wb-pin[data-bagged="true"] .wb-pin-head {
+  background: #e3a23b;
+}
+.wb-pin[data-bagged="true"] .wb-pin-bagged {
+  opacity: 1;
+  transform: scale(1);
+}
+.wb-pin[data-bagged="true"] .wb-pin-to-go {
+  opacity: 0;
+  transform: scale(0.4);
+}
+.wb-pin-tail {
+  width: 14px;
+  height: 10px;
+  margin-top: -2px;
+  background: #1f4232;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.wb-pin-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  border: 3px solid #e3a23b;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+}
+.wb-pin-ripple .wb-pin-ring {
+  animation: wb-ripple 900ms ease-out both;
+}
+
+/* The phone sheet. */
+.wb-sheet {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  border-radius: 30px;
+  overflow: hidden;
+  will-change: transform;
+  touch-action: none;
+}
+.wb-sheet[data-scrollable="true"] .wb-sheet-scroll {
+  overflow-y: auto;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+.wb-sheet-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+.wb-sheet-scroll::-webkit-scrollbar {
+  display: none;
+}
+.wb-grabber {
+  display: grid;
+  width: 100%;
+  height: 20px;
+  flex: none;
+  place-items: center;
+  cursor: grab;
+}
+.wb-grabber::before {
+  content: "";
+  width: 36px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--wb-tertiary);
+}
+
+/* The desktop side panel. */
+.wb-panel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--wb-separator) transparent;
+}
+
+.wb-no-scrollbar {
+  scrollbar-width: none;
+}
+.wb-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.wb-fade-in {
+  animation: wb-fade 220ms ease-out both;
+}
+
+@keyframes wb-pin-in {
+  from {
+    transform: scale(0.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes wb-ripple {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+@keyframes wb-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes wb-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-pin-body,
+  .wb-pin-ripple .wb-pin-ring,
+  .wb-compass,
+  .wb-pop-in,
+  .wb-fade-in {
+    animation: none;
+  }
+  .wb-pin-head svg,
+  .wb-press,
+  .wb-control-button {
+    transition: none;
+  }
+}
