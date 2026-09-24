@@ -15,8 +15,6 @@
     "dev": "turbo run dev --parallel --filter=@wainwrights/web --filter=@wainwrights/backend",
     "dev:web": "turbo run dev --filter=@wainwrights/web",
     "dev:backend": "turbo run dev --filter=@wainwrights/backend",
-    "dev:mobile": "turbo run dev --filter=@wainwrights/mobile",
-    "ios": "turbo run ios --filter=@wainwrights/mobile",
     "ios-native:generate": "cd apps/ios && xcodegen generate",
     "ios-native:catalog": "bun apps/ios/scripts/generate-catalog.ts",
     "build": "turbo run build",

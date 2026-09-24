@@ -1,3 +1,5 @@
+> Historical, 2026-09-24: Wainwrights Baggers no longer uses Expo. It ships a native SwiftUI app (`apps/ios`). Keep this file only as Expo/EAS precedent for other apps.
+
 # Mobile App Handover Runbook
 
 Use this document when creating or shipping an Expo iOS mobile app in another monorepo using Jorge's existing Expo and Apple Developer setup.

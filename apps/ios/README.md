@@ -1,9 +1,9 @@
 # Wainwrights Baggers for iOS
 
-Native SwiftUI app. It replaces the Expo app in `apps/mobile` on the same bundle ID (`com.wainwrightsbaggers.mobile`) and App Store Connect app (`6771147426`).
+Native SwiftUI app. It replaced the Expo app (removed 2026-09-24) on the same bundle ID (`com.wainwrightsbaggers.mobile`) and App Store Connect app (`6771147426`).
 
 - **Map:** Mapbox Maps SDK for iOS 11 (SwiftUI API). Mapbox Standard style, faded theme, 3D terrain (`mapbox.mapbox-terrain-dem-v1`, exaggeration 1.3), a light preset picked from the sun's position over the Lake District, plus our own hillshade and contour lines (`mapbox.mapbox-terrain-v2`) in the `bottom` slot. The 214 fells are one GeoJSON source with two symbol layers.
-- **Sign-in:** Clerk iOS SDK (`ClerkKit`, `ClerkKitUI`), production instance. The prebuilt `AuthView` and `UserProfileView` open as sheets.
+- **Sign-in:** Clerk iOS SDK (`ClerkKit`, `ClerkKitUI`), production instance. The prebuilt `AuthView` opens as a sheet. The account sheet is our own (`Sheet/AccountSheet.swift`): Clerk's profile view has a delete button that would skip `account.deleteMyData`.
 - **Sync:** Convex Swift client against Convex prod. `progress:get` is a live subscription while signed in; bagging calls `progress:setBagged`. Tokens come from the Clerk JWT template `convex`, see `Services/ClerkConvexAuthProvider.swift`. The official `clerk-convex-swift` bridge sends the default session token, which has no `aud` claim here, so Convex rejects it.
 - **Targets:** iOS 18.0+, iPhone, portrait. Liquid Glass on iOS 26 with a material fallback.
 
