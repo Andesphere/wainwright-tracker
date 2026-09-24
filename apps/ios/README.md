@@ -70,4 +70,4 @@ xcodebuild -exportArchive -archivePath build/WainwrightsBaggers.xcarchive \
 
 ## App icon
 
-"Contour summit", chosen on 2026-09-24. `Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png` is the 1024 px master: RGB, no alpha, square corners. The vector is `apps/web/public/icon.svg`; the web's `favicon.svg` is a simplified cut that reads at 16 px.
+"Trig pillar", chosen on 2026-09-24. `Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png` is the 1024 px master: RGB, no alpha, square corners. The vector is `apps/web/public/icon.svg`; the web's `favicon.svg` is a simplified cut (pillar and gold tick) that reads at 16 px.
