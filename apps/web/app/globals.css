@@ -3,6 +3,7 @@
 @import "@fontsource-variable/geist";
 @import "maplibre-gl/dist/maplibre-gl.css";
 @import "../styles/slope.css";
+@import "../styles/landing.css";
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant data-open {

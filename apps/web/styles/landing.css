@@ -1,0 +1,624 @@
+/* ── Landing page ────────────────────────────────────────────────────
+   Page-only styles for "/" (marketing-pages/LandingPage.tsx). Shares the
+   .design-slope palette, nav, footer and pills from slope.css. Everything
+   here is prefixed ld- (sections) or phone- (the iPhone frame).
+*/
+
+.design-slope .ld-wrap {
+  width: min(1180px, 100% - 8vw);
+  margin-inline: auto;
+}
+
+/* Focus rings for keyboard users, on every link and button on the page. */
+.design-slope a:focus-visible,
+.design-slope button:focus-visible {
+  outline: 2px solid var(--leaf);
+  outline-offset: 3px;
+}
+
+/* Contour lines, drawn from /contours.svg as a mask so each section can
+   colour them. Decorative only. */
+.design-slope .ld-contours {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--contour);
+  opacity: 0.22;
+  -webkit-mask: url("/contours.svg") center top / 1500px auto no-repeat;
+  mask: url("/contours.svg") center top / 1500px auto no-repeat;
+}
+
+/* ── Shared type ────────────────────────────────────────────────────── */
+.design-slope .ld-kicker,
+.design-slope .ld-tag {
+  margin: 0 0 1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+.design-slope .ld-h1 {
+  margin: 0 0 1.4rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(2.7rem, 6vw, 4.8rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--pine);
+  text-wrap: balance;
+}
+.design-slope .ld-h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--leaf);
+}
+.design-slope .ld-h2 {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 60;
+  font-size: clamp(2rem, 3.8vw, 3rem);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  color: var(--pine);
+  text-wrap: balance;
+}
+.design-slope .ld-h2--small {
+  margin: 0;
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+}
+.design-slope .ld-lede {
+  margin: 0 0 2rem;
+  max-width: 52ch;
+  font-size: 1.12rem;
+  line-height: 1.6;
+  color: var(--moss);
+}
+.design-slope .ld-p {
+  margin: 0;
+  max-width: 50ch;
+  font-size: 1.04rem;
+  line-height: 1.65;
+  color: var(--moss);
+}
+.design-slope .ld-list {
+  list-style: none;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+.design-slope .ld-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.design-slope .ld-list li::before {
+  content: "";
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin-top: 0.4rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--moss);
+  background: var(--cream);
+}
+
+/* CTAs */
+.design-slope .ld-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.2rem;
+}
+.design-slope .ld-cta-row--center {
+  justify-content: center;
+}
+.design-slope .ld-badge {
+  display: inline-flex;
+  line-height: 0;
+  border-radius: 8px;
+}
+.design-slope .ld-badge img {
+  display: block;
+  width: auto;
+  height: 52px;
+}
+.design-slope .ld-fine {
+  margin: 1.2rem 0 0;
+  font-size: 0.9rem;
+  color: var(--quiet);
+}
+
+/* ── Phone frame ────────────────────────────────────────────────────── */
+.design-slope .phone {
+  container-type: inline-size;
+  width: 100%;
+  margin: 0;
+}
+.design-slope .phone-body {
+  position: relative;
+  padding: 3.2cqw;
+  border-radius: 15.5cqw;
+  background: #17251d;
+  box-shadow:
+    inset 0 0 0 1px rgba(250, 250, 232, 0.08),
+    0 30px 60px -24px rgba(17, 35, 24, 0.5),
+    0 8px 18px -10px rgba(17, 35, 24, 0.3);
+}
+.design-slope .phone-screen {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1206 / 2622;
+  border-radius: 12.6cqw;
+  background: var(--sage);
+}
+.design-slope .phone-screen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.design-slope .phone-island {
+  position: absolute;
+  top: 2.6cqw;
+  left: 50%;
+  z-index: 2;
+  width: 29cqw;
+  height: 8.6cqw;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #000;
+}
+.design-slope .phone-cap {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--moss);
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────── */
+.design-slope .ld-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--cream) 0%, var(--paper) 100%);
+}
+.design-slope .ld-hero .ld-contours {
+  inset: -6% -4% 0;
+  -webkit-mask-image:
+    url("/contours.svg"), linear-gradient(180deg, #000 30%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    url("/contours.svg"), linear-gradient(180deg, #000 30%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-size:
+    1500px auto,
+    100% 100%;
+  mask-size:
+    1500px auto,
+    100% 100%;
+  -webkit-mask-position:
+    center top,
+    center;
+  mask-position:
+    center top,
+    center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.design-slope .ld-hero .slope-nav {
+  position: relative;
+  z-index: 2;
+}
+.design-slope .ld-hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 3rem 4rem;
+  align-items: center;
+  padding: 2.5rem 0 5.5rem;
+}
+.design-slope .ld-hero-phones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.6rem;
+  align-items: start;
+  width: 100%;
+  max-width: 560px;
+  justify-self: end;
+}
+.design-slope .ld-hero-phone-2 {
+  margin-top: 5.5rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .design-slope .ld-hero-copy,
+  .design-slope .ld-hero-phones {
+    animation: ld-rise 0.9s ease both;
+  }
+  .design-slope .ld-hero-phones {
+    animation-delay: 0.15s;
+  }
+  @keyframes ld-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ── Strip ──────────────────────────────────────────────────────────── */
+.design-slope .ld-strip {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--cream);
+}
+.design-slope .ld-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-block: 0;
+}
+.design-slope .ld-stat {
+  padding: 1.6rem 1.4rem 1.6rem 0;
+  margin-right: 1.4rem;
+  border-right: 1px solid var(--line);
+}
+.design-slope .ld-stat:last-child {
+  margin-right: 0;
+  border-right: 0;
+}
+.design-slope .ld-stat-n {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 48;
+  font-size: clamp(2rem, 3.2vw, 2.7rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--pine);
+}
+.design-slope .ld-stat-l {
+  margin: 0.45rem 0 0;
+  font-size: 0.84rem;
+  color: var(--moss);
+}
+
+/* ── Feature sections ───────────────────────────────────────────────── */
+.design-slope .ld-feature {
+  padding: 5.5rem 0;
+}
+.design-slope .ld-feature + .ld-feature {
+  padding-top: 0;
+}
+.design-slope .ld-feature-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 3rem 5rem;
+  align-items: center;
+}
+.design-slope .ld-feature--flip .ld-feature-copy {
+  order: 2;
+}
+.design-slope .ld-rail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.6rem;
+  align-items: start;
+  width: 100%;
+  max-width: 600px;
+  justify-self: center;
+}
+.design-slope .ld-rail--one {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 290px;
+}
+
+/* ── iPhone and web ─────────────────────────────────────────────────── */
+.design-slope .ld-sync {
+  padding: 5.5rem 0;
+  background: linear-gradient(180deg, var(--sage) 0%, var(--paper) 100%);
+}
+.design-slope .ld-sync-head {
+  max-width: 640px;
+}
+.design-slope .ld-ways {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.4rem;
+  margin-top: 2.6rem;
+}
+.design-slope .ld-way {
+  padding: 1.8rem;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px -20px rgba(31, 66, 50, 0.25);
+}
+.design-slope .ld-way h3 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 32;
+  font-size: 1.6rem;
+  color: var(--pine);
+}
+.design-slope .ld-way p {
+  margin: 0 0 1.4rem;
+  max-width: 40ch;
+  line-height: 1.55;
+  color: var(--moss);
+}
+
+/* ── Price ──────────────────────────────────────────────────────────── */
+.design-slope .ld-pricing {
+  padding: 5.5rem 0;
+}
+.design-slope .ld-pricing-head {
+  max-width: 640px;
+}
+.design-slope .ld-plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.4rem;
+  margin-top: 2.2rem;
+}
+.design-slope .ld-plan {
+  padding: 2rem;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: var(--cream);
+}
+.design-slope .ld-plan--pro {
+  border-color: var(--pine);
+  background: var(--pine);
+  color: var(--cream);
+}
+.design-slope .ld-plan-name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 32;
+  font-size: 1.9rem;
+  color: var(--pine);
+}
+.design-slope .ld-plan--pro .ld-plan-name {
+  color: var(--cream);
+}
+.design-slope .ld-plan-price {
+  margin: 0.4rem 0 1.2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--moss);
+}
+.design-slope .ld-plan-price strong {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 2.1rem;
+  color: var(--pine);
+}
+.design-slope .ld-plan--pro .ld-plan-price {
+  color: rgba(250, 250, 232, 0.8);
+}
+.design-slope .ld-plan--pro .ld-plan-price strong {
+  color: var(--cream);
+}
+.design-slope .ld-plan--pro .ld-list li {
+  color: var(--cream);
+}
+.design-slope .ld-plan--pro .ld-list li::before {
+  border-color: var(--bracken);
+  background: var(--bracken);
+}
+.design-slope .ld-plan-note {
+  margin: 1.6rem 0 0;
+  font-size: 0.86rem;
+  color: rgba(250, 250, 232, 0.7);
+}
+
+/* ── Field notes ────────────────────────────────────────────────────── */
+.design-slope .ld-notes {
+  padding: 4rem 0 5.5rem;
+  border-top: 1px solid var(--line);
+}
+.design-slope .ld-notes-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.design-slope .ld-notes-all {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--moss);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  transition: color 0.3s ease;
+}
+.design-slope .ld-notes-all:hover {
+  color: var(--pine);
+}
+.design-slope .ld-notes-list {
+  list-style: none;
+  margin: 1.8rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+}
+.design-slope .ld-note a {
+  display: block;
+  height: 100%;
+  padding: 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--cream);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.design-slope .ld-note a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(20, 46, 34, 0.08);
+}
+.design-slope .ld-note-cat {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+.design-slope .ld-note h3 {
+  margin: 0.5rem 0 0.4rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 24;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: var(--pine);
+}
+.design-slope .ld-note p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--moss);
+}
+
+/* ── Close ──────────────────────────────────────────────────────────── */
+.design-slope .ld-close {
+  position: relative;
+  overflow: hidden;
+  padding: 6rem 0;
+  background: var(--pine);
+  color: var(--cream);
+  text-align: center;
+}
+.design-slope .ld-close .ld-contours {
+  background-color: var(--cream);
+  opacity: 0.1;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+.design-slope .ld-close-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+}
+.design-slope .ld-close-h {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(2.3rem, 5vw, 3.9rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+  text-wrap: balance;
+}
+.design-slope .ld-close p {
+  margin: 0 auto 2.2rem;
+  max-width: 46ch;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: rgba(250, 250, 232, 0.82);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .design-slope .ld-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    padding: 1.5rem 0 4rem;
+  }
+  .design-slope .ld-hero-phones {
+    grid-template-columns: 1fr;
+    max-width: none;
+    justify-items: center;
+  }
+  .design-slope .ld-hero-phones .phone {
+    width: min(72vw, 300px);
+  }
+  .design-slope .ld-hero-phone-2 {
+    display: none;
+  }
+  .design-slope .ld-feature-grid {
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
+  }
+  .design-slope .ld-feature--flip .ld-feature-copy {
+    order: 0;
+  }
+  .design-slope .ld-feature {
+    padding: 4rem 0;
+  }
+  .design-slope .ld-feature + .ld-feature {
+    padding-top: 0;
+  }
+  /* Phones become a snap rail that bleeds to the screen edge. */
+  .design-slope .ld-rail {
+    display: flex;
+    gap: 1rem;
+    max-width: none;
+    margin-inline: -4vw;
+    padding: 0.5rem 4vw 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .design-slope .ld-rail::-webkit-scrollbar {
+    display: none;
+  }
+  .design-slope .ld-rail > .phone {
+    flex: 0 0 min(66vw, 280px);
+    scroll-snap-align: center;
+  }
+  .design-slope .ld-rail--one {
+    justify-content: center;
+  }
+  .design-slope .ld-ways,
+  .design-slope .ld-plans,
+  .design-slope .ld-notes-list {
+    grid-template-columns: 1fr;
+  }
+  .design-slope .ld-sync,
+  .design-slope .ld-pricing {
+    padding: 4rem 0;
+  }
+  .design-slope .ld-close {
+    padding: 4.5rem 0;
+  }
+}
+@media (max-width: 640px) {
+  .design-slope .ld-strip-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .design-slope .ld-stat {
+    padding: 1.2rem 1rem 1.2rem 0;
+    margin-right: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .design-slope .ld-stat:nth-child(2n) {
+    margin-right: 0;
+    border-right: 0;
+  }
+  .design-slope .ld-stat:nth-child(n + 3) {
+    border-bottom: 0;
+  }
+  .design-slope .ld-cta-row {
+    gap: 0.9rem;
+  }
+}

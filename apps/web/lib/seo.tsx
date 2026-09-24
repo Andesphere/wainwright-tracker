@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { BlogPost } from "@/content/blog/posts";
 import { BLOG_POSTS, getBlogPost } from "@/content/blog/posts";
+import { APP_STORE_URL } from "@/lib/appStore";
 
 export const SITE_URL = "https://wainwrightsbaggers.com";
 export const SITE_NAME = "Wainwrights Baggers";
@@ -208,6 +209,7 @@ function softwareSchema() {
     applicationCategory: "LifestyleApplication",
     operatingSystem: "Web, iOS",
     url: SITE_URL,
+    installUrl: APP_STORE_URL,
     image: absoluteUrl(DEFAULT_OG_IMAGE),
     description: homeDescription,
     offers: {

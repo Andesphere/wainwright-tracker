@@ -1,15 +1,18 @@
 // LandingPage — the public "/" route.
-// Uses the shared Slope layout (SlopeShell/SlopeNav/SlopeFooter) so the
-// blog and the landing carry the exact same navbar, footer and palette.
-// This file just describes the page-specific sections: hero, numbers,
-// feature cards and the quiet bottom CTA.
+// Sells the iPhone app and the web tracker in the app's own visual
+// language: sage map greens, warm cream, a serif for titles, glass cards.
+// Shares the Slope nav and footer with the blog; page-only styles live in
+// styles/landing.css under the ld-* prefix.
 
 import { SignUpButton } from "@clerk/clerk-react";
-import Image from "next/image";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
+import { AppStoreBadge } from "@/components/marketing/AppStoreBadge";
+import { PhoneFrame } from "@/components/marketing/PhoneFrame";
 import { SlopeNav } from "@/components/marketing/SlopeNav";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
+import { BLOG_POSTS } from "@/content/blog/posts";
 import { trackCtaClick, trackSignupClick } from "@/lib/analytics";
 
 type LandingPageProps = {
@@ -17,38 +20,76 @@ type LandingPageProps = {
   signedIn?: boolean;
 };
 
-// Static content tables — kept up here so the JSX below stays scannable.
-const FEATURES = [
-  {
-    n: "01",
-    t: "One Map.",
-    d: "Every Wainwright plotted on a single Lake District atlas, ready to filter, search and pin.",
+// Real captures from the iPhone app (apps/web/public/screens/ios).
+const SCREENS = {
+  overview: {
+    src: "/screens/ios/01-launch-overview.png",
+    alt: "The Wainwrights Baggers iPhone app: a 3D map of the Lake District with all 214 fells marked, a search bar and a progress ring reading 2 of 214.",
   },
-  {
-    n: "02",
-    t: "Slow Journal.",
-    d: "Mark each summit with a date, a note, and a photograph. Sync across phone and desktop.",
+  fellCard: {
+    src: "/screens/ios/02-fell-card.png",
+    alt: "Great Gable's card over the 3D map: height 899 m, Book Seven, ranked 7th by height, a date picker and a Bag it button.",
   },
-  {
-    n: "03",
-    t: "Albums by Year.",
-    d: "Completions group themselves into chronological albums — chapters of your walking years.",
+  books: {
+    src: "/screens/ios/03-medium-sheet-books.png",
+    alt: "The sheet pulled up over the map, showing progress for each of the seven Pictorial Guide books and the list of all 214 fells.",
   },
+  zoomed: {
+    src: "/screens/ios/05-zoomed-3d.png",
+    alt: "Zoomed in on Great Gable in 3D, with contour lines across the fellside and the fell card opening below.",
+  },
+  bagged: {
+    src: "/screens/ios/06-bagged-card.png",
+    alt: "Skiddaw bagged: its marker has turned orange with a tick and the card reads Bagged, 2 of 214 done.",
+  },
+  night: {
+    src: "/screens/ios/07-night-dark-mode.png",
+    alt: "The same map at night: dark terrain, pale markers for every fell and the progress card in dark mode.",
+  },
+};
+
+const STATS = [
+  { n: "214", l: "fells in the round" },
+  { n: "vii", l: "Pictorial Guide books" },
+  { n: "3D", l: "terrain and contour lines" },
+  { n: "Free", l: "the map and the round, for good" },
 ];
 
-const NUMBERS = [
-  { n: "214", l: "summits in the round" },
-  { n: "vii", l: "pictorial areas" },
-  { n: "978", l: "metres at Scafell" },
+const FREE_INCLUDES = [
+  "The full 3D map",
+  "All 214 fells",
+  "Bagging with a date",
+  "Sync between iPhone and web",
+  "Search and filters",
+  "Progress by book",
 ];
+
+const PRO_INCLUDES = [
+  "Photo journal: notes and photos for every fell",
+  "Yearly albums, with print export",
+  "Extra map layers: satellite and detailed contours",
+  "Stats",
+];
+
+const NOTES = BLOG_POSTS.slice(0, 3);
+
+const PHONE_SIZES = "(min-width: 900px) 280px, 66vw";
 
 export function LandingPage({ signedIn = false }: LandingPageProps) {
-  // Primary CTA renders the same visual button whether the user is signed in
-  // (Link to /app) or not (Clerk sign-up modal). Keeps the markup tidy.
-  const primaryCta = (
+  // The shared nav links to /#map and /#pricing. react-router does not
+  // scroll to hashes on client navigation, so do it here.
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    document.getElementById(hash.slice(1))?.scrollIntoView({ block: "start" });
+  }, [hash]);
+
+  // The web CTA: a link into the tracker when signed in, otherwise the
+  // Clerk sign-up modal. Same pill either way.
+  const webCta = (
     label: string,
-    variant: "light" | "dark" = "light",
-    location = "home_hero",
+    location: string,
+    variant: "dark" | "light" = "dark",
   ) => {
     const className =
       variant === "dark" ? "btn-pill btn-pill-light" : "btn-pill";
@@ -77,225 +118,274 @@ export function LandingPage({ signedIn = false }: LandingPageProps) {
 
   return (
     <SlopeShell signedIn={signedIn}>
-      {/* ── HERO — image fills the section, nav sits transparently over it */}
-      <section className="hero">
-        <Image
-          src="/hero-slope.png"
-          alt="Lake District fells at midday"
-          className="hero-illu"
-          fill
-          priority
-          sizes="100vw"
-        />
-        {/* soft top-down gradient keeps light copy legible over pale sky */}
-        <div className="hero-scrim" aria-hidden />
+      {/* ── HERO — copy left, the app itself right */}
+      <section className="ld-hero">
+        <div className="ld-contours" aria-hidden />
+        <SlopeNav signedIn={signedIn} variant="plain" />
 
-        <SlopeNav signedIn={signedIn} variant="hero" />
+        <div className="ld-wrap ld-hero-grid">
+          <div className="ld-hero-copy">
+            <p className="ld-kicker">For iPhone and the web</p>
+            <h1 className="ld-h1">
+              A <em>quiet</em> tracker for the 214 Wainwrights.
+            </h1>
+            <p className="ld-lede">
+              Wainwrights Baggers is a map, checklist and journal for every fell
+              in the Lake District. Tap a summit, bag it with a date, and watch
+              the seven books fill in. Your round stays in step between your
+              iPhone and the browser.
+            </p>
+            <div className="ld-cta-row">
+              <AppStoreBadge location="home_hero" />
+              {webCta("Open the journal", "home_hero")}
+            </div>
+            <p className="ld-fine">
+              Free forever. Pro adds the photo journal and more, from £1.99 a
+              month.
+            </p>
+          </div>
 
-        <div className="hero-text">
-          <p className="kicker">— a journal for the slow walker</p>
-          <h1 className="hero-h">
-            Walking <em>quietly</em>
-            <br />
-            through every fell.
-          </h1>
-          <p className="hero-lede">
-            A field journal for the two hundred and fourteen Wainwrights — log
-            your round on a map you can hold in your pocket, and watch the years
-            gather, summit by summit.
-          </p>
-          <div className="hero-cta">
-            {primaryCta("Open the journal")}
-            <span className="hero-aside">
-              free, forever &middot; no fitness scores
-            </span>
+          <div className="ld-hero-phones">
+            <PhoneFrame
+              src={SCREENS.overview.src}
+              alt={SCREENS.overview.alt}
+              priority
+              sizes="(min-width: 900px) 300px, 72vw"
+            />
+            <PhoneFrame
+              src={SCREENS.fellCard.src}
+              alt={SCREENS.fellCard.alt}
+              sizes="(min-width: 900px) 260px, 0px"
+              className="ld-hero-phone-2"
+            />
           </div>
         </div>
       </section>
 
-      {/* ── NUMBERS — quiet figures the round can be measured by */}
-      <section className="numbers">
-        {NUMBERS.map((n) => (
-          <div key={n.n} className="num">
-            <span className="num-n">{n.n}</span>
-            <span className="num-l">{n.l}</span>
-          </div>
-        ))}
-        <div className="num num-mini">
-          <span className="num-l">
-            recorded by walkers, since the spring of mmxxvi
-          </span>
-        </div>
-      </section>
-
-      {/* ── FEATURES — three cards, deliberately understated */}
-      <section className="features" id="features">
-        <header className="sec-head">
-          <p className="sec-tag">— three things it does well</p>
-          <h2 className="sec-h">
-            A small, quiet tool
-            <br />
-            that respects your time on the hill.
-          </h2>
-        </header>
-
-        <div className="feat-grid">
-          {FEATURES.map((f) => (
-            <article key={f.n} className="feat-card">
-              <div className="feat-illu">
-                <FeatureIllu n={f.n} />
-              </div>
-              <span className="feat-n">{f.n}</span>
-              <h3 className="feat-t">{f.t}</h3>
-              <p className="feat-d">{f.d}</p>
-            </article>
+      {/* ── STRIP — four quiet figures */}
+      <section className="ld-strip" aria-label="In brief">
+        <dl className="ld-wrap ld-strip-grid">
+          {STATS.map((s) => (
+            <div key={s.n} className="ld-stat">
+              <dt className="ld-stat-n">{s.n}</dt>
+              <dd className="ld-stat-l">{s.l}</dd>
+            </div>
           ))}
+        </dl>
+      </section>
+
+      {/* ── THE MAP */}
+      <section className="ld-feature" id="map">
+        <div className="ld-wrap ld-feature-grid">
+          <div className="ld-feature-copy">
+            <p className="ld-tag">The map</p>
+            <h2 className="ld-h2">The Lake District in three dimensions.</h2>
+            <p className="ld-p">
+              The whole national park, full screen, with terrain, contour lines
+              and the light of the hour. Every one of the 214 fells is a marker.
+              Your own position is on there too, so you know which summit is the
+              one in front of you.
+            </p>
+            <ul className="ld-list">
+              <li>Tilt and turn the map, or flatten it to 2D</li>
+              <li>Contours close enough to read the ridge</li>
+              <li>Dusk on the map when it is dusk outside</li>
+            </ul>
+          </div>
+          <div className="ld-rail">
+            <PhoneFrame
+              src={SCREENS.zoomed.src}
+              alt={SCREENS.zoomed.alt}
+              caption="Great Gable, up close."
+              sizes={PHONE_SIZES}
+            />
+            <PhoneFrame
+              src={SCREENS.night.src}
+              alt={SCREENS.night.alt}
+              caption="The same fells after dark."
+              sizes={PHONE_SIZES}
+            />
+          </div>
         </div>
       </section>
 
-      {/* ── QUIET CTA — reuses the hero image, darkened, so the page closes
-              on the same mountain it opened on */}
-      <section className="quiet-cta" id="journal">
-        <div className="quiet-cta-bg">
-          <Image
-            src="/hero-slope.png"
-            alt=""
-            className="hero-illu"
-            aria-hidden
-            fill
-            sizes="100vw"
-          />
-          <div className="hero-scrim hero-scrim-strong" aria-hidden />
+      {/* ── BAGGING */}
+      <section className="ld-feature ld-feature--flip" id="bag">
+        <div className="ld-wrap ld-feature-grid">
+          <div className="ld-feature-copy">
+            <p className="ld-tag">Bagging</p>
+            <h2 className="ld-h2">
+              Tap a fell. Fly to it. Bag it with a date.
+            </h2>
+            <p className="ld-p">
+              Each card gives the height, the book and the rank by height. Pick
+              the day you walked it and the marker turns bracken orange. Tapped
+              the wrong one? Mark it as not bagged.
+            </p>
+            <ul className="ld-list">
+              <li>Height in metres and feet</li>
+              <li>The Pictorial Guide book it belongs to</li>
+              <li>Your count of the 214, updated as you go</li>
+            </ul>
+          </div>
+          <div className="ld-rail">
+            <PhoneFrame
+              src={SCREENS.fellCard.src}
+              alt={SCREENS.fellCard.alt}
+              caption="Before: pick the date, bag it."
+              sizes={PHONE_SIZES}
+            />
+            <PhoneFrame
+              src={SCREENS.bagged.src}
+              alt={SCREENS.bagged.alt}
+              caption="After: Skiddaw, done."
+              sizes={PHONE_SIZES}
+            />
+          </div>
         </div>
-        <div className="quiet-cta-inner">
-          <h2 className="quiet-h">
-            Begin the round
-            <br />
-            in your own time.
-          </h2>
-          <p className="quiet-p">
-            Two hundred and fourteen fells. No deadline, no streak, no badge for
-            finishing. Just a journal you keep for as long as you walk.
+      </section>
+
+      {/* ── THE SEVEN BOOKS */}
+      <section className="ld-feature" id="books">
+        <div className="ld-wrap ld-feature-grid">
+          <div className="ld-feature-copy">
+            <p className="ld-tag">Progress</p>
+            <h2 className="ld-h2">Seven books, one round.</h2>
+            <p className="ld-p">
+              Progress counts by each of Wainwright&rsquo;s Pictorial Guides,
+              from the Eastern Fells to the Western. Search all 214 by name, or
+              filter to the ones still to go.
+            </p>
+            <ul className="ld-list">
+              <li>A ring for each book, filling as you walk</li>
+              <li>Search by name, filter by bagged or to go</li>
+              <li>The full list, always a swipe away</li>
+            </ul>
+          </div>
+          <div className="ld-rail ld-rail--one">
+            <PhoneFrame
+              src={SCREENS.books.src}
+              alt={SCREENS.books.alt}
+              caption="The seven books, and the list beneath."
+              sizes={PHONE_SIZES}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── IPHONE AND WEB */}
+      <section className="ld-sync" id="web">
+        <div className="ld-wrap">
+          <div className="ld-sync-head">
+            <p className="ld-tag">iPhone and web</p>
+            <h2 className="ld-h2">Bag it on the hill. Write it up at home.</h2>
+            <p className="ld-p">
+              One account, one round. Whatever you bag on the iPhone is on the
+              web when you get back, and the other way round.
+            </p>
+          </div>
+          <div className="ld-ways">
+            <article className="ld-way">
+              <h3>On your iPhone</h3>
+              <p>
+                A native app built for the phone in your pocket: the 3D map,
+                your location, and bagging with a date.
+              </p>
+              <AppStoreBadge location="home_ways" />
+            </article>
+            <article className="ld-way">
+              <h3>In the browser</h3>
+              <p>
+                Sign in on any computer and the tracker opens on the same round.
+                Nothing to install.
+              </p>
+              {webCta("Open the journal", "home_ways")}
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRICE */}
+      <section className="ld-pricing" id="pricing">
+        <div className="ld-wrap">
+          <div className="ld-pricing-head">
+            <p className="ld-tag">Price</p>
+            <h2 className="ld-h2">
+              Free forever. Pro if you want the journal.
+            </h2>
+          </div>
+          <div className="ld-plans">
+            <article className="ld-plan">
+              <h3 className="ld-plan-name">Free</h3>
+              <p className="ld-plan-price">
+                <strong>£0</strong> for good
+              </p>
+              <ul className="ld-list">
+                {FREE_INCLUDES.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+            <article className="ld-plan ld-plan--pro">
+              <h3 className="ld-plan-name">Pro</h3>
+              <p className="ld-plan-price">
+                <strong>£1.99</strong> a month, or £14.99 a year with a 7-day
+                free trial
+              </p>
+              <ul className="ld-list">
+                {PRO_INCLUDES.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <p className="ld-plan-note">
+                Bought in the App Store. Offline maps coming later.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FIELD NOTES */}
+      <section className="ld-notes" aria-labelledby="ld-notes-h">
+        <div className="ld-wrap">
+          <div className="ld-notes-head">
+            <h2 className="ld-h2 ld-h2--small" id="ld-notes-h">
+              From the field notes
+            </h2>
+            <Link to="/blog" className="ld-notes-all">
+              All field notes
+            </Link>
+          </div>
+          <ul className="ld-notes-list">
+            {NOTES.map((post) => (
+              <li key={post.slug} className="ld-note">
+                <Link to={`/blog/${post.slug}`}>
+                  <span className="ld-note-cat">{post.category}</span>
+                  <h3>{post.title}</h3>
+                  <p>{post.excerpt}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ── CLOSE */}
+      <section className="ld-close">
+        <div className="ld-contours" aria-hidden />
+        <div className="ld-wrap ld-close-inner">
+          <h2 className="ld-close-h">Begin the round in your own time.</h2>
+          <p>
+            Two hundred and fourteen fells. No streaks, no scores, no badge for
+            finishing. Just a map, and a record you keep for as long as you
+            walk.
           </p>
-          {primaryCta("Open the journal", "dark", "home_bottom")}
+          <div className="ld-cta-row ld-cta-row--center">
+            <AppStoreBadge location="home_bottom" />
+            {webCta("Open the journal", "home_bottom", "light")}
+          </div>
         </div>
       </section>
     </SlopeShell>
-  );
-}
-
-/* ── Feature card illustrations ─────────────────────────────────────────
-   Three tiny flat-vector vignettes that hint at the three features:
-   01 — a contour map with a labelled summit pin
-   02 — an open notebook
-   03 — a fan of polaroid photographs
-*/
-function FeatureIllu({ n }: { n: string }) {
-  if (n === "01") {
-    return (
-      <svg viewBox="0 0 120 80" className="f-illu" aria-hidden>
-        <rect x="0" y="0" width="120" height="80" fill="#E8EDDC" />
-        <g stroke="#3E6E54" strokeWidth="0.6" fill="none" opacity="0.7">
-          <path d="M5 60 Q40 30 75 50 T115 40" />
-          <path d="M5 65 Q40 38 75 55 T115 48" />
-          <path d="M5 70 Q40 48 75 62 T115 56" />
-        </g>
-        <circle cx="55" cy="40" r="3" fill="#3E6E54" />
-        <line
-          x1="55"
-          y1="40"
-          x2="55"
-          y2="18"
-          stroke="#3E6E54"
-          strokeWidth="1"
-        />
-        <rect x="55" y="10" width="40" height="10" fill="#3E6E54" />
-        <text
-          x="75"
-          y="17.5"
-          textAnchor="middle"
-          fill="#E8EDDC"
-          fontSize="6"
-          fontFamily="Plus Jakarta Sans, sans-serif"
-          fontWeight="500"
-        >
-          HELVELLYN
-        </text>
-      </svg>
-    );
-  }
-  if (n === "02") {
-    return (
-      <svg viewBox="0 0 120 80" className="f-illu" aria-hidden>
-        <rect x="0" y="0" width="120" height="80" fill="#E8EDDC" />
-        <rect
-          x="20"
-          y="14"
-          width="80"
-          height="52"
-          fill="#FAFAE8"
-          stroke="#3E6E54"
-          strokeWidth="0.8"
-        />
-        <line
-          x1="34"
-          y1="14"
-          x2="34"
-          y2="66"
-          stroke="#3E6E54"
-          strokeWidth="0.5"
-        />
-        {[24, 30, 36, 42, 48, 54].map((y, i) => (
-          <line
-            key={y}
-            x1="40"
-            y1={y}
-            x2={92 - i * 4}
-            y2={y}
-            stroke="#3E6E54"
-            strokeWidth="0.5"
-            opacity="0.5"
-          />
-        ))}
-        <circle cx="86" cy="58" r="4" fill="#3E6E54" />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 120 80" className="f-illu" aria-hidden>
-      <rect x="0" y="0" width="120" height="80" fill="#E8EDDC" />
-      <g>
-        <rect
-          x="14"
-          y="18"
-          width="32"
-          height="40"
-          fill="#FAFAE8"
-          stroke="#3E6E54"
-          strokeWidth="0.8"
-          transform="rotate(-8 30 38)"
-        />
-        <rect
-          x="44"
-          y="22"
-          width="32"
-          height="40"
-          fill="#FAFAE8"
-          stroke="#3E6E54"
-          strokeWidth="0.8"
-          transform="rotate(2 60 42)"
-        />
-        <rect
-          x="74"
-          y="18"
-          width="32"
-          height="40"
-          fill="#FAFAE8"
-          stroke="#3E6E54"
-          strokeWidth="0.8"
-          transform="rotate(7 90 38)"
-        />
-      </g>
-    </svg>
   );
 }
