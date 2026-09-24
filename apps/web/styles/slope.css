@@ -589,7 +589,7 @@
 }
 .design-slope .lp-booklist li {
   display: grid;
-  grid-template-columns: 5.4rem minmax(0, 1fr) auto;
+  grid-template-columns: 6.9rem minmax(0, 1fr) auto;
   gap: 0.75rem;
   align-items: baseline;
   padding: 0.75rem 0.5rem;
@@ -631,7 +631,7 @@
   position: absolute;
   inset: 0;
   background: var(--contour);
-  opacity: 0.5;
+  opacity: 0.62;
   -webkit-mask: url("/landing/lakeland-contours.svg") 0 0 / 100% 100% no-repeat;
   mask: url("/landing/lakeland-contours.svg") 0 0 / 100% 100% no-repeat;
 }
@@ -869,7 +869,7 @@
 /* CLOSE — ends on the fells; the illustration's sky is #c8d1a9 */
 .design-slope .lp-close {
   padding-top: clamp(4.5rem, 10vw, 7rem);
-  background: linear-gradient(180deg, var(--mist) 0%, #c8d1a9 100%);
+  background: linear-gradient(180deg, var(--mist) 0, #c8d1a9 22rem);
   text-align: center;
 }
 .design-slope .lp-close-copy {
@@ -884,7 +884,7 @@
   aspect-ratio: 1672 / 941;
   max-height: 520px;
   width: 100%;
-  margin-top: clamp(-4rem, -4vw, -1rem);
+  margin-top: clamp(1rem, 3vw, 2rem);
 }
 .design-slope .lp-close-art::after {
   content: "";
@@ -945,6 +945,24 @@
 @media (max-width: 639px) {
   .design-slope .fellmap-label {
     display: none;
+  }
+  /* book label above the name, count on the right */
+  .design-slope .lp-booklist li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "n count"
+      "name count";
+    row-gap: 0.15rem;
+    align-items: center;
+  }
+  .design-slope .lp-booklist-n {
+    grid-area: n;
+  }
+  .design-slope .lp-booklist-name {
+    grid-area: name;
+  }
+  .design-slope .lp-booklist-count {
+    grid-area: count;
   }
 }
 @media (max-width: 420px) {

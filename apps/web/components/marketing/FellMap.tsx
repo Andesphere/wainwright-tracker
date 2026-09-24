@@ -17,7 +17,7 @@ const HEIGHT = 914;
 export const BOOKS = [
   { area: "Eastern", word: "One", label: [676, 262] },
   { area: "Far Eastern", word: "Two", label: [838, 352] },
-  { area: "Central", word: "Three", label: [505, 700] },
+  { area: "Central", word: "Three", label: [522, 338] },
   { area: "Southern", word: "Four", label: [400, 858] },
   { area: "Northern", word: "Five", label: [490, 70] },
   { area: "North Western", word: "Six", label: [250, 190] },
