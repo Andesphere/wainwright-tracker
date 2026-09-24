@@ -6,11 +6,14 @@ import SwiftUI
 struct WainwrightsBaggersApp: App {
     @State private var model = AppModel()
     @State private var progress: ProgressStore
+    @State private var pro: ProStore
     @State private var clerkTheme = ClerkTheme(colors: .init(primary: .brand))
 
     init() {
         Clerk.configure(publishableKey: AppConfig.string("ClerkPublishableKey"))
-        _progress = State(initialValue: ProgressStore(deploymentURL: AppConfig.string("ConvexDeploymentURL")))
+        let progress = ProgressStore(deploymentURL: AppConfig.string("ConvexDeploymentURL"))
+        _progress = State(initialValue: progress)
+        _pro = State(initialValue: ProStore(client: progress.client, apiKey: AppConfig.string("RevenueCatAPIKey")))
     }
 
     var body: some Scene {
@@ -18,6 +21,7 @@ struct WainwrightsBaggersApp: App {
             RootView()
                 .environment(model)
                 .environment(progress)
+                .environment(pro)
                 .environment(\.clerkTheme, clerkTheme)
                 .tint(.brand)
                 .prefetchClerkImages()

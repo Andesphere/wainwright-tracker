@@ -11,7 +11,7 @@ settings:
     DEVELOPMENT_TEAM: 29388BLCGA
     CODE_SIGN_STYLE: Automatic
     MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "15"
+    CURRENT_PROJECT_VERSION: "16"
     SWIFT_VERSION: "6.0"
     SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
     SWIFT_APPROACHABLE_CONCURRENCY: YES
@@ -27,6 +27,9 @@ packages:
   ConvexMobile:
     url: https://github.com/get-convex/convex-swift.git
     from: 0.8.1
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios-spm.git
+    from: 5.91.0
 
 targets:
   WainwrightsBaggers:
@@ -37,7 +40,7 @@ targets:
       Release: Config/Secrets.xcconfig
     sources:
       - path: WainwrightsBaggers
-        excludes: [Info.plist]
+        excludes: [Info.plist, WainwrightsBaggers.entitlements]
     dependencies:
       - package: MapboxMaps
       - package: Clerk
@@ -45,6 +48,7 @@ targets:
       - package: Clerk
         product: ClerkKitUI
       - package: ConvexMobile
+      - package: RevenueCat
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wainwrightsbaggers.mobile
@@ -54,6 +58,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: WainwrightsBaggers/Info.plist
+        CODE_SIGN_ENTITLEMENTS: WainwrightsBaggers/WainwrightsBaggers.entitlements
     info:
       path: WainwrightsBaggers/Info.plist
       properties:
@@ -64,6 +69,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
         MBXAccessToken: $(MAPBOX_ACCESS_TOKEN)
         ClerkPublishableKey: $(CLERK_PUBLISHABLE_KEY)
+        RevenueCatAPIKey: $(REVENUECAT_API_KEY)
         ConvexDeploymentURL: https://tame-avocet-977.eu-west-1.convex.cloud
         NSLocationWhenInUseUsageDescription: Shows where you are on the fells map so you can see which Wainwright is nearest.
         UILaunchScreen:
@@ -75,3 +81,15 @@ targets:
         UIRequiresFullScreen: true
         CADisableMinimumFrameDurationOnPhone: true
         UIStatusBarStyle: UIStatusBarStyleDefault
+
+schemes:
+  WainwrightsBaggers:
+    build:
+      targets:
+        WainwrightsBaggers: all
+    run:
+      config: Debug
+      # Local purchases in the Simulator and from Xcode. TestFlight and the App Store use the real products.
+      storeKitConfiguration: Config/WainwrightsBaggers.storekit
+    archive:
+      config: Release

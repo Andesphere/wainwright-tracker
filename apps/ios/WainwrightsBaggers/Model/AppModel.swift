@@ -38,6 +38,12 @@ final class AppModel {
         let id = UUID()
     }
 
+    /// Full-screen Pro screens opened from the sheet.
+    enum Screen: String, Identifiable {
+        case journal, stats
+        var id: String { rawValue }
+    }
+
     private(set) var selectedFellId: String?
     var detent: PresentationDetent = .peek
     var searchText = ""
@@ -47,6 +53,14 @@ final class AppModel {
     var notice: Notice?
     var showsAuth = false
     var showsProfile = false
+    /// The paywall, open on the feature that led there.
+    var paywall: ProFeature?
+    var screen: Screen?
+    var showsLayers = false
+    /// The walker's chosen map layer. Pro layers fall back to Standard without Pro.
+    var mapLayer: MapLayer = MapLayer(rawValue: UserDefaults.standard.string(forKey: "mapLayer") ?? "") ?? .standard {
+        didSet { UserDefaults.standard.set(mapLayer.rawValue, forKey: "mapLayer") }
+    }
 
     var selectedFell: Fell? { selectedFellId.flatMap { FellCatalog.byId[$0] } }
 
@@ -78,4 +92,54 @@ final class AppModel {
     func show(_ message: String, opensSettings: Bool = false) {
         notice = Notice(message: message, opensSettings: opensSettings)
     }
+}
+
+/// What Pro unlocks. The paywall highlights the one the walker tapped.
+enum ProFeature: String, CaseIterable, Identifiable {
+    case journal, albums, layers, stats
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .journal: "Photo journal"
+        case .albums: "Yearly albums"
+        case .layers: "Satellite and contours"
+        case .stats: "Your stats"
+        }
+    }
+
+    var detail: String {
+        switch self {
+        case .journal: "A note and two photos for every fell you bag."
+        case .albums: "Each year on the fells as an album you can print."
+        case .layers: "Satellite imagery and detailed contour lines."
+        case .stats: "Fells per year, every book, your highest and lowest."
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .journal: "photo.on.rectangle.angled"
+        case .albums: "book.closed"
+        case .layers: "square.3.layers.3d"
+        case .stats: "chart.bar.xaxis"
+        }
+    }
+}
+
+enum MapLayer: String, CaseIterable, Identifiable {
+    case standard, satellite, contours
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .standard: "Standard"
+        case .satellite: "Satellite"
+        case .contours: "Contours"
+        }
+    }
+
+    var needsPro: Bool { self != .standard }
 }
