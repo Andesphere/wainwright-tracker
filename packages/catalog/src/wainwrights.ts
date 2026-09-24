@@ -1,6 +1,9 @@
 // Wainwright fell data from thomaswilsonxyz/wainwright-peaks (CC BY 4.0),
 // derived from The Database of British and Irish Hills v17.4 (CC BY 4.0).
 // bookNumber follows wainwrights.info ordering by Alfred Wainwright Pictorial Guide volume.
+// area is the Pictorial Guide book, derived from bookNumber: 1-35 Eastern, 36-71 Far Eastern,
+// 72-98 Central, 99-128 Southern, 129-152 Northern, 153-181 North Western, 182-214 Western.
+// Survey-top suffixes are dropped from names; place qualifiers that tell two fells apart stay.
 
 export type Wainwright = {
   id: string;
@@ -30,10 +33,10 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.466367,
     longitude: -3.179175,
     id: "allen-crags",
-    area: "Western",
+    area: "Southern",
   },
   {
-    name: "Angletarn Pikes (Angletarn Pikes North Top)",
+    name: "Angletarn Pikes",
     bookNumber: 36,
     heightMetres: 567,
     heightFt: 1860,
@@ -86,7 +89,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.526364,
     longitude: -2.938524,
     id: "arnison-crag",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Arthur's Pike",
@@ -100,7 +103,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.578435,
     longitude: -2.835799,
     id: "arthur-s-pike",
-    area: "Eastern",
+    area: "Far Eastern",
   },
   {
     name: "Bakestall",
@@ -128,7 +131,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.65195,
     longitude: -3.031747,
     id: "bannerdale-crags",
-    area: "Eastern",
+    area: "Northern",
   },
   {
     name: "Barf",
@@ -187,7 +190,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "Far Eastern",
   },
   {
-    name: "Beda Fell (Beda Head)",
+    name: "Beda Fell",
     bookNumber: 38,
     heightMetres: 509,
     heightFt: 1670,
@@ -212,7 +215,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.708795,
     longitude: -3.204188,
     id: "binsey",
-    area: "North Western",
+    area: "Northern",
   },
   {
     name: "Birkhouse Moor",
@@ -226,7 +229,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.535042,
     longitude: -2.98532,
     id: "birkhouse-moor",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Birks",
@@ -240,7 +243,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.520702,
     longitude: -2.959051,
     id: "birks",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Black Fell",
@@ -254,7 +257,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.405503,
     longitude: -3.017955,
     id: "black-fell",
-    area: "Far Eastern",
+    area: "Southern",
   },
   {
     name: "Blake Fell",
@@ -268,7 +271,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.564569,
     longitude: -3.377198,
     id: "blake-fell",
-    area: "North Western",
+    area: "Western",
   },
   {
     name: "Blea Rigg",
@@ -296,7 +299,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.56637,
     longitude: -3.106162,
     id: "bleaberry-fell",
-    area: "Northern",
+    area: "Central",
   },
   {
     name: "Blencathra-Hallsfell Top",
@@ -310,7 +313,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.63995,
     longitude: -3.049773,
     id: "blencathra-hallsfell-top",
-    area: "Eastern",
+    area: "Northern",
   },
   {
     name: "Bonscale Pike",
@@ -324,7 +327,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.573028,
     longitude: -2.846919,
     id: "bonscale-pike",
-    area: "Eastern",
+    area: "Far Eastern",
   },
   {
     name: "Bowfell",
@@ -338,7 +341,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.447834,
     longitude: -3.166212,
     id: "bowfell",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Bowscale Fell",
@@ -352,7 +355,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.665538,
     longitude: -3.035037,
     id: "bowscale-fell",
-    area: "Eastern",
+    area: "Northern",
   },
   {
     name: "Brae Fell",
@@ -408,7 +411,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.377283,
     longitude: -3.124197,
     id: "brim-fell",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Brock Crags",
@@ -464,7 +467,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.575943,
     longitude: -3.37834,
     id: "burnbank-fell",
-    area: "North Western",
+    area: "Western",
   },
   {
     name: "Calf Crag",
@@ -506,7 +509,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.693484,
     longitude: -3.02287,
     id: "carrock-fell",
-    area: "Eastern",
+    area: "Northern",
   },
   {
     name: "Castle Crag",
@@ -520,7 +523,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.533181,
     longitude: -3.161612,
     id: "castle-crag",
-    area: "Western",
+    area: "North Western",
   },
   {
     name: "Catbells",
@@ -534,7 +537,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.568316,
     longitude: -3.1707,
     id: "catbells",
-    area: "Northern",
+    area: "North Western",
   },
   {
     name: "Catstye Cam",
@@ -548,7 +551,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.533472,
     longitude: -3.008928,
     id: "catstye-cam",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Causey Pike",
@@ -604,7 +607,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.4226,
     longitude: -3.137582,
     id: "cold-pike",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Crag Fell",
@@ -635,7 +638,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "North Western",
   },
   {
-    name: "Crinkle Crags-Long Top (Second Crinkle)",
+    name: "Crinkle Crags",
     bookNumber: 105,
     heightMetres: 859,
     heightFt: 2818,
@@ -646,7 +649,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.433704,
     longitude: -3.159813,
     id: "crinkle-crags-long-top-second-crinkle",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Dale Head",
@@ -660,7 +663,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.527238,
     longitude: -3.202284,
     id: "dale-head",
-    area: "Western",
+    area: "North Western",
   },
   {
     name: "Dodd (Skiddaw)",
@@ -688,7 +691,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.508693,
     longitude: -3.011175,
     id: "dollywaggon-pike",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Dove Crag",
@@ -702,7 +705,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.4854,
     longitude: -2.96693,
     id: "dove-crag",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Dow Crag",
@@ -716,7 +719,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.3703,
     longitude: -3.136659,
     id: "dow-crag",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Eagle Crag",
@@ -744,7 +747,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.457172,
     longitude: -3.179219,
     id: "esk-pike",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Fairfield",
@@ -758,7 +761,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.497072,
     longitude: -2.991633,
     id: "fairfield",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Fellbarrow-Mosser Fell",
@@ -772,7 +775,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.60582,
     longitude: -3.344699,
     id: "fellbarrow-mosser-fell",
-    area: "North Western",
+    area: "Western",
   },
   {
     name: "Fleetwith Pike",
@@ -814,7 +817,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.552984,
     longitude: -3.366804,
     id: "gavel-fell",
-    area: "North Western",
+    area: "Western",
   },
   {
     name: "Gibson Knott",
@@ -842,7 +845,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.483839,
     longitude: -3.165338,
     id: "glaramara",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Glenridding Dodd",
@@ -856,10 +859,10 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.54947,
     longitude: -2.959246,
     id: "glenridding-dodd",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
-    name: "Gowbarrow Fell (Wainwright summit)",
+    name: "Gowbarrow Fell",
     bookNumber: 10,
     heightMetres: 481.2,
     heightFt: 1579,
@@ -873,7 +876,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "Eastern",
   },
   {
-    name: "Grange Fell (Brund Fell)",
+    name: "Grange Fell",
     bookNumber: 78,
     heightMetres: 416,
     heightFt: 1365,
@@ -968,7 +971,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.398777,
     longitude: -3.124738,
     id: "great-carrs",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Great Cockup",
@@ -1024,7 +1027,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.464949,
     longitude: -3.194532,
     id: "great-end",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Great Gable",
@@ -1066,7 +1069,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.484906,
     longitude: -2.995676,
     id: "great-rigg",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Great Sca Fell",
@@ -1111,7 +1114,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "Western",
   },
   {
-    name: "Grey Crag (Sleddale Fell)",
+    name: "Grey Crag",
     bookNumber: 45,
     heightMetres: 638,
     heightFt: 2093,
@@ -1136,7 +1139,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.39333,
     longitude: -3.14107,
     id: "grey-friar",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Grey Knotts",
@@ -1192,7 +1195,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.570412,
     longitude: -2.878498,
     id: "hallin-fell",
-    area: "Eastern",
+    area: "Far Eastern",
   },
   {
     name: "Hard Knott",
@@ -1234,7 +1237,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.492259,
     longitude: -2.975615,
     id: "hart-crag",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Hart Side",
@@ -1279,7 +1282,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "Far Eastern",
   },
   {
-    name: "Hartsop Above How (Gill Crag-Hartsop Above How)",
+    name: "Hartsop above How",
     bookNumber: 16,
     heightMetres: 581,
     heightFt: 1906,
@@ -1290,7 +1293,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.499595,
     longitude: -2.953939,
     id: "hartsop-above-how-gill-crag-hartsop-above-how",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Hartsop Dodd",
@@ -1346,7 +1349,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.475026,
     longitude: -3.040823,
     id: "helm-crag",
-    area: "Far Eastern",
+    area: "Central",
   },
   {
     name: "Helvellyn",
@@ -1360,7 +1363,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.527001,
     longitude: -3.017514,
     id: "helvellyn",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Hen Comb",
@@ -1374,7 +1377,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.550848,
     longitude: -3.343261,
     id: "hen-comb",
-    area: "North Western",
+    area: "Western",
   },
   {
     name: "Heron Pike (Rydal)",
@@ -1388,7 +1391,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.466063,
     longitude: -2.995126,
     id: "heron-pike-rydal",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "High Crag (Buttermere)",
@@ -1416,7 +1419,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.488614,
     longitude: -2.93769,
     id: "high-hartsop-dodd",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "High Pike (Caldbeck)",
@@ -1444,10 +1447,10 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.470976,
     longitude: -2.966791,
     id: "high-pike-scandale",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
-    name: "High Raise (High Raise (High White Stones))",
+    name: "High Raise (Langdale)",
     bookNumber: 82,
     heightMetres: 762,
     heightFt: 2500,
@@ -1475,7 +1478,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "Far Eastern",
   },
   {
-    name: "High Rigg (Naddle Fell)",
+    name: "High Rigg",
     bookNumber: 83,
     heightMetres: 357,
     heightFt: 1171,
@@ -1486,7 +1489,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.588432,
     longitude: -3.071568,
     id: "high-rigg-naddle-fell",
-    area: "Northern",
+    area: "Central",
   },
   {
     name: "High Seat",
@@ -1500,7 +1503,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.552632,
     longitude: -3.103765,
     id: "high-seat",
-    area: "Northern",
+    area: "Central",
   },
   {
     name: "High Spy",
@@ -1514,7 +1517,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.535559,
     longitude: -3.185141,
     id: "high-spy",
-    area: "Western",
+    area: "North Western",
   },
   {
     name: "High Stile",
@@ -1570,7 +1573,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.537828,
     longitude: -3.213755,
     id: "hindscarth",
-    area: "Western",
+    area: "North Western",
   },
   {
     name: "Holme Fell",
@@ -1584,7 +1587,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.396301,
     longitude: -3.056527,
     id: "holme-fell",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Hopegill Head",
@@ -1626,7 +1629,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.432782,
     longitude: -3.283,
     id: "illgill-head",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Kentmere Pike",
@@ -1752,10 +1755,10 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.462803,
     longitude: -3.2213,
     id: "lingmell",
-    area: "Western",
+    area: "Southern",
   },
   {
-    name: "Lingmoor Fell (Lingmoor Fell-Brown How)",
+    name: "Lingmoor Fell",
     bookNumber: 118,
     heightMetres: 469,
     heightFt: 1539,
@@ -1766,10 +1769,10 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.432067,
     longitude: -3.07641,
     id: "lingmoor-fell-lingmoor-fell-brown-how",
-    area: "Central",
+    area: "Southern",
   },
   {
-    name: "Little Hart Crag (Little Hart Crag-West Top)",
+    name: "Little Hart Crag",
     bookNumber: 21,
     heightMetres: 637,
     heightFt: 2090,
@@ -1780,7 +1783,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.481916,
     longitude: -2.947169,
     id: "little-hart-crag-little-hart-crag-west-top",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Little Mell Fell",
@@ -1808,7 +1811,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.554737,
     longitude: -2.842072,
     id: "loadpot-hill",
-    area: "Eastern",
+    area: "Far Eastern",
   },
   {
     name: "Loft Crag",
@@ -1892,7 +1895,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.437454,
     longitude: -3.008355,
     id: "loughrigg-fell",
-    area: "Far Eastern",
+    area: "Central",
   },
   {
     name: "Low Fell",
@@ -1906,7 +1909,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.591358,
     longitude: -3.336608,
     id: "low-fell",
-    area: "North Western",
+    area: "Western",
   },
   {
     name: "Low Pike",
@@ -1920,7 +1923,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.462069,
     longitude: -2.967985,
     id: "low-pike",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Maiden Moor",
@@ -1965,7 +1968,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "Northern",
   },
   {
-    name: "Mellbreak (Mellbreak South Top)",
+    name: "Mellbreak",
     bookNumber: 205,
     heightMetres: 512,
     heightFt: 1680,
@@ -1976,7 +1979,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.555581,
     longitude: -3.318258,
     id: "mellbreak-mellbreak-south-top",
-    area: "North Western",
+    area: "Western",
   },
   {
     name: "Middle Dodd",
@@ -1990,7 +1993,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.477939,
     longitude: -2.931566,
     id: "middle-dodd",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Middle Fell",
@@ -2032,7 +2035,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.456414,
     longitude: -2.995833,
     id: "nab-scar",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Nethermost Pike",
@@ -2046,7 +2049,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.518993,
     longitude: -3.015446,
     id: "nethermost-pike",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Outerside",
@@ -2088,7 +2091,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.428111,
     longitude: -3.124925,
     id: "pike-of-blisco",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Pike of Stickle",
@@ -2144,7 +2147,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.547718,
     longitude: -3.017473,
     id: "raise",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Rampsgill Head",
@@ -2186,7 +2189,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.559231,
     longitude: -3.07872,
     id: "raven-crag",
-    area: "Northern",
+    area: "Central",
   },
   {
     name: "Red Pike (Buttermere)",
@@ -2228,7 +2231,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.47058,
     longitude: -2.932556,
     id: "red-screes",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Rest Dodd",
@@ -2256,7 +2259,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.540818,
     longitude: -3.235284,
     id: "robinson",
-    area: "Western",
+    area: "North Western",
   },
   {
     name: "Rossett Pike",
@@ -2270,7 +2273,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.457935,
     longitude: -3.159804,
     id: "rossett-pike",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Rosthwaite Fell-Bessyboot",
@@ -2284,7 +2287,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.502198,
     longitude: -3.14685,
     id: "rosthwaite-fell-bessyboot",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Sail",
@@ -2340,7 +2343,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.447498,
     longitude: -3.224731,
     id: "scafell",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Scafell Pike",
@@ -2354,7 +2357,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.454219,
     longitude: -3.211511,
     id: "scafell-pike",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Scar Crags",
@@ -2396,7 +2399,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.494857,
     longitude: -3.014027,
     id: "seat-sandal",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Seatallan",
@@ -2413,7 +2416,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "Western",
   },
   {
-    name: "Seathwaite Fell (Wainwright summit)",
+    name: "Seathwaite Fell",
     bookNumber: 124,
     heightMetres: 601,
     heightFt: 1972,
@@ -2424,7 +2427,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.481131,
     longitude: -3.191438,
     id: "seathwaite-fell-wainwright-summit",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Selside Pike",
@@ -2508,7 +2511,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.450696,
     longitude: -3.04289,
     id: "silver-how",
-    area: "Far Eastern",
+    area: "Central",
   },
   {
     name: "Skiddaw",
@@ -2550,7 +2553,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.434392,
     longitude: -3.219575,
     id: "slight-side",
-    area: "Western",
+    area: "Southern",
   },
   {
     name: "Sour Howes",
@@ -2578,7 +2581,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.653236,
     longitude: -3.001663,
     id: "souther-fell",
-    area: "Eastern",
+    area: "Northern",
   },
   {
     name: "St Sunday Crag",
@@ -2592,7 +2595,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.511949,
     longitude: -2.975867,
     id: "st-sunday-crag",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Starling Dodd",
@@ -2609,7 +2612,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "Western",
   },
   {
-    name: "Steel Fell (Dead Pike-Steel Fell)",
+    name: "Steel Fell",
     bookNumber: 94,
     heightMetres: 553,
     heightFt: 1814,
@@ -2623,7 +2626,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "Central",
   },
   {
-    name: "Steel Knotts (Pikeawassa-Steel Knotts)",
+    name: "Steel Knotts",
     bookNumber: 65,
     heightMetres: 432,
     heightFt: 1417,
@@ -2634,7 +2637,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.555245,
     longitude: -2.866807,
     id: "steel-knotts-pikeawassa-steel-knotts",
-    area: "Eastern",
+    area: "Far Eastern",
   },
   {
     name: "Steeple",
@@ -2662,7 +2665,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.474276,
     longitude: -3.008366,
     id: "stone-arthur",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Stony Cove Pike (Caudale Moor)",
@@ -2704,7 +2707,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.39523,
     longitude: -3.12153,
     id: "swirl-how",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Tarn Crag (Easedale)",
@@ -2774,7 +2777,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.370658,
     longitude: -3.121445,
     id: "the-old-man-of-coniston-coniston-old-man",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Thornthwaite Crag",
@@ -2858,7 +2861,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.581608,
     longitude: -3.120377,
     id: "walla-crag",
-    area: "Northern",
+    area: "Central",
   },
   {
     name: "Wandope",
@@ -2914,7 +2917,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.400488,
     longitude: -3.097981,
     id: "wetherlam",
-    area: "Central",
+    area: "Southern",
   },
   {
     name: "Whin Rigg (Wasdale)",
@@ -2928,10 +2931,10 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.420162,
     longitude: -3.309916,
     id: "whin-rigg-wasdale",
-    area: "Western",
+    area: "Southern",
   },
   {
-    name: "Whinlatter (Brown How-Whinlatter)",
+    name: "Whinlatter",
     bookNumber: 179,
     heightMetres: 517,
     heightFt: 1696,
@@ -2956,7 +2959,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     latitude: 54.540913,
     longitude: -3.025048,
     id: "white-side",
-    area: "Far Eastern",
+    area: "Eastern",
   },
   {
     name: "Whiteless Pike",
@@ -2973,7 +2976,7 @@ export const WAINWRIGHTS: Wainwright[] = [
     area: "North Western",
   },
   {
-    name: "Whiteside (Whiteside West Top)",
+    name: "Whiteside",
     bookNumber: 181,
     heightMetres: 707,
     heightFt: 2320,

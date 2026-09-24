@@ -31,4 +31,20 @@ describe("Wainwright book numbers", () => {
       WAINWRIGHTS.find((peak) => peak.id === "yewbarrow")?.bookNumber,
     ).toBe(214);
   });
+
+  it("files every fell under its Pictorial Guide book", () => {
+    const perBook = (area: string) =>
+      WAINWRIGHTS.filter((peak) => peak.area === area).length;
+
+    expect(perBook("Eastern")).toBe(35);
+    expect(perBook("Far Eastern")).toBe(36);
+    expect(perBook("Central")).toBe(27);
+    expect(perBook("Southern")).toBe(30);
+    expect(perBook("Northern")).toBe(24);
+    expect(perBook("North Western")).toBe(29);
+    expect(perBook("Western")).toBe(33);
+    expect(WAINWRIGHTS.find((peak) => peak.id === "helvellyn")?.area).toBe(
+      "Eastern",
+    );
+  });
 });
