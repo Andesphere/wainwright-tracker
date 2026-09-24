@@ -1,0 +1,77 @@
+name: WainwrightsBaggers
+options:
+  bundleIdPrefix: com.wainwrightsbaggers
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  developmentLanguage: en-GB
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: 29388BLCGA
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "15"
+    SWIFT_VERSION: "6.0"
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+packages:
+  MapboxMaps:
+    url: https://github.com/mapbox/mapbox-maps-ios.git
+    from: 11.31.0
+  Clerk:
+    url: https://github.com/clerk/clerk-ios.git
+    from: 1.5.6
+  ConvexMobile:
+    url: https://github.com/get-convex/convex-swift.git
+    from: 0.8.1
+
+targets:
+  WainwrightsBaggers:
+    type: application
+    platform: iOS
+    configFiles:
+      Debug: Config/Secrets.xcconfig
+      Release: Config/Secrets.xcconfig
+    sources:
+      - path: WainwrightsBaggers
+        excludes: [Info.plist]
+    dependencies:
+      - package: MapboxMaps
+      - package: Clerk
+        product: ClerkKit
+      - package: Clerk
+        product: ClerkKitUI
+      - package: ConvexMobile
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wainwrightsbaggers.mobile
+        PRODUCT_NAME: WainwrightsBaggers
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: WainwrightsBaggers/Info.plist
+    info:
+      path: WainwrightsBaggers/Info.plist
+      properties:
+        CFBundleDisplayName: Wainwrights
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSRequiresIPhoneOS: true
+        ITSAppUsesNonExemptEncryption: false
+        MBXAccessToken: $(MAPBOX_ACCESS_TOKEN)
+        ClerkPublishableKey: $(CLERK_PUBLISHABLE_KEY)
+        ConvexDeploymentURL: https://tame-avocet-977.eu-west-1.convex.cloud
+        NSLocationWhenInUseUsageDescription: Shows where you are on the fells map so you can see which Wainwright is nearest.
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIRequiresFullScreen: true
+        CADisableMinimumFrameDurationOnPhone: true
+        UIStatusBarStyle: UIStatusBarStyleDefault
