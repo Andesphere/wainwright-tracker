@@ -70,4 +70,4 @@ xcodebuild -exportArchive -archivePath build/WainwrightsBaggers.xcarchive \
 
 ## App icon
 
-`scripts/make-icon.py` draws the placeholder icon (needs Pillow). Replace `Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png` with the real one when it exists.
+"Contour summit", chosen on 2026-09-24. `Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png` is the 1024 px master: RGB, no alpha, square corners. The vector is `apps/web/public/icon.svg`; the web's `favicon.svg` is a simplified cut that reads at 16 px.
