@@ -74,7 +74,7 @@ Do not change these unless Jorge asks for a new app or listing.
 
 - App name `Wainwrights Baggers`, bundle ID `com.wainwrightsbaggers.mobile`, App Store Connect app `6771147426`.
 - Apple team ANDESPHERE LTD `29388BLCGA`. Builds are archived and uploaded with the App Store Connect API key (Admin); key paths live in the Matias credentials store, never in this repo.
-- TestFlight internal group `Team (Expo)` sees every build automatically. Latest: 1.0 (15).
+- TestFlight internal group `Team (Expo)` sees every build automatically. Latest: 1.0 (16), the first with Pro.
 - Subscription group `Wainwrights Baggers Pro`: `com.wainwrightsbaggers.pro.yearly` (£14.99, 7-day trial) and `com.wainwrightsbaggers.pro.monthly` (£1.99).
 
 ## Backend and auth

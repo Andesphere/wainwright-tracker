@@ -15,9 +15,9 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 
 | Area | State |
 | --- | --- |
-| iOS app | Native SwiftUI + Mapbox, TestFlight 1.0 (15). Map, location, bagging, live sync, account deletion. No payments yet. |
+| iOS app | Native SwiftUI + Mapbox, TestFlight 1.0 (16). Map, location, bagging, live sync, account deletion, Pro through RevenueCat (paywall, photo journal, albums with PDF, map layers, stats). Real purchases wait for the Paid Apps agreement. |
 | Web app | Live. Old MapLibre map; not yet the iOS look. No payments. |
-| Backend | Convex prod `tame-avocet-977` (EU), recreated 2026-09-24. Server-side merge, account deletion, photo cleanup, Convex tests. |
+| Backend | Convex prod `tame-avocet-977` (EU), recreated 2026-09-24. Server-side merge, account deletion, photo cleanup, Convex tests. Pro entitlements from RevenueCat webhooks; Clerk `user.deleted` cleanup. |
 | Sign-in | Clerk production on web, iOS and Convex prod. Email and password, Google, Apple (configured, not yet in the iOS build). |
 | App Store Connect | App `6771147426`; version 1.0 prepared; subscription group and both plans created, missing review metadata. |
 | Landing | New Fable design chosen and ready in PR #4; merges on launch day. Previews use Clerk Development and Convex dev. |
