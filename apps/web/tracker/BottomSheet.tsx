@@ -76,9 +76,12 @@ export function BottomSheet({
     let v = velocity;
     let last = performance.now();
     const step = (now: number) => {
-      const dt = Math.min(0.032, (now - last) / 1000) / 4;
+      // Integrate the real elapsed time in small fixed steps, so dropped frames catch up.
+      const elapsed = Math.min(0.1, (now - last) / 1000);
       last = now;
-      for (let i = 0; i < 4; i += 1) {
+      const steps = Math.max(1, Math.ceil(elapsed / 0.004));
+      const dt = elapsed / steps;
+      for (let i = 0; i < steps; i += 1) {
         v += (-stiffness * (x - to) - friction * v) * dt;
         x += v * dt;
       }

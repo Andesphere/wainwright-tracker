@@ -61,7 +61,7 @@ const MAP_LAYER_KEY = "wainwright-tracker:v2:map-layer";
 const VALID_IDS = new Set(WAINWRIGHTS.map((fell) => fell.id));
 const PANEL_WIDTH = 420;
 const PANEL_GAP = 16;
-const PEEK = 118;
+const PEEK = 140;
 const CARD = 360;
 
 type ScreenId = "journal" | "stats" | "account";
