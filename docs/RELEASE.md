@@ -20,7 +20,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 | Backend | Convex prod `tame-avocet-977` (EU), recreated 2026-09-24. Server-side merge, account deletion, photo cleanup, Convex tests. |
 | Sign-in | Clerk production on web, iOS and Convex prod. Email and password, Google, Apple (configured, not yet in the iOS build). |
 | App Store Connect | App `6771147426`; version 1.0 prepared; subscription group and both plans created, missing review metadata. |
-| Landing | Old design. Redesign in progress ([#736](https://github.com/JorgeMenaDev/matias/issues/736)). |
+| Landing | New Fable design chosen and ready in PR #4; merges on launch day. Previews use Clerk Development and Convex dev. |
 
 ## Done on 2026-09-24
 
@@ -61,7 +61,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 
 ### 3. Web
 
-- [ ] New landing with the App Store badge and real app screenshots; Jorge picks between the Fable 5.1 and Opus 5.5 designs ([#736](https://github.com/JorgeMenaDev/matias/issues/736)).
+- [ ] New landing: Jorge chose the Fable design on 2026-09-24. [wainwright-tracker#4](https://github.com/Andesphere/wainwright-tracker/pull/4) is ready and merges on App Store launch day ([#736](https://github.com/JorgeMenaDev/matias/issues/736)).
 - [ ] Web tracker matches the iOS experience: Mapbox GL JS with the same style, 3D terrain, contours and lighting, the same sheet, book progress and fell card ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
 - [ ] Pro on the web through RevenueCat Web Billing on Stripe, the same entitlement as iOS ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
 - [ ] AI bulk import: set `AI_GATEWAY_API_KEY` on Convex prod, or remove the feature and its blog mention.
@@ -81,7 +81,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 - [ ] Age rating, support URL (contact page), privacy URL (`/privacy`), marketing URL.
 - [ ] Review notes and demo account.
 - [ ] Submit 1.0 with both subscriptions attached; answer review.
-- [ ] On approval: release, merge the new landing, tag the GitHub release (andes-release skill), update this file.
+- [ ] On approval: release, merge the new landing (PR #4), tag the GitHub release (andes-release skill), update this file.
 
 ### After launch
 
