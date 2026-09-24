@@ -267,7 +267,7 @@ function Group({ children, title }: { children: ReactNode; title?: string }) {
   return (
     <section>
       {title ? (
-        <h3 className="px-4 pb-1.5 text-[13px] font-semibold uppercase tracking-[0.02em] text-[var(--wb-secondary)]">
+        <h3 className="px-4 pb-1.5 text-[13px] font-semibold uppercase! tracking-[0.02em] text-[var(--wb-secondary)]">
           {title}
         </h3>
       ) : null}

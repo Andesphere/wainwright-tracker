@@ -59,7 +59,7 @@ import "./tracker.css";
 const LEGACY_PROGRESS_KEY = "wainwright-tracker:v1:completed";
 const MAP_LAYER_KEY = "wainwright-tracker:v2:map-layer";
 const VALID_IDS = new Set(WAINWRIGHTS.map((fell) => fell.id));
-const PANEL_WIDTH = 400;
+const PANEL_WIDTH = 420;
 const PANEL_GAP = 16;
 const PEEK = 118;
 const CARD = 360;

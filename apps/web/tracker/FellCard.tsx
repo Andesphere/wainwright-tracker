@@ -277,7 +277,7 @@ function JournalSection({
   return (
     <section className="grid gap-2.5" aria-label="Journal">
       <div className="flex items-center justify-between">
-        <h3 className="text-[13px] font-semibold uppercase tracking-[0.02em] text-[var(--wb-secondary)]">
+        <h3 className="text-[13px] font-semibold uppercase! tracking-[0.02em] text-[var(--wb-secondary)]">
           Journal
         </h3>
         {isPro ? (

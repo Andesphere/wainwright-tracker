@@ -346,3 +346,45 @@ html.wb-tracker-root body {
     transition: none;
   }
 }
+
+/* Dialog titles in the tracker use the app's type, not the marketing serif italic. */
+.wb-surface [data-slot="dialog-title"] {
+  font-family: var(--wb-sans);
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.wb-surface [data-slot="dialog-title"].wb-serif {
+  font-family: var(--wb-serif);
+}
+
+/* The shared shadcn pieces (journal editor, albums, people, profile) take the app's palette
+ * and type while the tracker is mounted, instead of the marketing site's. */
+html.wb-tracker-root {
+  --primary: var(--wb-brand);
+  --primary-foreground: #ffffff;
+  --ring: var(--wb-brand);
+  --background: var(--wb-paper);
+  --card: var(--wb-card);
+  --popover: var(--wb-paper);
+  --foreground: var(--wb-label);
+  --card-foreground: var(--wb-label);
+  --popover-foreground: var(--wb-label);
+  --muted-foreground: var(--wb-secondary);
+  --border: var(--wb-separator);
+  --input: var(--wb-separator);
+}
+html.wb-tracker-root .font-display {
+  font-family: var(--wb-serif);
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+html.wb-tracker-root .font-mono {
+  font-family: var(--wb-sans);
+}
+html.wb-tracker-root [data-slot="dialog-content"],
+html.wb-tracker-root [data-slot="sheet-content"],
+html.wb-tracker-root [data-slot="drawer-content"] {
+  font-family: var(--wb-sans);
+}

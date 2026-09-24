@@ -211,7 +211,7 @@ export function BrowseView({
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h3 className="px-4 pb-2 pt-6 text-[13px] font-semibold uppercase tracking-[0.02em] text-[var(--wb-secondary)]">
+    <h3 className="px-4 pb-2 pt-6 text-[13px] font-semibold uppercase! tracking-[0.02em] text-[var(--wb-secondary)]">
       {children}
     </h3>
   );
@@ -317,27 +317,27 @@ function Shortcut({
     <button
       type="button"
       onClick={onClick}
-      className="wb-press flex min-w-0 items-center gap-2.5 rounded-2xl bg-[var(--wb-fill)] p-2.5 text-left hover:bg-[var(--wb-fill-strong)]"
+      className="wb-press flex min-w-0 items-center gap-2 rounded-2xl bg-[var(--wb-fill)] p-2.5 text-left hover:bg-[var(--wb-fill-strong)]"
       aria-label={
         isPro ? `${title}. ${subtitle}` : `${title}, Pro. ${subtitle}`
       }
     >
-      <span className="grid size-[34px] shrink-0 place-items-center rounded-[10px] bg-[color-mix(in_oklab,var(--wb-brand)_14%,transparent)] text-[var(--wb-brand)]">
+      <span className="grid size-8 shrink-0 place-items-center rounded-[10px] bg-[color-mix(in_oklab,var(--wb-brand)_14%,transparent)] text-[var(--wb-brand)]">
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-semibold leading-tight">
+        <span className="flex items-center gap-1.5 text-[15px] font-semibold leading-tight">
           {title}
+          {!isPro ? (
+            <span className="text-[var(--wb-tertiary)]">
+              <LockIcon size={10} />
+            </span>
+          ) : null}
         </span>
-        <span className="block truncate text-xs text-[var(--wb-secondary)]">
+        <span className="block truncate text-[11.5px] text-[var(--wb-secondary)]">
           {subtitle}
         </span>
       </span>
-      {!isPro ? (
-        <span className="text-[var(--wb-tertiary)]">
-          <LockIcon size={11} />
-        </span>
-      ) : null}
     </button>
   );
 }

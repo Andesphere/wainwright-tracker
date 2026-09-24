@@ -40,7 +40,11 @@ export function Screen({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="wb-surface top-auto bottom-0 flex h-[calc(100dvh-2.5rem)] w-full max-w-none translate-y-0 flex-col gap-0 overflow-hidden rounded-b-none rounded-t-[30px] border-0 bg-[var(--wb-paper)] p-0 sm:bottom-auto sm:top-1/2 sm:h-[min(88dvh,56rem)] sm:w-[min(calc(100vw-3rem),46rem)] sm:-translate-y-1/2 sm:rounded-[30px]"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          (event.currentTarget as HTMLElement).focus();
+        }}
+        className="wb-surface top-auto bottom-0 flex outline-none h-[calc(100dvh-2.5rem)] w-full max-w-none translate-y-0 flex-col gap-0 overflow-hidden rounded-b-none rounded-t-[30px] border-0 bg-[var(--wb-paper)] p-0 sm:bottom-auto sm:top-1/2 sm:h-[min(88dvh,56rem)] sm:w-[min(calc(100vw-3rem),46rem)] sm:-translate-y-1/2 sm:rounded-[30px]"
       >
         <div className="flex items-center justify-between px-5 pb-1 pt-4">
           <DialogTitle className="text-[32px] font-bold tracking-[-0.02em]">
