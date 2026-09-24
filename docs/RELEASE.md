@@ -16,7 +16,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 | Area | State |
 | --- | --- |
 | iOS app | Native SwiftUI + Mapbox, TestFlight 1.0 (16). Map, location, bagging, live sync, account deletion, Pro through RevenueCat (paywall, photo journal, albums with PDF, map layers, stats). Real purchases wait for the Paid Apps agreement. |
-| Web app | Live. Old MapLibre map; not yet the iOS look. No payments. |
+| Web app | Live on the old MapLibre map. The iOS-style tracker (Mapbox, sheet, fell card, Pro gating) is ready in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7). No web payments. |
 | Backend | Convex prod `tame-avocet-977` (EU), recreated 2026-09-24. Server-side merge, account deletion, photo cleanup, Convex tests. Pro entitlements from RevenueCat webhooks; Clerk `user.deleted` cleanup. |
 | Sign-in | Clerk production on web, iOS and Convex prod. Email and password, Google, Apple (configured, not yet in the iOS build). |
 | App Store Connect | App `6771147426`; version 1.0 prepared; subscription group and both plans created, missing review metadata. |
@@ -45,7 +45,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 - [ ] Check the Paid Apps agreement, tax and banking are active in App Store Connect > Business.
 - [x] iOS: RevenueCat SDK with the Clerk user ID as app user ID, paywall, restore purchases, manage-subscription link.
 - [x] Convex: RevenueCat webhook into an `entitlements` table, recomputed from RevenueCat API v2; `billing.mine`, `billing.refresh`. Proven on prod with a dashboard test event and a Test Store purchase.
-- [ ] Convex: Pro-only operations checked on the server (`requirePro` is ready; wire it with web gating in [#733](https://github.com/JorgeMenaDev/matias/issues/733) so web users are not cut off).
+- [ ] Convex: Pro-only operations checked on the server. Wired and on Convex dev in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7); deploy to prod together with that web merge ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
 - [x] Pro features on iOS: photo journal, albums with PDF print export, extra map layers, stats.
 - [ ] Sandbox and TestFlight tests: buy, trial, restore, cancel, expiry, refund, switch account. Simulator runs pass on RevenueCat's Test Store (`ProFlowUITests`); real sandbox purchases wait for the Paid Apps agreement.
 - [ ] Review screenshot of the paywall and review notes on both plans (both show `MISSING_METADATA` now).
@@ -63,10 +63,10 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 ### 3. Web
 
 - [ ] New landing: Jorge chose the Fable design on 2026-09-24. [wainwright-tracker#4](https://github.com/Andesphere/wainwright-tracker/pull/4) is ready and merges on App Store launch day ([#736](https://github.com/JorgeMenaDev/matias/issues/736)).
-- [ ] Web tracker matches the iOS experience: Mapbox GL JS with the same style, 3D terrain, contours and lighting, the same sheet, book progress and fell card ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
+- [ ] Web tracker matches the iOS experience: Mapbox GL JS with the same style, 3D terrain, contours and lighting, the same sheet, book progress and fell card ([#733](https://github.com/JorgeMenaDev/matias/issues/733)). Built in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7); map screenshots wait for the Mapbox account (paused until a card is added).
 - [ ] Pro on the web through RevenueCat Web Billing on Stripe, the same entitlement as iOS ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
 - [ ] AI bulk import: set `AI_GATEWAY_API_KEY` on Convex prod, or remove the feature and its blog mention.
-- [ ] Fix the two typecheck errors in `apps/web/components/ui/badge.tsx` and `button.tsx`.
+- [x] Fix the two typecheck errors in `apps/web/components/ui/badge.tsx` and `button.tsx` (no longer reproduce; `tsc` is clean on both configs, checked 2026-09-24).
 
 ### 4. Sign-in and data hygiene
 
