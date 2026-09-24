@@ -6,6 +6,7 @@ import SwiftUI
 struct FellMapView: View {
     @Environment(AppModel.self) private var model
     @Environment(ProgressStore.self) private var progress
+    @Environment(ProStore.self) private var pro
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var viewport = Self.launchViewport
@@ -26,17 +27,19 @@ struct FellMapView: View {
     var body: some View {
         let isDark = lightPreset == .night || lightPreset == .dusk
         let selected = model.selectedFell
+        let layer = pro.isPro ? model.mapLayer : .standard
 
         GeometryReader { geometry in
             MapReader { proxy in
                 ZStack(alignment: .topTrailing) {
                     Map(viewport: $viewport) {
-                        ReliefLayers(isDark: isDark)
+                        ReliefLayers(isDark: isDark, layer: layer)
                         FellLayers(
                             features: featureCache.collection(bagged: progress.baggedIds),
                             selectedId: selected?.id,
                             book: model.bookFilter,
-                            isDark: isDark
+                            // Light labels read better over imagery.
+                            isDark: isDark || layer == .satellite
                         )
 
                         if location.isAuthorized {
@@ -64,17 +67,26 @@ struct FellMapView: View {
                         }
                         TapInteraction { _ in
                             model.clearSelection()
+                            model.showsLayers = false
                             return false
                         }
                     }
-                    .mapStyle(.standard(
-                        theme: .faded,
-                        lightPreset: lightPreset,
-                        showPointOfInterestLabels: false,
-                        showTransitLabels: false,
-                        showRoadLabels: false,
-                        showAdminBoundaries: false
-                    ))
+                    .mapStyle(layer == .satellite
+                        ? .standardSatellite(
+                            lightPreset: lightPreset,
+                            showPointOfInterestLabels: false,
+                            showTransitLabels: false,
+                            showRoadLabels: false,
+                            showAdminBoundaries: false
+                        )
+                        : .standard(
+                            theme: .faded,
+                            lightPreset: lightPreset,
+                            showPointOfInterestLabels: false,
+                            showTransitLabels: false,
+                            showRoadLabels: false,
+                            showAdminBoundaries: false
+                        ))
                     .ornamentOptions(OrnamentOptions(
                         scaleBar: ScaleBarViewOptions(visibility: .hidden),
                         compass: CompassViewOptions(visibility: .hidden),
@@ -97,13 +109,22 @@ struct FellMapView: View {
                     .ignoresSafeArea(edges: .top)
                     .allowsHitTesting(false)
 
-                    MapControls(
-                        heading: heading,
-                        locateSymbol: locateSymbol,
-                        toggle3D: { toggle3D(proxy) },
-                        locate: { locate(proxy) },
-                        resetNorth: { move(.camera(bearing: 0)) }
-                    )
+                    HStack(alignment: .top, spacing: 10) {
+                        if model.showsLayers {
+                            MapLayerPanel()
+                                .transition(.scale(scale: 0.85, anchor: .topTrailing).combined(with: .opacity))
+                        }
+                        MapControls(
+                            heading: heading,
+                            locateSymbol: locateSymbol,
+                            showsLayers: model.showsLayers,
+                            toggle3D: { toggle3D(proxy) },
+                            locate: { locate(proxy) },
+                            toggleLayers: { model.showsLayers.toggle() },
+                            resetNorth: { move(.camera(bearing: 0)) }
+                        )
+                    }
+                    .animation(.spring(duration: 0.35, bounce: 0.2), value: model.showsLayers)
                     .padding(.trailing, 12)
                     .padding(.top, 4)
                 }

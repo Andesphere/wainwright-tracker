@@ -2,6 +2,18 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  // Pro access per Clerk user, recomputed from RevenueCat (see billing.ts).
+  entitlements: defineTable({
+    expiresAt: v.optional(v.number()),
+    periodType: v.optional(v.string()),
+    pro: v.boolean(),
+    productId: v.optional(v.string()),
+    store: v.optional(v.string()),
+    updatedAt: v.number(),
+    userId: v.string(),
+    willRenew: v.optional(v.boolean()),
+  }).index("by_user", ["userId"]),
+
   follows: defineTable({
     createdAt: v.number(),
     followerUserId: v.string(),

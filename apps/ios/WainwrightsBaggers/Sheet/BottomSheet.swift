@@ -7,6 +7,7 @@ import SwiftUI
 struct BottomSheet: View {
     @Environment(AppModel.self) private var model
     @Environment(ProgressStore.self) private var progress
+    @Environment(ProStore.self) private var pro
     @Environment(Clerk.self) private var clerk
 
     var body: some View {
@@ -33,7 +34,32 @@ struct BottomSheet: View {
         .sheet(isPresented: $model.showsProfile) {
             AccountSheet()
                 .environment(clerk)
+                .environment(model)
                 .environment(progress)
+                .environment(pro)
+        }
+        .sheet(item: $model.paywall) { feature in
+            PaywallView(highlight: feature)
+                .environment(clerk)
+                .environment(pro)
+        }
+        .sheet(item: $model.screen) { screen in
+            NavigationStack {
+                Group {
+                    switch screen {
+                    case .journal: JournalView()
+                    case .stats: StatsView()
+                    }
+                }
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { model.screen = nil }
+                    }
+                }
+            }
+            .environment(model)
+            .environment(progress)
+            .environment(pro)
         }
     }
 }

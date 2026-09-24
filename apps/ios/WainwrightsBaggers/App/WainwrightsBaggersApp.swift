@@ -6,11 +6,14 @@ import SwiftUI
 struct WainwrightsBaggersApp: App {
     @State private var model = AppModel()
     @State private var progress: ProgressStore
+    @State private var pro: ProStore
     @State private var clerkTheme = ClerkTheme(colors: .init(primary: .brand))
 
     init() {
         Clerk.configure(publishableKey: AppConfig.string("ClerkPublishableKey"))
-        _progress = State(initialValue: ProgressStore(deploymentURL: AppConfig.string("ConvexDeploymentURL")))
+        let progress = ProgressStore(deploymentURL: AppConfig.string("ConvexDeploymentURL"))
+        _progress = State(initialValue: progress)
+        _pro = State(initialValue: ProStore(client: progress.client, apiKey: Self.revenueCatKey))
     }
 
     var body: some Scene {
@@ -18,11 +21,25 @@ struct WainwrightsBaggersApp: App {
             RootView()
                 .environment(model)
                 .environment(progress)
+                .environment(pro)
                 .environment(\.clerkTheme, clerkTheme)
                 .tint(.brand)
                 .prefetchClerkImages()
                 .environment(Clerk.shared)
         }
+    }
+}
+
+extension WainwrightsBaggersApp {
+    /// The App Store key. Debug builds take RevenueCat's Test Store key from the launch environment
+    /// instead, so UI tests can buy Pro in the Simulator without StoreKit (see the UI tests).
+    static var revenueCatKey: String {
+        #if DEBUG
+        if let testStore = ProcessInfo.processInfo.environment["REVENUECAT_TEST_STORE_KEY"], testStore.hasPrefix("test_") {
+            return testStore
+        }
+        #endif
+        return AppConfig.string("RevenueCatAPIKey")
     }
 }
 

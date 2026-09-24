@@ -4,6 +4,7 @@ import SwiftUI
 struct RootView: View {
     @Environment(AppModel.self) private var model
     @Environment(ProgressStore.self) private var progress
+    @Environment(ProStore.self) private var pro
     @Environment(Clerk.self) private var clerk
     @Environment(\.scenePhase) private var scenePhase
 
@@ -20,11 +21,16 @@ struct RootView: View {
                     .interactiveDismissDisabled()
                     .environment(model)
                     .environment(progress)
+                    .environment(pro)
                     .environment(clerk)
             }
             .task(id: sessionKey) {
                 guard let sessionKey else { return }
-                await progress.sessionChanged(active: sessionKey != "signed-out")
+                let active = sessionKey != "signed-out"
+                // RevenueCat's app user ID is the Clerk user ID, so Pro follows the account.
+                async let convex: Void = progress.sessionChanged(active: active)
+                async let revenueCat: Void = pro.sessionChanged(userId: active ? clerk.user?.id : nil)
+                _ = await (convex, revenueCat)
             }
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active { Task { await progress.reconnectIfNeeded() } }

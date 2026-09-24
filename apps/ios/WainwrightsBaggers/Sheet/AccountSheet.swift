@@ -1,7 +1,7 @@
 import ClerkKit
 import SwiftUI
 
-/// Who is signed in, sign out, and delete account.
+/// Who is signed in, Pro, sign out, and delete account.
 ///
 /// Deleting clears the walker's data in Convex first (`account:deleteMyData`), then the
 /// Clerk user, the same order as the web: once the Clerk user is gone the app can no longer
@@ -10,11 +10,15 @@ import SwiftUI
 struct AccountSheet: View {
     @Environment(Clerk.self) private var clerk
     @Environment(ProgressStore.self) private var progress
+    @Environment(ProStore.self) private var pro
     @Environment(\.dismiss) private var dismiss
 
     @State private var confirmingDelete = false
     @State private var working = false
+    @State private var restoring = false
+    @State private var showsPaywall = false
     @State private var failure: String?
+    @State private var restoreMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -46,6 +50,8 @@ struct AccountSheet: View {
                     LabeledContent("Fells bagged", value: "\(progress.baggedCount) of \(FellCatalog.all.count)")
                 }
 
+                proSection
+
                 Section {
                     Button("Sign out") {
                         Task { await run { try await clerk.auth.signOut() } }
@@ -56,7 +62,7 @@ struct AccountSheet: View {
                 Section {
                     Button("Delete account", role: .destructive) { confirmingDelete = true }
                 } footer: {
-                    Text("Removes your fells, notes, photos and profile everywhere, then your sign-in.")
+                    Text(deleteFooter)
                 }
             }
             .navigationTitle("Account")
@@ -80,20 +86,122 @@ struct AccountSheet: View {
                     }
                 }
             } message: {
-                Text("This cannot be undone.")
+                Text(pro.isPro ? "This cannot be undone. Your App Store subscription keeps running until you cancel it." : "This cannot be undone.")
             }
             .alert("Something went wrong", isPresented: .constant(failure != nil)) {
                 Button("OK") { failure = nil }
             } message: {
                 Text(failure ?? "")
             }
+            .alert("Restore Purchases", isPresented: .constant(restoreMessage != nil)) {
+                Button("OK") { restoreMessage = nil }
+            } message: {
+                Text(restoreMessage ?? "")
+            }
+            .sheet(isPresented: $showsPaywall) {
+                PaywallView(highlight: nil)
+                    .environment(clerk)
+                    .environment(pro)
+            }
         }
         .presentationDetents([.medium, .large])
+    }
+
+    @ViewBuilder
+    private var proSection: some View {
+        Section {
+            if pro.isPro {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.title2)
+                        .foregroundStyle(Color.bagged)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(pro.planName.map { "Pro · \($0)" } ?? "Pro")
+                            .font(.headline)
+                        if let renewal = pro.renewalLine {
+                            Text(renewal)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .padding(.vertical, 2)
+                .accessibilityElement(children: .combine)
+
+                NavigationLink {
+                    JournalView()
+                } label: {
+                    Label("Journal", systemImage: "book.closed")
+                }
+                NavigationLink {
+                    StatsView()
+                } label: {
+                    Label("Stats", systemImage: "chart.bar.xaxis")
+                }
+                Button("Manage Subscription") {
+                    Task { await pro.showManageSubscriptions() }
+                }
+                .foregroundStyle(Color.brand)
+            } else {
+                Button {
+                    showsPaywall = true
+                } label: {
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Upgrade to Pro")
+                                .font(.headline)
+                                .foregroundStyle(.primary)
+                            Text("Photo journal, albums, map layers and stats")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer(minLength: 8)
+                        ProBadge()
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+
+            Button {
+                restore()
+            } label: {
+                HStack {
+                    Text("Restore Purchases")
+                    Spacer()
+                    if restoring { ProgressView() }
+                }
+            }
+            .foregroundStyle(Color.brand)
+            .disabled(restoring)
+        } header: {
+            Text("Wainwrights Baggers Pro")
+        }
+    }
+
+    private var deleteFooter: String {
+        let base = "Removes your fells, notes, photos and profile everywhere, then your sign-in."
+        return pro.isPro
+            ? base + " It does not cancel your App Store subscription: cancel it in Manage Subscription first."
+            : base
     }
 
     private var name: String {
         let parts = [clerk.user?.firstName, clerk.user?.lastName].compactMap { $0 }.filter { !$0.isEmpty }
         return parts.isEmpty ? "Signed in" : parts.joined(separator: " ")
+    }
+
+    private func restore() {
+        restoring = true
+        Task {
+            defer { restoring = false }
+            do {
+                restoreMessage = try await pro.restore()
+                    ? "Pro is active on this account."
+                    : "This Apple ID has no active Wainwrights Baggers Pro subscription."
+            } catch {
+                restoreMessage = error.localizedDescription
+            }
+        }
     }
 
     private func run(_ action: () async throws -> Void) async {

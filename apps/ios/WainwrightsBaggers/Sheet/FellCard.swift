@@ -1,12 +1,13 @@
 import SwiftUI
 
-/// The sheet when a fell is selected: name, height, book, and Bag it.
+/// The sheet when a fell is selected: name, height, book, and Bag it. Once bagged, the journal.
 struct FellCard: View {
     let fell: Fell
 
     @Environment(AppModel.self) private var model
     @Environment(ProgressStore.self) private var progress
     @State private var date = Date.now
+    @State private var confirmingUnbag = false
 
     private static let heightRank: [String: Int] = Dictionary(
         uniqueKeysWithValues: FellCatalog.all
@@ -43,6 +44,7 @@ struct FellCard: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Close")
+                    .accessibilityIdentifier("card.close")
                 }
 
                 HStack(spacing: 10) {
@@ -114,12 +116,28 @@ struct FellCard: View {
             .background(Color.bagged.opacity(0.16), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .accessibilityElement(children: .combine)
 
+            JournalSection(fell: fell)
+                .padding(.top, 6)
+
             Button("Mark as not bagged") {
-                Task { await progress.setBagged(fell, false) }
+                let entry = progress.entry(for: fell)
+                if entry?.hasNote == true || entry?.photoList.isEmpty == false {
+                    confirmingUnbag = true
+                } else {
+                    Task { await progress.setBagged(fell, false) }
+                }
             }
             .font(.footnote)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity)
+            .padding(.top, 4)
+            .confirmationDialog("Mark \(fell.name) as not bagged?", isPresented: $confirmingUnbag, titleVisibility: .visible) {
+                Button("Remove bag, note and photos", role: .destructive) {
+                    Task { await progress.setBagged(fell, false) }
+                }
+            } message: {
+                Text("Its journal note and photos are deleted too.")
+            }
         }
     }
 
