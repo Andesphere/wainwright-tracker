@@ -20,8 +20,9 @@ export function SlopeFooter({ signedIn = false }: SlopeFooterProps) {
   return (
     <footer className="slope-footer">
       <div className="slope-footer-l">
-        <Link to="/" className="slope-brand" aria-label="Home">
+        <Link to="/" className="slope-brand">
           <SlopeMark />
+          <span className="slope-wordmark">Wainwrights Baggers</span>
         </Link>
         <p>
           A quiet companion for the long Wainwright round. Kept simple, kept
