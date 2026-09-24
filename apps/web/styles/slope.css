@@ -15,6 +15,14 @@
   --quiet: #6b8478;
   --gold: #f3ebc9;
   --line: rgba(62, 110, 84, 0.18);
+  /* from the iOS app (apps/ios/.../Theme.swift and its map) */
+  --mint: #e6efe0;
+  --mist: #f3f7ef;
+  --body: #2c4636;
+  --bracken: #e3a23b;
+  --contour: #8a6e4b;
+  --serif: var(--font-newsreader), Georgia, serif;
+  --nav-h: 4.5rem;
 
   min-height: 100vh;
   display: flex;
@@ -52,6 +60,12 @@
 .design-slope .slope-mark {
   width: 24px;
   height: 24px;
+}
+.design-slope .slope-wordmark {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 .design-slope .slope-nav-links {
   display: flex;
@@ -95,27 +109,38 @@
   transition: all 0.4s ease;
 }
 
-/* Nav variant: HERO — sits over a dark hero image */
+/* Nav variant: HERO — sticky frosted glass over the landing */
+.design-slope .slope-nav[data-variant="hero"] {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: var(--nav-h);
+  padding-block: 0.75rem;
+  background: rgba(243, 247, 239, 0.72);
+  border-bottom: 1px solid rgba(62, 110, 84, 0.12);
+  -webkit-backdrop-filter: saturate(1.4) blur(18px);
+  backdrop-filter: saturate(1.4) blur(18px);
+}
 .design-slope .slope-nav[data-variant="hero"] .slope-brand {
-  color: var(--cream);
+  color: var(--pine);
 }
 .design-slope .slope-nav[data-variant="hero"] .slope-nav-links {
-  color: rgba(250, 250, 232, 0.85);
+  color: var(--moss);
 }
 .design-slope .slope-nav[data-variant="hero"] .slope-nav-links a {
   color: inherit;
 }
 .design-slope .slope-nav[data-variant="hero"] .slope-nav-links a:hover {
-  color: var(--cream);
+  color: var(--pine);
 }
 .design-slope .slope-nav[data-variant="hero"] .slope-nav-cta {
-  color: var(--cream);
-  border-color: rgba(250, 250, 232, 0.5);
+  color: var(--pine);
+  border-color: var(--moss);
 }
 .design-slope .slope-nav[data-variant="hero"] .slope-nav-cta:hover {
-  background: var(--cream);
-  color: var(--pine);
-  border-color: var(--cream);
+  background: var(--pine);
+  color: var(--cream);
+  border-color: var(--pine);
 }
 
 /* Nav variant: SOLID — sits on a plain background */
@@ -197,273 +222,743 @@
   width: 26px;
 }
 
-/* ── HERO (landing) ─────────────────────────────────────────────────── */
-.design-slope .hero {
-  position: relative;
-  min-height: 100vh;
-  overflow: hidden;
+/* ── LANDING ("/") ──────────────────────────────────────────────────
+   The iPhone app's look: pale map ground, frosted sheets, serif titles,
+   bracken for bagged. Contour art is one mask (lakeland-contours.svg,
+   drawn from the heights of the 214 fells), tinted per section.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.design-slope) {
+    scroll-behavior: smooth;
+  }
+}
+.design-slope section[id] {
+  scroll-margin-top: var(--nav-h);
+}
+.design-slope :is(a, button, summary):focus-visible {
+  outline: 2px solid var(--pine);
+  outline-offset: 3px;
+}
+.design-slope :is(.lp-web, .lp-plan-pro, .slope-footer) :focus-visible {
+  outline-color: var(--cream);
+}
+
+.design-slope .lp-wrap {
+  width: min(100% - 2.5rem, 1160px);
+  margin-inline: auto;
+}
+
+/* type */
+.design-slope .lp-h1,
+.design-slope .lp-h2,
+.design-slope .lp-h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.design-slope .lp-h1 {
+  font-size: clamp(2.6rem, 1.5rem + 4.2vw, 4.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+}
+.design-slope .lp-h2 {
+  font-size: clamp(2.1rem, 1.5rem + 2.4vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.design-slope .lp-h3 {
+  font-size: clamp(1.75rem, 1.45rem + 1vw, 2.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.9rem;
+}
+.design-slope .lp-eyebrow {
+  margin: 0 0 1rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+.design-slope .lp-lede {
+  max-width: 34rem;
+  margin: 1.4rem 0 2rem;
+  font-size: clamp(1.08rem, 1rem + 0.35vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--body);
+}
+.design-slope .lp-sub,
+.design-slope .lp-chapter-copy p,
+.design-slope .lp-books-copy > p,
+.design-slope .lp-web-copy p,
+.design-slope .lp-close-copy p,
+.design-slope .lp-faq p {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--body);
+}
+.design-slope .lp-sub {
+  margin: 1.1rem 0 0;
+  font-size: clamp(1.06rem, 1rem + 0.25vw, 1.175rem);
+}
+.design-slope .lp-head {
+  max-width: 44rem;
+}
+.design-slope .lp-head-center {
+  margin-inline: auto;
+  text-align: center;
+}
+
+/* actions */
+.design-slope .lp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+}
+.design-slope .lp-actions-center {
+  justify-content: center;
+}
+.design-slope .appstore-badge {
+  display: inline-flex;
+  border-radius: 9px;
+}
+.design-slope .appstore-badge img {
+  display: block;
+  width: auto;
+  height: 48px;
+}
+.design-slope .lp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  padding: 0 1.35rem;
+  border: 1px solid var(--moss);
+  border-radius: 999px;
+  background: var(--moss);
+  color: var(--cream);
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+.design-slope .lp-btn:hover {
+  background: var(--pine);
+  border-color: var(--pine);
+}
+.design-slope .lp-btn-light {
+  background: var(--cream);
+  border-color: var(--cream);
+  color: var(--pine);
+}
+.design-slope .lp-btn-light:hover {
+  background: transparent;
+  border-color: var(--cream);
   color: var(--cream);
 }
-.design-slope .hero-illu {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: 0;
-  object-fit: cover;
-  object-position: center bottom;
+.design-slope .lp-btn:hover .btn-arr {
+  width: 24px;
 }
-.design-slope .hero-scrim {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(20, 46, 34, 0.55) 0%,
-    rgba(20, 46, 34, 0.4) 22%,
-    rgba(20, 46, 34, 0.18) 42%,
-    rgba(20, 46, 34, 0.04) 60%,
-    transparent 78%
-  );
+.design-slope .lp-note {
+  margin: 1.1rem 0 0;
+  font-size: 0.92rem;
+  color: var(--moss);
 }
-.design-slope .hero-scrim-strong {
-  background: linear-gradient(
-    180deg,
-    rgba(20, 46, 34, 0.65) 0%,
-    rgba(20, 46, 34, 0.45) 50%,
-    rgba(20, 46, 34, 0.65) 100%
-  );
+
+/* tick list: the app's "Bag it" check */
+.design-slope .lp-ticks {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
 }
-.design-slope .hero-text {
+.design-slope .lp-ticks li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.design-slope .lp-ticks li::before {
+  content: "";
+  flex: none;
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.05rem;
+  border-radius: 50%;
+  background: var(--moss)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.4l2.6 2.6L12 5.4' fill='none' stroke='%23fafae8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 72% no-repeat;
+}
+
+/* iPhone frame around a real screenshot (402×874 pt screen) */
+.design-slope .phone {
   position: relative;
-  z-index: 5;
-  text-align: center;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 6vh 4vw 4vh;
-  animation: slope-fade 1.2s ease both;
+  padding: 2.6%;
+  border-radius: 15.5% / 7.2%;
+  background: linear-gradient(
+    150deg,
+    #48524c 0%,
+    #121815 18%,
+    #0c110e 82%,
+    #3b443e 100%
+  );
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.14),
+    0 2px 4px rgba(17, 35, 24, 0.18),
+    0 30px 60px -20px rgba(17, 35, 24, 0.38),
+    0 70px 110px -50px rgba(17, 35, 24, 0.4);
 }
-@keyframes slope-fade {
+.design-slope .phone-screen {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 13.7% / 6.3%;
+  background: var(--mint);
+}
+.design-slope .phone-island {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 29%;
+  aspect-ratio: 125 / 37;
+  margin-top: 5.2%;
+  border-radius: 999px;
+  background: #050807;
+  transform: translateX(-50%);
+}
+
+/* HERO */
+.design-slope .lp-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: calc(-1 * var(--nav-h));
+  padding: calc(var(--nav-h) + clamp(2.5rem, 6vw, 5rem)) 0
+    clamp(3.5rem, 8vw, 6.5rem);
+  background:
+    radial-gradient(
+      90% 70% at 85% 20%,
+      rgba(250, 252, 247, 0.9),
+      transparent 70%
+    ),
+    linear-gradient(180deg, var(--mint) 0%, #dfeada 100%);
+}
+.design-slope .lp-hero::before,
+.design-slope .lp-web::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  -webkit-mask: url("/landing/lakeland-contours.svg") center / cover no-repeat;
+  mask: url("/landing/lakeland-contours.svg") center / cover no-repeat;
+}
+.design-slope .lp-hero::before {
+  inset: -4% -6% -4% 18%;
+  background: var(--contour);
+  opacity: 0.38;
+}
+/* calm the lines behind the words, and let them fade into the next section */
+.design-slope .lp-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(223, 234, 218, 0) 70%, #dfeada 100%),
+    linear-gradient(
+      90deg,
+      var(--mint) 0%,
+      rgba(230, 239, 224, 0.85) 30%,
+      rgba(230, 239, 224, 0) 62%
+    );
+}
+.design-slope .lp-hero-grid {
+  display: grid;
+  gap: 3.25rem;
+  align-items: center;
+}
+.design-slope .lp-hero-phone .phone {
+  width: min(250px, 66vw);
+  margin-inline: auto;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .design-slope .lp-hero-copy {
+    animation: lp-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .design-slope .lp-hero-phone {
+    animation: lp-rise 1.1s 0.12s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+@keyframes lp-rise {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(18px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
-.design-slope .kicker {
-  font-size: 0.92rem;
-  letter-spacing: 0.02em;
-  color: rgba(250, 250, 232, 0.78);
-  margin: 0 0 1.4rem;
-  font-weight: 400;
+
+/* THE APP */
+.design-slope .lp-app {
+  padding: clamp(4.5rem, 10vw, 8rem) 0;
+  background: linear-gradient(180deg, #dfeada 0%, var(--mist) 100%);
 }
-.design-slope .hero-h {
-  font-family: var(--font-bricolage), sans-serif;
-  font-weight: 600;
-  font-variation-settings: "opsz" 96;
-  font-size: clamp(3rem, 7.4vw, 6.6rem);
-  line-height: 0.96;
-  letter-spacing: -0.035em;
-  color: var(--cream);
-  margin: 0 0 1.8rem;
-  text-shadow: 0 2px 24px rgba(20, 46, 34, 0.35);
-}
-.design-slope .hero-h em {
-  font-style: italic;
-  font-weight: 300;
-  color: var(--gold);
-}
-.design-slope .hero-lede {
-  max-width: 56ch;
-  margin: 0 auto 2.4rem;
-  font-size: 1.12rem;
-  line-height: 1.6;
-  color: rgba(250, 250, 232, 0.88);
-  text-shadow: 0 1px 12px rgba(20, 46, 34, 0.4);
-}
-.design-slope .hero-cta {
-  display: inline-flex;
+.design-slope .lp-chapter {
+  display: grid;
+  gap: 2.5rem;
   align-items: center;
-  gap: 1.4rem;
-  flex-wrap: wrap;
-  justify-content: center;
+  margin-top: clamp(3rem, 8vw, 6rem);
 }
-.design-slope .hero-aside {
-  font-style: italic;
-  color: rgba(250, 250, 232, 0.7);
+.design-slope .lp-duo {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  width: 100%;
+  max-width: 500px;
+  margin-inline: auto;
+}
+.design-slope .lp-duo > .phone:first-child {
+  grid-area: 1 / 1 / 2 / 8;
+  z-index: 2;
+}
+.design-slope .lp-duo > .phone:last-child {
+  grid-area: 1 / 6 / 2 / 13;
+  margin-top: 18%;
+  z-index: 1;
+}
+.design-slope .lp-solo .phone {
+  width: min(290px, 66vw);
+  margin-inline: auto;
+}
+.design-slope .lp-chapter-copy {
+  padding: clamp(1.6rem, 3.5vw, 2.6rem);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 28px;
+  background: rgba(250, 252, 247, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 24px 48px -30px rgba(17, 35, 24, 0.3);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.design-slope .lp-chapter-copy p {
+  margin: 0;
+}
+
+/* THE SEVEN BOOKS */
+.design-slope .lp-books {
+  padding: clamp(4.5rem, 10vw, 8rem) 0;
+  background: var(--mist);
+}
+.design-slope .lp-books-grid {
+  display: grid;
+  gap: 2.5rem;
+}
+.design-slope .lp-books-copy > p {
+  max-width: 34rem;
+  margin: 1.1rem 0 0;
+}
+.design-slope .lp-books-copy > .lp-hint {
+  display: none;
   font-size: 0.92rem;
-}
-
-/* ── NUMBERS BAR ────────────────────────────────────────────────────── */
-.design-slope .numbers {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr) 1.4fr;
-  border-top: 1px solid var(--moss);
-  border-bottom: 1px solid var(--moss);
-  background: var(--paper);
-}
-.design-slope .num {
-  padding: 1.8rem 1.6rem;
-  border-right: 1px solid var(--moss);
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-.design-slope .num:last-child {
-  border-right: none;
-}
-.design-slope .num-n {
-  font-family: var(--font-bricolage), sans-serif;
-  font-weight: 500;
-  font-variation-settings: "opsz" 64;
-  font-size: clamp(2.4rem, 4vw, 3.6rem);
-  line-height: 1;
-  color: var(--pine);
-  letter-spacing: -0.02em;
-}
-.design-slope .num-l {
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
   color: var(--moss);
-  font-weight: 500;
 }
-.design-slope .num-mini {
-  justify-content: center;
+@media (hover: hover) {
+  .design-slope .lp-books-copy > .lp-hint {
+    display: block;
+  }
 }
-.design-slope .num-mini .num-l {
-  font-style: italic;
-  color: var(--quiet);
-}
-
-/* ── FEATURE CARDS ──────────────────────────────────────────────────── */
-.design-slope .features {
-  padding: 7rem 4vw 6rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-.design-slope .sec-head {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 3rem;
-  align-items: end;
-  margin-bottom: 4rem;
-}
-.design-slope .sec-tag {
-  font-size: 0.88rem;
-  letter-spacing: 0.02em;
-  color: var(--moss);
+.design-slope .lp-booklist {
   margin: 0;
-  font-weight: 500;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
 }
-.design-slope .sec-h {
-  margin: 0;
-  font-family: var(--font-bricolage), sans-serif;
-  font-weight: 500;
-  font-variation-settings: "opsz" 72;
-  font-size: clamp(2rem, 3.8vw, 3.4rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  color: var(--pine);
-}
-.design-slope .feat-grid {
+.design-slope .lp-booklist li {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.6rem;
+  grid-template-columns: 5.4rem minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  transition: background-color 0.2s ease;
 }
-.design-slope .feat-card {
-  background: var(--cream);
-  padding: 1.6rem 1.6rem 2rem;
-  border-radius: 18px;
-  border: 1px solid var(--line);
-  transition:
-    transform 0.5s ease,
-    box-shadow 0.5s ease;
+.design-slope .lp-booklist li:hover {
+  background: rgba(227, 162, 59, 0.14);
 }
-.design-slope .feat-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(20, 46, 34, 0.08);
-}
-.design-slope .feat-illu {
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 1.4rem;
-  background: var(--sage);
-}
-.design-slope .feat-illu .f-illu {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-.design-slope .feat-n {
-  font-family: var(--font-bricolage), sans-serif;
-  font-size: 0.85rem;
+.design-slope .lp-booklist-n {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--moss);
-  font-variation-settings: "opsz" 18;
-  font-weight: 500;
-  letter-spacing: 0.08em;
 }
-.design-slope .feat-t {
-  margin: 0.4rem 0 0.8rem;
-  font-family: var(--font-bricolage), sans-serif;
+.design-slope .lp-booklist-name {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+.design-slope .lp-booklist-count {
   font-weight: 600;
-  font-variation-settings: "opsz" 32;
-  font-size: 1.6rem;
-  letter-spacing: -0.02em;
-  color: var(--pine);
-}
-.design-slope .feat-d {
-  margin: 0;
-  font-size: 0.98rem;
-  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
   color: var(--moss);
 }
 
-/* ── QUIET CTA ──────────────────────────────────────────────────────── */
-.design-slope .quiet-cta {
+/* FellMap: dots over the same contour mask */
+.design-slope .fellmap {
   position: relative;
-  padding: 8rem 4vw;
+  aspect-ratio: 1000 / 914;
   overflow: hidden;
-  color: var(--cream);
-  text-align: center;
+  border: 1px solid rgba(62, 110, 84, 0.14);
+  border-radius: 28px;
+  background: var(--mint);
 }
-.design-slope .quiet-cta-bg {
+.design-slope .fellmap::before {
+  content: "";
   position: absolute;
   inset: 0;
-  z-index: 0;
+  background: var(--contour);
+  opacity: 0.5;
+  -webkit-mask: url("/landing/lakeland-contours.svg") 0 0 / 100% 100% no-repeat;
+  mask: url("/landing/lakeland-contours.svg") 0 0 / 100% 100% no-repeat;
 }
-.design-slope .quiet-cta-bg .hero-illu {
-  filter: brightness(0.85) saturate(1.1);
+.design-slope .fellmap svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
-.design-slope .quiet-cta-inner {
+.design-slope .fellmap-fell {
+  fill: var(--cream);
+  stroke: var(--pine);
+  stroke-width: 2.6;
+  transition:
+    fill 0.2s ease,
+    opacity 0.2s ease;
+}
+.design-slope .fellmap-label {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-anchor: middle;
+  fill: var(--pine);
+  paint-order: stroke;
+  stroke: var(--mint);
+  stroke-width: 7px;
+  stroke-linejoin: round;
+}
+/* hover a book in the list to light up its fells */
+.design-slope .lp-books:has(.lp-booklist li:hover) .fellmap-fell {
+  opacity: 0.3;
+}
+.design-slope
+  .lp-books:has(.lp-booklist [data-book="1"]:hover)
+  .fellmap-fell[data-book="1"],
+.design-slope
+  .lp-books:has(.lp-booklist [data-book="2"]:hover)
+  .fellmap-fell[data-book="2"],
+.design-slope
+  .lp-books:has(.lp-booklist [data-book="3"]:hover)
+  .fellmap-fell[data-book="3"],
+.design-slope
+  .lp-books:has(.lp-booklist [data-book="4"]:hover)
+  .fellmap-fell[data-book="4"],
+.design-slope
+  .lp-books:has(.lp-booklist [data-book="5"]:hover)
+  .fellmap-fell[data-book="5"],
+.design-slope
+  .lp-books:has(.lp-booklist [data-book="6"]:hover)
+  .fellmap-fell[data-book="6"],
+.design-slope
+  .lp-books:has(.lp-booklist [data-book="7"]:hover)
+  .fellmap-fell[data-book="7"] {
+  opacity: 1;
+  fill: var(--bracken);
+}
+
+/* WEB */
+.design-slope .lp-web {
   position: relative;
-  z-index: 5;
-  max-width: 700px;
-  margin: 0 auto;
-}
-.design-slope .quiet-h {
-  margin: 0 0 1.4rem;
-  font-family: var(--font-bricolage), sans-serif;
-  font-weight: 500;
-  font-variation-settings: "opsz" 96;
-  font-size: clamp(2.4rem, 5.4vw, 4.6rem);
-  line-height: 1;
-  letter-spacing: -0.03em;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(4.5rem, 10vw, 7.5rem) 0;
+  background: var(--pine);
   color: var(--cream);
-  text-shadow: 0 2px 24px rgba(20, 46, 34, 0.4);
 }
-.design-slope .quiet-p {
-  margin: 0 auto 2.4rem;
-  max-width: 50ch;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: rgba(250, 250, 232, 0.88);
+.design-slope .lp-web::before {
+  background: var(--cream);
+  opacity: 0.09;
+}
+.design-slope .lp-web .lp-eyebrow {
+  color: #b4d3ae;
+}
+.design-slope .lp-web .lp-h2 {
+  color: var(--cream);
+}
+.design-slope .lp-web-copy p {
+  max-width: 32rem;
+  margin: 1.1rem 0 2rem;
+  color: rgba(250, 250, 232, 0.84);
+}
+.design-slope .lp-web-grid {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+.design-slope .lp-sync {
+  justify-self: center;
+  width: 100%;
+  max-width: 460px;
+  color: rgba(250, 250, 232, 0.82);
+}
+.design-slope .lp-sync-bagged circle {
+  fill: var(--bracken);
+}
+
+/* FREE AND PRO */
+.design-slope .lp-pricing {
+  padding: clamp(4.5rem, 10vw, 8rem) 0;
+  background: linear-gradient(180deg, var(--mint) 0%, var(--mist) 100%);
+}
+.design-slope .lp-plans {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 900px;
+  margin: clamp(2.5rem, 5vw, 3.5rem) auto 0;
+}
+.design-slope .lp-plan {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.6rem, 3.5vw, 2.4rem);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 28px;
+  background: rgba(250, 252, 247, 0.78);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 24px 48px -30px rgba(17, 35, 24, 0.3);
+}
+.design-slope .lp-plan-name {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.design-slope .lp-plan-price {
+  margin: 0.5rem 0 0;
+  font-family: var(--serif);
+  font-size: clamp(2.6rem, 2rem + 2vw, 3.2rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.design-slope .lp-plan-price span {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--moss);
+}
+.design-slope .lp-plan-alt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin: 0.9rem 0 0;
+  font-size: 0.95rem;
+}
+.design-slope .lp-chip {
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: var(--bracken);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.design-slope .lp-plan .lp-ticks {
+  margin-top: 1.75rem;
+}
+.design-slope .lp-plan-pro {
+  border-color: var(--pine);
+  background: var(--pine);
+  color: var(--cream);
+}
+.design-slope .lp-plan-pro :is(.lp-plan-name, .lp-plan-price, .lp-ticks li) {
+  color: var(--cream);
+}
+.design-slope .lp-plan-pro .lp-plan-price span,
+.design-slope .lp-plan-pro .lp-plan-alt {
+  color: rgba(250, 250, 232, 0.8);
+}
+.design-slope .lp-plan-pro .lp-ticks li::before {
+  background-color: var(--bracken);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.4l2.6 2.6L12 5.4' fill='none' stroke='%23112318' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.design-slope .lp-plan-note {
+  margin: auto 0 0;
+  padding-top: 1.75rem;
+  font-size: 0.9rem;
+  color: rgba(250, 250, 232, 0.8);
+}
+
+/* FAQ */
+.design-slope .lp-faq {
+  padding: clamp(4rem, 9vw, 7rem) 0;
+  background: var(--mist);
+}
+.design-slope .lp-faq-grid {
+  display: grid;
+  gap: 2rem;
+}
+.design-slope .lp-faq-list {
+  border-top: 1px solid var(--line);
+}
+.design-slope .lp-faq details {
+  border-bottom: 1px solid var(--line);
+}
+.design-slope .lp-faq summary {
+  position: relative;
+  padding: 1.3rem 2.75rem 1.3rem 0;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--ink);
+  list-style: none;
+  cursor: pointer;
+}
+.design-slope .lp-faq summary::-webkit-details-marker {
+  display: none;
+}
+.design-slope .lp-faq summary::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0.4rem;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  background:
+    linear-gradient(var(--moss), var(--moss)) center / 100% 2px no-repeat,
+    linear-gradient(var(--moss), var(--moss)) center / 2px 100% no-repeat;
+  transition: transform 0.25s ease;
+}
+.design-slope .lp-faq details[open] summary::after {
+  transform: rotate(45deg);
+}
+.design-slope .lp-faq details p {
+  max-width: 60ch;
+  margin: 0 0 1.4rem;
+}
+
+/* CLOSE — ends on the fells; the illustration's sky is #c8d1a9 */
+.design-slope .lp-close {
+  padding-top: clamp(4.5rem, 10vw, 7rem);
+  background: linear-gradient(180deg, var(--mist) 0%, #c8d1a9 100%);
+  text-align: center;
+}
+.design-slope .lp-close-copy {
+  max-width: 40rem;
+}
+.design-slope .lp-close-copy p {
+  margin: 1.1rem auto 2rem;
+  max-width: 32rem;
+}
+.design-slope .lp-close-art {
+  position: relative;
+  aspect-ratio: 1672 / 941;
+  max-height: 520px;
+  width: 100%;
+  margin-top: clamp(-4rem, -4vw, -1rem);
+}
+.design-slope .lp-close-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #c8d1a9 0%, rgba(200, 209, 169, 0) 30%);
+}
+.design-slope .lp-close-img {
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+@media (min-width: 760px) {
+  .design-slope .lp-plans {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 960px) {
+  .design-slope .lp-hero-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  }
+  .design-slope .lp-hero-phone .phone {
+    width: 310px;
+  }
+  .design-slope .lp-chapter {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 5rem;
+  }
+  .design-slope .lp-chapter-flip .lp-duo {
+    order: 2;
+  }
+  .design-slope .lp-books-grid {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "copy map"
+      "list map";
+    column-gap: 4.5rem;
+  }
+  .design-slope .lp-books-copy {
+    grid-area: copy;
+  }
+  .design-slope .lp-booklist {
+    grid-area: list;
+  }
+  .design-slope .lp-books-grid > .fellmap {
+    grid-area: map;
+    align-self: center;
+  }
+  .design-slope .lp-web-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .design-slope .lp-faq-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 4rem;
+  }
+}
+@media (max-width: 639px) {
+  .design-slope .fellmap-label {
+    display: none;
+  }
+}
+@media (max-width: 420px) {
+  .design-slope .lp-actions {
+    gap: 0.6rem;
+  }
+  .design-slope .appstore-badge img {
+    height: 44px;
+  }
+  .design-slope .lp-btn {
+    min-height: 44px;
+    padding: 0 1.05rem;
+    font-size: 0.95rem;
+  }
 }
 
 /* ── FOOTER ─────────────────────────────────────────────────────────── */
@@ -874,26 +1369,9 @@
 
 /* ── RESPONSIVE ─────────────────────────────────────────────────────── */
 @media (max-width: 980px) {
-  .design-slope .sec-head {
-    grid-template-columns: 1fr;
-    gap: 1.4rem;
-  }
-  .design-slope .feat-grid {
-    grid-template-columns: 1fr;
-  }
-  .design-slope .numbers {
-    grid-template-columns: 1fr 1fr;
-  }
-  .design-slope .num {
-    border-right: 1px solid var(--moss);
-    border-bottom: 1px solid var(--moss);
-  }
-  .design-slope .num:nth-child(2n) {
-    border-right: none;
-  }
-  .design-slope .num:nth-child(3),
-  .design-slope .num:nth-child(4) {
-    border-bottom: none;
+  .design-slope .slope-nav-links {
+    gap: 1.2rem;
+    font-size: 0.88rem;
   }
   .design-slope .post-card-rich a,
   .design-slope .post-layout {
@@ -910,15 +1388,12 @@
     text-align: left;
   }
 }
-@media (max-width: 640px) {
+@media (max-width: 820px) {
   .design-slope .slope-nav {
     grid-template-columns: 1fr auto;
     gap: 1rem;
   }
   .design-slope .slope-nav-links {
     display: none;
-  }
-  .design-slope .hero-text {
-    padding-top: 6vh;
   }
 }

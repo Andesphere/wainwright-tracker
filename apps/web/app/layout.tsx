@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Newsreader,
+  Plus_Jakarta_Sans,
+} from "next/font/google";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
@@ -13,6 +17,14 @@ const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-plus-jakarta",
+});
+
+// Serif display face for the landing, close to the New York titles in the iOS app.
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  display: "swap",
+  axes: ["opsz"],
+  variable: "--font-newsreader",
 });
 
 export const metadata: Metadata = {
@@ -42,7 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en-GB" suppressHydrationWarning>
       <body
-        className={`${bricolage.variable} ${plusJakarta.variable}`}
+        className={`${bricolage.variable} ${plusJakarta.variable} ${newsreader.variable}`}
         suppressHydrationWarning
       >
         {children}

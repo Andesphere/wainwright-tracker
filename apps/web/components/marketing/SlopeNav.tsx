@@ -1,6 +1,6 @@
 // SlopeNav — the navbar shared between the landing hero and the blog pages.
 // Two visual variants:
-//   - "hero"  → transparent, light text (sits over a dark hero image)
+//   - "hero"  → sticky frosted glass over the landing (like the app's sheets)
 //   - "solid" → paper background with a border (sits on a plain page)
 //
 // CTAs are wired through Clerk: when signedIn is false the right-hand
@@ -45,13 +45,19 @@ export function SlopeNav({
 
   return (
     <header className="slope-nav" data-variant={variant}>
-      <Link to="/" className="slope-brand" aria-label="Home">
+      <Link
+        to="/"
+        className="slope-brand"
+        aria-label="Wainwrights Baggers home"
+      >
         <SlopeMark />
+        <span className="slope-wordmark">Wainwrights Baggers</span>
       </Link>
       <nav className="slope-nav-links">
-        {/* Hash links live on the landing, full routes on the blog. */}
-        <Link to="/#features">The Round</Link>
-        <Link to="/#journal">Journal</Link>
+        {/* Hash links live on the landing, which scrolls to them. */}
+        <Link to="/#iphone">The app</Link>
+        <Link to="/#web">Web</Link>
+        <Link to="/#pricing">Free and Pro</Link>
         <Link to="/blog">Field Notes</Link>
         <Link to="/contact">Contact</Link>
       </nav>
