@@ -79,7 +79,7 @@ export default function WainwrightsMobileScreen() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [query, setQuery] = useState("");
   const progress = useQuery(api.progress.get, isSignedIn ? {} : "skip");
-  const replaceProgress = useMutation(api.progress.replace);
+  const addBagged = useMutation(api.progress.addBagged);
   const setBagged = useMutation(api.progress.setBagged);
   const mergedLocalProgressRef = useRef(false);
 
@@ -113,15 +113,15 @@ export default function WainwrightsMobileScreen() {
 
     if (mergedCompletedIds.size === serverCompletedIds.size) return;
 
-    void replaceProgress({
-      completed: sortedCompletedIds(mergedCompletedIds),
+    void addBagged({
+      ids: sortedCompletedIds(mergedCompletedIds),
     });
   }, [
     completedIds,
     isSignedIn,
     localProgressLoaded,
     progress,
-    replaceProgress,
+    addBagged,
   ]);
 
   const completedCount = completedIds.size;

@@ -32,6 +32,7 @@ export function SlopeFooter({ signedIn = false }: SlopeFooterProps) {
         <Link to={trackerHref}>
           {signedIn ? "Open journal" : "The tracker"}
         </Link>
+        <a href="/privacy">Privacy</a>
         <span>© {year} · made in the dales</span>
       </div>
     </footer>

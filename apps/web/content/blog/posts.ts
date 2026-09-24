@@ -528,7 +528,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         type: "paragraph",
-        text: "Progress syncs through Convex, so your journal is private to your account but available wherever you sign in — phone at the car park, laptop on a rainy evening, tablet planning next weekend's route. You can bulk-import an existing list from a spreadsheet or document, follow other walkers, and install the app as a PWA with offline map tiles for when the signal drops on Great Gable.",
+        text: "Progress syncs through Convex, so your journal is private to your account but available wherever you sign in — phone at the car park, laptop on a rainy evening, tablet planning next weekend's route. You can bulk-import an existing list from a spreadsheet or document and follow other walkers you know.",
       },
       {
         type: "cta",
