@@ -15,7 +15,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 
 | Area | State |
 | --- | --- |
-| iOS app | Native SwiftUI + Mapbox, TestFlight 1.0 (16). Map, location, bagging, live sync, account deletion, Pro through RevenueCat (paywall, photo journal, albums with PDF, map layers, stats). Real purchases wait for the Paid Apps agreement. |
+| iOS app | Native SwiftUI + Mapbox, TestFlight 1.0 (18). Map, location, bagging, live sync, account deletion, Pro through RevenueCat (paywall, photo journal, albums with PDF, map layers, stats). Real purchases wait for the Paid Apps agreement. |
 | Web app | Live on the old MapLibre map. The iOS-style tracker (Mapbox, sheet, fell card, Pro gating) is ready in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7). No web payments. |
 | Backend | Convex prod `tame-avocet-977` (EU), recreated 2026-09-24. Server-side merge, account deletion, photo cleanup, Convex tests. Pro entitlements from RevenueCat webhooks; Clerk `user.deleted` cleanup. |
 | Sign-in | Clerk production on web, iOS and Convex prod. Email and password, Google, Apple (configured, not yet in the iOS build). |
@@ -54,7 +54,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 ### 2. iOS before submission
 
 - [x] Sign in with Apple in the app: entitlement plus native flow (Clerk's sign-in sheet shows Continue with Apple; still to try on a real iPhone, below).
-- [ ] Real app icon (a placeholder ships now).
+- [x] Real app icon: trig pillar, from 1.0 (18). The web favicon and Apple touch icon match.
 - [ ] On a real iPhone: smooth panning, Google sign-in, Apple sign-in, location.
 - [x] App privacy manifest (`PrivacyInfo.xcprivacy`) for the app's own API use.
 - [ ] Crash reporting (Sentry for iOS).
