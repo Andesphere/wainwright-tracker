@@ -3,7 +3,7 @@ import ClerkKitUI
 import SwiftUI
 
 /// The persistent Apple Maps style sheet. Browse when nothing is selected, the fell card otherwise.
-/// Clerk's sign-in and profile sheets are presented from here, on top of it.
+/// Clerk's sign-in and the account sheet are presented from here, on top of it.
 struct BottomSheet: View {
     @Environment(AppModel.self) private var model
     @Environment(ProgressStore.self) private var progress
@@ -31,8 +31,9 @@ struct BottomSheet: View {
                 .environment(clerk)
         }
         .sheet(isPresented: $model.showsProfile) {
-            UserProfileView()
+            AccountSheet()
                 .environment(clerk)
+                .environment(progress)
         }
     }
 }

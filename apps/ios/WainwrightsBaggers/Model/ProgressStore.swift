@@ -90,6 +90,11 @@ final class ProgressStore {
         optimistic[fell.id] = nil
     }
 
+    /// Removes the walker's progress, photos, profile and follows from Convex.
+    func deleteMyData() async throws {
+        try await client.mutation("account:deleteMyData", with: [:])
+    }
+
     private func handle(_ state: AuthState<String>) {
         switch state {
         case .loading:
