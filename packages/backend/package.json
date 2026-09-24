@@ -10,7 +10,7 @@
     "deploy": "bunx --bun convex deploy --typecheck=disable",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "typecheck:strict": "bunx --bun convex dev --once --typecheck=enable --codegen=enable --tail-logs=disable",
-    "test:unit": "bun run typecheck",
+    "test:unit": "bun run typecheck && node ../../node_modules/vitest/vitest.mjs run --config ../../vitest.config.mts --project backend",
     "test:watch": "bun run typecheck",
     "test:coverage": "bun run typecheck",
     "check": "bun run typecheck",

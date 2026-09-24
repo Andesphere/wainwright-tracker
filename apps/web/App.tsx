@@ -35,6 +35,7 @@ import {
   UserCheck01Icon,
   UserGroupIcon,
   UserSearch01Icon,
+  Delete02Icon,
 } from "@hugeicons/core-free-icons";
 
 import { Badge } from "@/components/ui/badge";
@@ -670,7 +671,11 @@ function TrackerApp() {
 
   const progress = useQuery(api.progress.get);
   const progressEntries = useQuery(api.progress.getEntries);
-  const replaceProgress = useMutation(api.progress.replace);
+  const addBagged = useMutation(api.progress.addBagged);
+  const resetBagged = useMutation(api.progress.reset);
+  const deleteMyData = useMutation(api.account.deleteMyData);
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const setBagged = useMutation(api.progress.setBagged);
   const generatePhotoUploadUrl = useMutation(
     api.progress.generatePhotoUploadUrl,
@@ -848,11 +853,11 @@ function TrackerApp() {
     );
     migratedLocalProgressRef.current = true;
     if (completed.length === 0) return;
-    void replaceProgress({ completed }).then(() => {
+    void addBagged({ ids: completed }).then(() => {
       saveCompletedMigration(new Set(completed));
       toast.success(`Imported ${completed.length} saved fells`);
     });
-  }, [progress, replaceProgress]);
+  }, [progress, addBagged]);
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
@@ -1373,11 +1378,26 @@ function TrackerApp() {
     fitLakeDistrict();
   };
 
+  const deleteAccount = async () => {
+    if (!user) return;
+    setDeletingAccount(true);
+    try {
+      // App data first: once the Clerk user is gone we can no longer
+      // authenticate to remove it.
+      await deleteMyData({});
+      await user.delete();
+      window.location.assign("/");
+    } catch {
+      setDeletingAccount(false);
+      toast.error("Could not delete your account. Please try again.");
+    }
+  };
+
   const resetProgress = () => {
     if (completed.size === 0) return;
     setOptimisticCompleted(new Set());
     setOptimisticEntries([]);
-    void replaceProgress({ completed: [] })
+    void resetBagged({})
       .then(() => toast("Journal reset"))
       .catch(() => {
         setOptimisticCompleted(completed);
@@ -1396,7 +1416,7 @@ function TrackerApp() {
     setOptimisticEntries(nextEntries);
 
     try {
-      await replaceProgress({ completed: nextCompleted });
+      await addBagged({ ids });
       toast.success(`Added ${ids.length} bagged fells`);
     } catch {
       setOptimisticCompleted(completed);
@@ -1587,7 +1607,59 @@ function TrackerApp() {
         <div className="mobile-map-controls absolute right-4 top-[calc(env(safe-area-inset-top)+4.75rem)] z-10 flex items-center gap-2 sm:right-8 sm:top-8">
           <SignedIn>
             <div className="grid size-10 place-items-center rounded-full border border-white/50 bg-parchment/85 shadow-sm backdrop-blur-xl sm:size-11">
-              <UserButton afterSignOutUrl="/" />
+              <UserButton
+                afterSignOutUrl="/"
+                userProfileProps={{
+                  appearance: {
+                    elements: { profileSection__danger: { display: "none" } },
+                  },
+                }}
+              >
+                <UserButton.MenuItems>
+                  <UserButton.Action
+                    label="Delete account"
+                    labelIcon={
+                      <HugeiconsIcon icon={Delete02Icon} className="size-4" />
+                    }
+                    onClick={() => setDeleteAccountOpen(true)}
+                  />
+                </UserButton.MenuItems>
+              </UserButton>
+              <Dialog
+                open={deleteAccountOpen}
+                onOpenChange={(open) =>
+                  !deletingAccount && setDeleteAccountOpen(open)
+                }
+              >
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Delete your account?</DialogTitle>
+                    <DialogDescription>
+                      This permanently removes your bagged fells, dates, notes,
+                      photos, profile and follows, and your sign-in account.
+                      This cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      disabled={deletingAccount}
+                      onClick={() => setDeleteAccountOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      disabled={deletingAccount}
+                      onClick={() => void deleteAccount()}
+                    >
+                      {deletingAccount ? "Deleting…" : "Delete account"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </SignedIn>
           <Tooltip>

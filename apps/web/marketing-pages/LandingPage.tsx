@@ -27,7 +27,7 @@ const FEATURES = [
   {
     n: "02",
     t: "Slow Journal.",
-    d: "Mark each summit with a date, a note, and a photograph. Sync across phone and desktop, offline-first.",
+    d: "Mark each summit with a date, a note, and a photograph. Sync across phone and desktop.",
   },
   {
     n: "03",

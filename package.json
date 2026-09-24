@@ -31,12 +31,14 @@
     "preflight": "bun run format && bun run check && bun run test"
   },
   "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",
     "@vitejs/plugin-react": "5.1.1",
     "@vitest/coverage-v8": "4.1.6",
+    "convex-test": "0.0.54",
     "globals": "^17.6.0",
     "jsdom": "27.3.0",
     "prettier": "^3.8.3",

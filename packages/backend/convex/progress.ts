@@ -5,6 +5,7 @@ import {
   type MutationCtx,
   type QueryCtx,
 } from "./_generated/server";
+import { deleteReleasedPhotos } from "./photos";
 
 const requireUserId = async (ctx: QueryCtx | MutationCtx) => {
   const identity = await ctx.auth.getUserIdentity();
@@ -87,16 +88,20 @@ export const getEntries = query({
   },
 });
 
-export const replace = mutation({
-  args: { completed: v.array(v.string()) },
+export const addBagged = mutation({
+  args: { ids: v.array(v.string()) },
   returns: v.null(),
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx);
-    const completed = Array.from(new Set(args.completed)).sort();
     const existing = await ctx.db
       .query("userProgress")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
+    // Merge on the server: a stale client must never drop fells, notes or
+    // photos that another device saved.
+    const completed = Array.from(
+      new Set([...(existing?.completed ?? []), ...args.ids]),
+    ).sort();
     const previousEntries = existing?.entries ?? [];
     const entries = completed.map(
       (id) => previousEntries.find((entry) => entry.id === id) ?? { id },
@@ -117,6 +122,27 @@ export const replace = mutation({
       });
     }
 
+    return null;
+  },
+});
+
+export const reset = mutation({
+  args: {},
+  returns: v.null(),
+  handler: async (ctx) => {
+    const userId = await requireUserId(ctx);
+    const existing = await ctx.db
+      .query("userProgress")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+    if (!existing) return null;
+
+    await deleteReleasedPhotos(ctx, existing.entries ?? [], []);
+    await ctx.db.patch(existing._id, {
+      completed: [],
+      entries: [],
+      updatedAt: Date.now(),
+    });
     return null;
   },
 });
@@ -148,10 +174,15 @@ export const setBagged = mutation({
             completedAt: cleanOptionalText(args.completedAt),
             id: args.id,
             note: cleanOptionalText(args.note),
-            photos: args.photos,
+            // Omitted photos keep what is stored; an empty array removes them.
+            photos:
+              args.photos ??
+              previousEntries.find((entry) => entry.id === args.id)?.photos,
           },
         ].sort((a, b) => a.id.localeCompare(b.id))
       : previousEntries.filter((entry) => entry.id !== args.id);
+
+    await deleteReleasedPhotos(ctx, previousEntries, entries);
 
     if (existing) {
       await ctx.db.patch(existing._id, {

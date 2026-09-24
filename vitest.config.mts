@@ -33,6 +33,15 @@ export default defineConfig({
           clearMocks: true,
         },
       }),
+      defineProject({
+        test: {
+          name: "backend",
+          root: fromRepoRoot("packages/backend"),
+          environment: "edge-runtime",
+          include: ["convex/**/*.test.ts"],
+          server: { deps: { inline: ["convex-test"] } },
+        },
+      }),
     ],
     coverage: {
       provider: "v8",
