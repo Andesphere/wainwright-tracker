@@ -235,7 +235,9 @@
 .design-slope section[id] {
   scroll-margin-top: var(--nav-h);
 }
-.design-slope :is(a, button, summary):focus-visible {
+.design-slope
+  :where(.slope-nav, .slope-footer, .slope-main > section[class^="lp-"])
+  :is(a, button, summary):focus-visible {
   outline: 2px solid var(--pine);
   outline-offset: 3px;
 }

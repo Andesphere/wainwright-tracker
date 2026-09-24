@@ -1,5 +1,5 @@
 // PhoneFrame — an iPhone drawn in CSS around a real app screenshot.
-// Screenshots are 1206×2622 (iPhone 17 Pro); next/image serves resized WebP.
+// Screenshots are 1206×2622 (402×874 pt at 3x); next/image serves resized WebP.
 
 import Image from "next/image";
 
