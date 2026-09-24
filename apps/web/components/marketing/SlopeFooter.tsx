@@ -24,7 +24,7 @@ export function SlopeFooter({ signedIn = false }: SlopeFooterProps) {
           <SlopeMark />
         </Link>
         <p>
-          A quiet companion for the long Wainwright round — kept simple, kept
+          A quiet companion for the long Wainwright round. Kept simple, kept
           honest, written on the bothy table after the wind drops.
         </p>
       </div>
