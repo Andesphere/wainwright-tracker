@@ -93,6 +93,18 @@ Progress now syncs to Convex:
 - On first signed-in load, mobile merges existing local SecureStore progress into Convex so the first TestFlight users do not lose phone-only progress.
 - Future storage changes still need a migration plan if users already have local progress.
 
+## Backend And QA
+
+The Convex project was deleted on 2026-09-23 and recreated on 2026-09-24. All earlier user progress is gone.
+
+- Convex team `jorge-mena`, project `wainwright-tracker`.
+- Production: `tame-avocet-977`, `https://tame-avocet-977.eu-west-1.convex.cloud` (EU).
+- Dev: `nautical-hedgehog-970`.
+- Both need `CLERK_FRONTEND_API_URL=https://settling-anchovy-85.clerk.accounts.dev`. `AI_GATEWAY_API_KEY` is unset, so AI bulk import is off.
+- Deploy functions from `packages/backend`: `bunx --bun convex deploy -y --typecheck=disable`. Vercel does not deploy Convex.
+- Clerk is still the Development instance. Web QA: sign up with a `+clerk_test@example.com` address and verification code `424242`. The Matias credentials store holds the standing QA account.
+- Never run `convex dev` against a local deployment on this Mac without pinning ports; other projects own 3214, 3215 and 8081.
+
 ## Auth And Env
 
 Mobile auth requires:
