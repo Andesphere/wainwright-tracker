@@ -18,8 +18,8 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 | iOS app | Native SwiftUI + Mapbox, TestFlight 1.0 (18). Map, location, bagging, live sync, account deletion, Pro through RevenueCat (paywall, photo journal, albums with PDF, map layers, stats). Real purchases wait for the Paid Apps agreement. |
 | Web app | Live on the old MapLibre map. The iOS-style tracker (Mapbox, sheet, fell card, Pro gating) is ready in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7). No web payments. |
 | Backend | Convex prod `tame-avocet-977` (EU), recreated 2026-09-24. Server-side merge, account deletion, photo cleanup, Convex tests. Pro entitlements from RevenueCat webhooks; Clerk `user.deleted` cleanup. |
-| Sign-in | Clerk production on web, iOS and Convex prod. Email and password, Google, Apple (configured, not yet in the iOS build). |
-| App Store Connect | App `6771147426`; version 1.0 prepared; subscription group and both plans created, missing review metadata. |
+| Sign-in | Clerk production on web, iOS and Convex prod. Email and password, Google, Sign in with Apple (in the iOS build since 16). |
+| App Store Connect | App `6771147426`, version 1.0. Listing, categories, age rating 4+, review details and demo account set; 3 of 7 6.9" screenshots uploaded (the map screens wait on Mapbox). Both plans READY_TO_SUBMIT. Paid Apps agreement accepted, tax forms signed, bank in review (2026-09-24). |
 | Landing | New Fable design chosen and ready in PR #4; merges on launch day. Previews use Clerk Development and Convex dev. |
 
 ## Done on 2026-09-24
@@ -40,15 +40,15 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 
 ### 1. Payments and Pro ([#731](https://github.com/JorgeMenaDev/matias/issues/731)), blocks launch
 
-- [ ] RevenueCat: Andesphere account, project, iOS app `com.wainwrightsbaggers.mobile`, entitlement `pro`, offering with both products.
-- [ ] App Store Connect In-App Purchase key for RevenueCat, and App Store Server Notifications (V2) pointed at RevenueCat.
-- [ ] Check the Paid Apps agreement, tax and banking are active in App Store Connect > Business.
+- [x] RevenueCat: Andesphere account, project, iOS app `com.wainwrightsbaggers.mobile`, entitlement `pro`, offering with both products.
+- [x] App Store Connect In-App Purchase key for RevenueCat, and App Store Server Notifications (V2) pointed at RevenueCat.
+- [ ] Check the Paid Apps agreement, tax and banking are active in App Store Connect > Business. Accepted, EU trader status Active, W-8BEN-E and certificate signed on 2026-09-24; bank account in Apple's review (up to 24 hours).
 - [x] iOS: RevenueCat SDK with the Clerk user ID as app user ID, paywall, restore purchases, manage-subscription link.
 - [x] Convex: RevenueCat webhook into an `entitlements` table, recomputed from RevenueCat API v2; `billing.mine`, `billing.refresh`. Proven on prod with a dashboard test event and a Test Store purchase.
 - [ ] Convex: Pro-only operations checked on the server. Wired and on Convex dev in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7); deploy to prod together with that web merge ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
 - [x] Pro features on iOS: photo journal, albums with PDF print export, extra map layers, stats.
 - [ ] Sandbox and TestFlight tests: buy, trial, restore, cancel, expiry, refund, switch account. Simulator runs pass on RevenueCat's Test Store (`ProFlowUITests`); real sandbox purchases wait for the Paid Apps agreement.
-- [ ] Review screenshot of the paywall and review notes on both plans (both show `MISSING_METADATA` now).
+- [x] Review screenshot of the paywall and review notes on both plans (READY_TO_SUBMIT).
 - [ ] Jorge: consider enrolling in the Apple Small Business Program (15% commission instead of 30%).
 
 ### 2. iOS before submission
@@ -58,7 +58,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 - [ ] On a real iPhone: smooth panning, Google sign-in, Apple sign-in, location.
 - [x] App privacy manifest (`PrivacyInfo.xcprivacy`) for the app's own API use.
 - [ ] Crash reporting (Sentry for iOS).
-- [ ] Mapbox: add a card before launch (free tier: 25,000 iPhone users a month), and use a dedicated token for the app.
+- [ ] Mapbox: add a card (Jorge). Without one the account has demo limits: it was paused on 2026-09-24 at 19:41 UTC and every map request returns 401 until a card is added. Then use a dedicated token for the app.
 
 ### 3. Web
 
@@ -72,15 +72,15 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 
 - [x] Clerk `user.deleted` webhook to Convex, so deletions made outside the apps still clean up.
 - [ ] Register Clerk's sending domain with Apple's private email relay, so codes reach "Hide My Email" users.
-- [ ] App Review demo account: production asks for an emailed code on each new device, which a reviewer cannot receive. Give the reviewer an account that signs in without it.
-- [ ] Turn on Convex backups for production.
+- [x] App Review demo account: `admin+appreview@andesphere.com` with Clerk's per-user `bypass_client_trust`, so it signs in without the new-device email code (credentials in the Matias credentials store).
+- [x] Convex backups for production: daily at 03:00 UTC, kept 7 days, file storage included.
 
 ### 5. App Store submission ([#732](https://github.com/JorgeMenaDev/matias/issues/732))
 
-- [ ] Listing: subtitle, description, keywords, category, screenshots for 6.9" and 6.5" iPhones.
+- [ ] Listing: subtitle, description, keywords, category set. Screenshots: 3 of 7 for 6.9" (`APP_IPHONE_67`, 1320×2868); the four map screens wait on Mapbox. 6.5" is optional when 6.9" is provided.
 - [ ] Privacy labels: email, name, photos and notes, user ID; location is used on the device only and not collected.
-- [ ] Age rating, support URL (contact page), privacy URL (`/privacy`), marketing URL.
-- [ ] Review notes and demo account.
+- [x] Age rating, support URL (contact page), privacy URL (`/privacy`), marketing URL.
+- [x] Review notes and demo account.
 - [ ] Submit 1.0 with both subscriptions attached; answer review.
 - [ ] On approval: release, merge the new landing (PR #4), tag the GitHub release (andes-release skill), update this file.
 
