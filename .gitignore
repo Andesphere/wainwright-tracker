@@ -17,11 +17,6 @@ test-results
 .turbo
 .next
 /apps/*/.next/
-/apps/mobile/.expo/
-/apps/mobile/.expo-shared/
-/apps/mobile/dist/
-/apps/mobile/android/
-/apps/mobile/ios/
 *.local
 *.tsbuildinfo
 next-env.d.ts

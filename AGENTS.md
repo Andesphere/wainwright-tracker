@@ -57,87 +57,37 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 
 
-## Mobile App State
+## Where things stand
 
-The iOS Expo app has shipped its first working TestFlight build.
+Release status, what is done and the launch checklist live in `docs/RELEASE.md`. Read it first. The owning plan is the Wayfinder map https://github.com/JorgeMenaDev/matias/issues/597; each launch task is a sub-issue there.
 
-- App: `Wainwrights Baggers`
-- Package: `apps/mobile`
-- Expo owner: `aljorgevi`
-- Expo project: `@aljorgevi/wainwrightsbaggers-mobile`
-- Expo project ID: `c6c22670-bf5b-4143-acf6-2fc6303ea30e`
-- iOS bundle ID: `com.wainwrightsbaggers.mobile`
-- App Store Connect app ID: `6771147426`
-- Current app version: `0.1.0`
-- Latest shipped TestFlight build number: `12`
-- Latest EAS build ID: `4971650b-4c8b-4d01-ae74-cd45457ccfe0`
-- Latest EAS submission ID: `81f47216-3d40-4de1-a576-baafd8ec37f9`
-- TestFlight state at shipment: Apple processing `VALID`, internal build state `IN_BETA_TESTING`.
+## Apps
 
-Do not change the Expo project ID, Expo owner, app slug, App Store Connect app, or iOS bundle identifier unless the user explicitly asks for a new app/listing.
+- `apps/web`: Next.js 16 site and web tracker at https://wainwrightsbaggers.com (Vercel team `andesphere`, project `wainwright-tracker`, git deploy from `main`). The tracker map is still MapLibre; moving it to the iOS look is on the checklist.
+- `apps/ios`: native SwiftUI app, Mapbox Maps SDK v11, Clerk iOS, Convex Swift. Setup, build and TestFlight upload: `apps/ios/README.md`. It replaced the Expo app, which was removed on 2026-09-24.
+- `packages/backend`: Convex functions, schema and tests.
+- `packages/catalog`: the 214 fells. `area` is the Pictorial Guide book, derived from `bookNumber`. After a change, regenerate the iOS copy with `bun run ios-native:catalog`.
 
-## Mobile Functionality
+## iOS identity
 
-`apps/mobile/app/index.tsx` is the first usable mobile version. It provides:
+Do not change these unless Jorge asks for a new app or listing.
 
-- Clerk sign-in/sign-up via `@clerk/expo`.
-- Convex sync using the same backend and Clerk auth project as the web app.
-- A Wainwrights checklist sourced from `@wainwrights/catalog/wainwrights`.
-- Area, status, and search filters.
-- On-device progress cache/migration using `expo-secure-store`.
+- App name `Wainwrights Baggers`, bundle ID `com.wainwrightsbaggers.mobile`, App Store Connect app `6771147426`.
+- Apple team ANDESPHERE LTD `29388BLCGA`. Builds are archived and uploaded with the App Store Connect API key (Admin); key paths live in the Matias credentials store, never in this repo.
+- TestFlight internal group `Team (Expo)` sees every build automatically. Latest: 1.0 (15).
+- Subscription group `Wainwrights Baggers Pro`: `com.wainwrightsbaggers.pro.yearly` (£14.99, 7-day trial) and `com.wainwrightsbaggers.pro.monthly` (£1.99).
 
-Progress now syncs to Convex:
-
-- SecureStore key: `wainwrightsbaggers:completed:v1`
-- Mobile reads and writes `api.progress.get`, `api.progress.replace`, and `api.progress.setBagged`.
-- On first signed-in load, mobile merges existing local SecureStore progress into Convex so the first TestFlight users do not lose phone-only progress.
-- Future storage changes still need a migration plan if users already have local progress.
-
-## Backend And QA
+## Backend and auth
 
 The Convex project was deleted on 2026-09-23 and recreated on 2026-09-24. All earlier user progress is gone.
 
-- Convex team `jorge-mena`, project `wainwright-tracker`.
-- Production: `tame-avocet-977`, `https://tame-avocet-977.eu-west-1.convex.cloud` (EU).
-- Dev: `nautical-hedgehog-970`.
-- Both need `CLERK_FRONTEND_API_URL=https://settling-anchovy-85.clerk.accounts.dev`. `AI_GATEWAY_API_KEY` is unset, so AI bulk import is off.
-- Deploy functions from `packages/backend`: `bunx --bun convex deploy -y --typecheck=disable`. Vercel does not deploy Convex.
-- Clerk is still the Development instance. Web QA: sign up with a `+clerk_test@example.com` address and verification code `424242`. The Matias credentials store holds the standing QA account.
+- Convex team `jorge-mena`, project `wainwright-tracker`. Production `tame-avocet-977` (`https://tame-avocet-977.eu-west-1.convex.cloud`, EU); dev `nautical-hedgehog-970`.
+- Clerk app `Wainwrights Baggers` (Arketix Clerk workspace). Production `clerk.wainwrightsbaggers.com` serves web, iOS and Convex prod: email and password, Google, Apple, Native API on. Development `settling-anchovy-85.clerk.accounts.dev` serves Convex dev only.
+- Convex env `CLERK_FRONTEND_API_URL`: production `https://clerk.wainwrightsbaggers.com`, dev the development instance. `AI_GATEWAY_API_KEY` is unset, so AI bulk import is off.
+- Progress writes: `progress.setBagged` for one fell, `progress.addBagged` merges many on the server, `progress.reset` clears. There is no whole-list replace; a stale client must never drop data. `account.deleteMyData` removes everything a user owns; clients call it before deleting the Clerk user.
+- Deploy functions from `packages/backend`: `bunx --bun convex deploy -y --typecheck=disable`. Vercel does not deploy Convex. Deploy Convex before merging web code that calls new functions.
+- QA: production accounts are created through the Clerk Backend API and need an emailed code on each new device. The Matias credentials store holds the standing QA account and the recipe.
 - Never run `convex dev` against a local deployment on this Mac without pinning ports; other projects own 3214, 3215 and 8081.
-
-## Auth And Env
-
-Mobile auth requires:
-
-- `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`
-- `EXPO_PUBLIC_CONVEX_URL`
-
-These values are listed in `.env.example` and should exist in local `.env.local` for local development. They are also configured in EAS environment variables for `development`, `preview`, and `production`.
-
-The app hard-fails in `apps/mobile/app/_layout.tsx` if `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` or `EXPO_PUBLIC_CONVEX_URL` is missing. That is deliberate, because a broken auth/sync build should fail early.
-
-Do not commit:
-
-- Apple ID credentials.
-- Expo access tokens.
-- App Store Connect API key material.
-- Clerk secret keys.
-
-## Apple And Expo Access
-
-EAS uses remote iOS credentials.
-
-Known Apple state at first shipment:
-
-- Apple Developer team: `Jorge Mena (29388BLCGA)`
-- App Store Connect provider: `Jorge Mena (128928648)`
-- Apple Developer Program membership is active.
-- Identity verification was completed before the successful build/submission.
-- EAS created and stored an App Store Connect API key on Expo servers during submission.
-- Internal TestFlight group: `Team (Expo)`
-- Internal tester email used: `jormencar@gmail.com`
-
-If future EAS builds/submissions prompt for Apple login or two-factor authentication, the user must provide the current Apple 2FA code. Do not assume old codes are reusable.
 
 ## Commands
 
@@ -145,55 +95,18 @@ From the repo root:
 
 ```sh
 bun install
-bun run format --filter=@wainwrights/mobile
-bun run check --filter=@wainwrights/mobile
+bun run test          # web unit tests + Convex tests (convex-test)
+bun run check         # typecheck and lint; apps/web has two known errors in components/ui/badge.tsx and button.tsx
+bun run format
 ```
 
-From `apps/mobile`:
+iOS: see `apps/ios/README.md`.
 
-```sh
-bunx expo-doctor
-bunx eas-cli build --platform ios --profile production
-bunx eas-cli submit --platform ios --profile production --latest
-```
+## Dependency notes
 
-Use `bunx eas-cli`, not global `eas`, unless the user has intentionally installed and selected a global EAS CLI.
+React and React DOM are pinned to `19.1.0` and `bunfig.toml` uses the hoisted linker. Both were for the removed Expo app; lifting them is optional cleanup, test the web build if you do.
 
-## EAS Configuration
-
-`apps/mobile/eas.json` uses:
-
-- `cli.appVersionSource`: `remote`
-- `production.autoIncrement`: `true`
-- `production.ios.simulator`: `false`
-- `submit.production.ios`: remote/default EAS submit settings
-
-`apps/mobile/app.config.ts` sets:
-
-- `owner: "aljorgevi"`
-- `slug: "wainwrightsbaggers-mobile"`
-- `scheme: "wainwrightsbaggers"` by default
-- `ios.bundleIdentifier: "com.wainwrightsbaggers.mobile"`
-- `ios.infoPlist.ITSAppUsesNonExemptEncryption: false`
-- `extra.eas.projectId: "c6c22670-bf5b-4143-acf6-2fc6303ea30e"`
-
-## Dependency Notes
-
-The mobile app is Expo SDK 54 and React Native `0.81.5`.
-
-React and React DOM are pinned to `19.1.0` across the workspace because Expo SDK 54 expects that React line. The root `package.json` has overrides for both packages, and `apps/web/package.json` is pinned to match. Do not casually bump React for the web app without checking Expo compatibility.
-
-`bunfig.toml` uses a hoisted linker because Expo tooling and `expo-doctor` expect dependency resolution patterns that work better with hoisting in this monorepo.
-
-## Verification Baseline
-
-Before the first TestFlight shipment, these passed:
-
-- `bun run format --filter=@wainwrights/mobile`
-- `bun run check --filter=@wainwrights/mobile`
-- `bunx expo-doctor` from `apps/mobile`, with `17/17 checks passed`
-
-The user confirmed the TestFlight app installed and worked on their iPhone after accepting the invite.
+`convex-test` is pinned to 0.0.54, the last release that supports convex 1.39. Newer releases need convex 1.43 or later.
 
 ## SEO / growth
 
