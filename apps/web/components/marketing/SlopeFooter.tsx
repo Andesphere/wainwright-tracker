@@ -4,6 +4,7 @@
 
 import { Link } from "react-router-dom";
 
+import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/appStore";
 import { SlopeMark } from "./SlopeMark";
 
 type SlopeFooterProps = {
@@ -23,15 +24,21 @@ export function SlopeFooter({ signedIn = false }: SlopeFooterProps) {
           <SlopeMark />
         </Link>
         <p>
-          A quiet companion for the long Wainwright round — kept simple, kept
+          A quiet companion for the long Wainwright round. Kept simple, kept
           honest, written on the bothy table after the wind drops.
         </p>
       </div>
       <div className="slope-footer-r">
-        <Link to="/blog">Field Notes</Link>
+        {APP_STORE_LIVE ? (
+          <a href={APP_STORE_URL}>iPhone app</a>
+        ) : (
+          <span>iPhone app soon</span>
+        )}
         <Link to={trackerHref}>
           {signedIn ? "Open journal" : "The tracker"}
         </Link>
+        <Link to="/blog">Field Notes</Link>
+        <Link to="/contact">Contact</Link>
         <a href="/privacy">Privacy</a>
         <span>© {year} · made in the dales</span>
       </div>

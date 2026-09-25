@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { BlogPost } from "@/content/blog/posts";
 import { BLOG_POSTS, getBlogPost } from "@/content/blog/posts";
+import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/appStore";
 
 export const SITE_URL = "https://wainwrightsbaggers.com";
 export const SITE_NAME = "Wainwrights Baggers";
@@ -20,7 +21,7 @@ export type RouteSeo = {
 };
 
 const homeDescription =
-  "Track all 214 Wainwright fells with a quiet Lake District map, checklist, notes, photos and a private walking journal that syncs across devices.";
+  "Track all 214 Wainwright fells on a 3D Lake District map. Free on iPhone and the web, with your round in sync. Pro adds a photo journal.";
 
 const blogDescription =
   "Wainwright walking guides, tracker tips, Lake District checklist advice and field notes for planning and remembering the 214 fells.";
@@ -208,6 +209,7 @@ function softwareSchema() {
     applicationCategory: "LifestyleApplication",
     operatingSystem: "Web, iOS",
     url: SITE_URL,
+    ...(APP_STORE_LIVE ? { installUrl: APP_STORE_URL } : {}),
     image: absoluteUrl(DEFAULT_OG_IMAGE),
     description: homeDescription,
     offers: {
@@ -336,7 +338,7 @@ function fallbackHtml(seo: RouteSeo) {
     ).join("")}</ul></main>`;
   }
 
-  return `<main><h1>Wainwrights Baggers: map, checklist and journal for the 214 fells</h1><p>${escapeHtml(homeDescription)}</p><ul><li>Track every Wainwright fell on a Lake District map.</li><li>Keep notes, photos and completion dates in a private walking journal.</li><li>Use the blog for Wainwright checklist, map and app guidance.</li></ul></main>`;
+  return `<main><h1>Wainwrights Baggers: map, checklist and journal for the 214 fells</h1><p>${escapeHtml(homeDescription)}</p><ul><li>Track every Wainwright fell on a Lake District map.</li><li>Bag each fell with the date you walked it, on iPhone or the web.</li><li>Pro adds a photo journal with notes and photos for every fell.</li><li>Use the blog for Wainwright checklist, map and app guidance.</li></ul></main>`;
 }
 
 export function SeoFallbackContent({ seo }: { seo: RouteSeo }) {
