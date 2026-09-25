@@ -5,7 +5,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/appStore";
+import { trackAppStoreClick } from "@/lib/analytics";
+import { APP_STORE_LIVE, appStoreLink } from "@/lib/appStore";
 import { cn } from "@/lib/utils";
 import {
   BookIcon,
@@ -202,7 +203,8 @@ export function ProUpsell({
         <div className="grid gap-3 px-6 pb-6 pt-5">
           {APP_STORE_LIVE ? (
             <a
-              href={APP_STORE_URL}
+              href={appStoreLink("app")}
+              onClick={() => trackAppStoreClick("pro_sheet")}
               target="_blank"
               rel="noreferrer"
               className="wb-press flex h-[52px] items-center justify-center gap-2 rounded-full bg-[var(--wb-brand)] text-[17px] font-semibold text-white shadow-[0_10px_24px_-12px_rgba(31,66,50,0.8)]"

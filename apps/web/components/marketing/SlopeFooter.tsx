@@ -4,7 +4,8 @@
 
 import Link from "next/link";
 
-import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/appStore";
+import { APP_STORE_LIVE } from "@/lib/appStore";
+import { AppStoreLink } from "./AppStoreLink";
 import { FooterTrackerLink } from "./AuthCta";
 import { SlopeMark } from "./SlopeMark";
 
@@ -24,7 +25,7 @@ export function SlopeFooter() {
       </div>
       <div className="slope-footer-r">
         {APP_STORE_LIVE ? (
-          <a href={APP_STORE_URL}>iPhone app</a>
+          <AppStoreLink location="footer">iPhone app</AppStoreLink>
         ) : (
           <span>iPhone app soon</span>
         )}

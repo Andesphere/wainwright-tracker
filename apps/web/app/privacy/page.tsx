@@ -1,14 +1,12 @@
-import type { Metadata } from "next";
-import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { formatBlogDate } from "@/content/blog/posts";
+import { buildMetadata, getRouteSeo, JsonLd, SITE_NAME } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: `Privacy policy · ${SITE_NAME}`,
-  description:
-    "What Wainwrights Baggers stores about you, who processes it, and how to delete it.",
-  alternates: { canonical: `${SITE_URL}/privacy` },
-};
+// The policy's date lives in the SEO route, so the page and sitemap agree.
+const seo = getRouteSeo(["privacy"]);
 
-const UPDATED = "25 September 2026";
+export const metadata = buildMetadata(seo);
+
+const UPDATED = formatBlogDate(seo.lastModified as string);
 
 const sections: { title: string; body: string[] }[] = [
   {
@@ -81,6 +79,7 @@ const sections: { title: string; body: string[] }[] = [
 export default function PrivacyPage() {
   return (
     <main className="min-h-dvh bg-parchment px-6 py-16 text-ink sm:py-24">
+      <JsonLd seo={seo} />
       <article className="mx-auto max-w-2xl">
         <a
           href="/"
