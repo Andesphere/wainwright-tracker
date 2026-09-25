@@ -17,5 +17,5 @@ Convex agent skills for common tasks can be installed by running
 - This repo runs `convex` 1.39.1 (see `bun.lock`), but the guidelines target `^1.44`. Three things they describe do not exist yet:
   - `schema.doc()` and `docValidator`: declare document validators explicitly.
   - The `transactionLimits` third argument to `ctx.runQuery` / `ctx.runMutation` (added in 1.41).
-  - `CONVEX_SITE_URL` and `CONVEX_CLOUD_URL` on the typed `env` from `./_generated/server` (codegen adds them in 1.44). Read those two from `process.env`.
+  - `CONVEX_SITE_URL` and `CONVEX_CLOUD_URL` on the typed `env` (codegen adds them in 1.44). There is no `convex.config.ts` here yet, so there is no typed `env` at all: read env vars from `process.env`.
 - Backend tests follow the guidelines' `convex-test` + vitest + edge-runtime setup, but the vitest config is the `backend` project in the root `vitest.config.mts`. Run them with `bun run test:unit` here, and don't add a package-level `vitest.config.ts`.
