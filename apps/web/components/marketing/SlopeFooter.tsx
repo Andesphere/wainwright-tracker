@@ -4,7 +4,7 @@
 
 import { Link } from "react-router-dom";
 
-import { APP_STORE_URL } from "@/lib/appStore";
+import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/appStore";
 import { SlopeMark } from "./SlopeMark";
 
 type SlopeFooterProps = {
@@ -29,7 +29,11 @@ export function SlopeFooter({ signedIn = false }: SlopeFooterProps) {
         </p>
       </div>
       <div className="slope-footer-r">
-        <a href={APP_STORE_URL}>iPhone app</a>
+        {APP_STORE_LIVE ? (
+          <a href={APP_STORE_URL}>iPhone app</a>
+        ) : (
+          <span>iPhone app soon</span>
+        )}
         <Link to={trackerHref}>
           {signedIn ? "Open journal" : "The tracker"}
         </Link>

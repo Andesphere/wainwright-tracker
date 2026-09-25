@@ -130,6 +130,18 @@
   width: auto;
   height: 52px;
 }
+.design-slope .ld-badge-soon {
+  display: inline-flex;
+  align-items: center;
+  height: 52px;
+  padding: 0 1.25rem;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--cream);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
 .design-slope .ld-fine {
   margin: 1.2rem 0 0;
   font-size: 0.9rem;
