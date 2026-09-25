@@ -58,7 +58,8 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 - [ ] On a real iPhone: smooth panning, Google sign-in, Apple sign-in, location.
 - [x] App privacy manifest (`PrivacyInfo.xcprivacy`) for the app's own API use.
 - [ ] Crash reporting (Sentry for iOS).
-- [ ] Mapbox: add a card (Jorge). Without one the account has demo limits: it was paused on 2026-09-24 at 19:41 UTC and every map request returns 401 until a card is added. Then use a dedicated token for the app.
+- [x] Mapbox card: added by Jorge on 2026-09-25 (pay as you go with the free monthly tiers; the default public token was kept). Without a card the account had demo limits and was paused on 2026-09-24.
+- [ ] Mapbox: a dedicated token for the iOS app, and a URL-restricted one for the web.
 
 ### 3. Web
 
