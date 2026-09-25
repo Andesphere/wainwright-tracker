@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useAuth } from "@clerk/clerk-react";
+import { SignIn, useAuth } from "@clerk/clerk-react";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
@@ -34,7 +34,7 @@ function TrackerRoute() {
         <TrackerApp />
       </Authenticated>
       <Unauthenticated>
-        <Navigate to="/" replace />
+        <TrackerSignIn />
       </Unauthenticated>
       <AuthLoading>
         <LoadingGate />
@@ -155,6 +155,23 @@ function ContactRoute() {
         </div>
       </section>
     </SlopeShell>
+  );
+}
+
+/** Signed-out visitors to /app sign in (or sign up) in place, then land in the tracker. */
+function TrackerSignIn() {
+  const { isSignedIn } = useAuth();
+  // Signed in with Clerk while Convex still waits for its token: keep waiting.
+  if (isSignedIn) return <LoadingGate />;
+  return (
+    <main className="grid min-h-dvh place-items-center bg-parchment p-5">
+      <SignIn
+        routing="hash"
+        withSignUp
+        forceRedirectUrl="/app"
+        signUpForceRedirectUrl="/app"
+      />
+    </main>
   );
 }
 
