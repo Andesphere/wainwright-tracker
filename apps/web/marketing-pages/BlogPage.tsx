@@ -9,14 +9,10 @@ import { SlopeNav } from "@/components/marketing/SlopeNav";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
 import { BLOG_POSTS, formatBlogDate } from "@/content/blog/posts";
 
-type BlogPageProps = {
-  signedIn?: boolean;
-};
-
-export function BlogPage({ signedIn = false }: BlogPageProps) {
+export function BlogPage() {
   return (
-    <SlopeShell signedIn={signedIn}>
-      <SlopeNav signedIn={signedIn} variant="solid" />
+    <SlopeShell>
+      <SlopeNav variant="solid" />
 
       {/* ── BANNER — editorial header for SEO field guides */}
       <header className="slope-banner slope-banner-rich">

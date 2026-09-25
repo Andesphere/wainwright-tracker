@@ -9,7 +9,7 @@ export const DEFAULT_OG_IMAGE = "/wainwrights-214-og.jpg";
 const DEFAULT_OG_IMAGE_ALT =
   "Bag all 214 Wainwrights: fells of the Lake District under a Wainwrights Baggers title card";
 
-export type SeoRoute = "home" | "blog" | "app" | "post" | "unknown";
+export type SeoRoute = "home" | "contact" | "blog" | "app" | "post" | "unknown";
 
 export type RouteSeo = {
   route: SeoRoute;
@@ -50,6 +50,18 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
       path,
       title: "Wainwrights Baggers | Map, Checklist & Journal for the 214 Fells",
       description: homeDescription,
+      image: DEFAULT_OG_IMAGE,
+      imageAlt: DEFAULT_OG_IMAGE_ALT,
+    };
+  }
+
+  if (path === "/contact") {
+    return {
+      route: "contact",
+      path,
+      title: "Contact Wainwrights Baggers",
+      description:
+        "Send a note to the people behind Wainwrights Baggers: questions about the tracker, the iPhone app, your account or a fell we got wrong.",
       image: DEFAULT_OG_IMAGE,
       imageAlt: DEFAULT_OG_IMAGE_ALT,
     };
@@ -313,40 +325,6 @@ export function JsonLd({ seo }: { seo: RouteSeo }) {
       dangerouslySetInnerHTML={{ __html: jsonLdScript(buildJsonLd(seo)) }}
     />
   );
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function fallbackHtml(seo: RouteSeo) {
-  if (seo.route === "app") return "";
-
-  if (seo.route === "post" && seo.post) {
-    return `<main><article><h1>${escapeHtml(seo.post.title)}</h1><p>${escapeHtml(seo.post.excerpt)}</p><ul>${seo.post.keywords
-      .map((keyword) => `<li>${escapeHtml(keyword)}</li>`)
-      .join("")}</ul></article></main>`;
-  }
-
-  if (seo.route === "blog") {
-    return `<main><h1>Wainwright walking guides and tracker tips</h1><p>${escapeHtml(blogDescription)}</p><ul>${BLOG_POSTS.map(
-      (post) =>
-        `<li><a href="/blog/${escapeHtml(post.slug)}">${escapeHtml(post.title)}</a></li>`,
-    ).join("")}</ul></main>`;
-  }
-
-  return `<main><h1>Wainwrights Baggers: map, checklist and journal for the 214 fells</h1><p>${escapeHtml(homeDescription)}</p><ul><li>Track every Wainwright fell on a Lake District map.</li><li>Bag each fell with the date you walked it, on iPhone or the web.</li><li>Pro adds a photo journal with notes and photos for every fell.</li><li>Use the blog for Wainwright checklist, map and app guidance.</li></ul></main>`;
-}
-
-export function SeoFallbackContent({ seo }: { seo: RouteSeo }) {
-  const html = fallbackHtml(seo);
-  if (!html) return null;
-  return <noscript dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 export function getIndexableBlogUrls() {

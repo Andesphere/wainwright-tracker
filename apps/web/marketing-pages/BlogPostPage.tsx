@@ -14,11 +14,7 @@ import {
 } from "@/content/blog/posts";
 import { trackBlogCtaClick } from "@/lib/analytics";
 
-type BlogPostPageProps = {
-  signedIn?: boolean;
-};
-
-export function BlogPostPage({ signedIn = false }: BlogPostPageProps) {
+export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
   const post = slug ? getBlogPost(slug) : undefined;
 
@@ -28,8 +24,8 @@ export function BlogPostPage({ signedIn = false }: BlogPostPageProps) {
   }
 
   return (
-    <SlopeShell signedIn={signedIn}>
-      <SlopeNav signedIn={signedIn} variant="solid" />
+    <SlopeShell>
+      <SlopeNav variant="solid" />
 
       <article className="post-article post-article-rich">
         <header className="post-header-rich">
