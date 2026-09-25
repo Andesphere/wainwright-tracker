@@ -1,3 +1,4 @@
+@preconcurrency import ConvexMobile
 import Foundation
 import PostHog
 import Sentry
@@ -7,7 +8,7 @@ import Sentry
 /// Neither knows who the walker is: no user ID, name or email is ever set, Sentry sends no
 /// default PII, and PostHog never identifies, so it keeps no person profiles. The funnel events
 /// are `app_opened`, `fell_bagged`, `paywall_shown`, `purchase_started`, `trial_started` and
-/// `subscribed`. No screen views, no autocapture, no session replay.
+/// `subscription_started`. No screen views, no autocapture, no session replay.
 enum Telemetry {
     #if DEBUG
     static let environment = "debug"
@@ -39,10 +40,15 @@ enum Telemetry {
         PostHogSDK.shared.capture(event, properties: properties)
     }
 
-    /// A non-fatal error worth fixing. `flow` is `sync`, `photo_upload` or `purchase`.
-    static func report(_ error: Error, flow: String) {
+    enum Flow: String {
+        case sync, photoUpload = "photo_upload", purchase
+    }
+
+    /// A non-fatal error worth fixing. A Convex app error is a message meant for the walker, not a bug.
+    static func report(_ error: Error, flow: Flow) {
+        if case ClientError.ConvexError = error { return }
         SentrySDK.capture(error: error) { scope in
-            scope.setTag(value: flow, key: "flow")
+            scope.setTag(value: flow.rawValue, key: "flow")
         }
     }
 }

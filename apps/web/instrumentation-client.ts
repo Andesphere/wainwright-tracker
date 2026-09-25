@@ -10,7 +10,8 @@ import {
 const posthogToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 
 // Anonymous product analytics: nobody is identified, nothing is stored in the
-// browser, and replays mask every input and every piece of text.
+// browser, clicks are not autocaptured (their text can name other walkers), and
+// replays mask every input and every piece of text.
 if (posthogToken) {
   posthog.init(posthogToken, {
     api_host: "/pulse",
@@ -18,6 +19,7 @@ if (posthogToken) {
     defaults: "2026-05-30",
     person_profiles: "identified_only",
     persistence: "memory",
+    autocapture: false,
     session_recording: { maskAllInputs: true, maskTextSelector: "*" },
     debug: process.env.NODE_ENV === "development",
   });

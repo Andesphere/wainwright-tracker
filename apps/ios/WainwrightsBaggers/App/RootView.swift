@@ -7,6 +7,8 @@ struct RootView: View {
     @Environment(ProStore.self) private var pro
     @Environment(Clerk.self) private var clerk
     @Environment(\.scenePhase) private var scenePhase
+    /// True at launch and after the app went to the background; alerts and the purchase sheet do not count.
+    @State private var opening = true
 
     var body: some View {
         @Bindable var model = model
@@ -33,8 +35,12 @@ struct RootView: View {
                 _ = await (convex, revenueCat)
             }
             .onChange(of: scenePhase, initial: true) { _, phase in
+                if phase == .background { opening = true }
                 guard phase == .active else { return }
-                Telemetry.capture("app_opened")
+                if opening {
+                    opening = false
+                    Telemetry.capture("app_opened")
+                }
                 Task { await progress.reconnectIfNeeded() }
             }
             .onChange(of: progress.errorMessage) { _, message in

@@ -282,13 +282,13 @@ struct PaywallView: View {
             do {
                 switch try await pro.purchase(package, userId: userId) {
                 case .purchased:
-                    Telemetry.capture(trial ? "trial_started" : "subscribed", properties)
+                    Telemetry.capture(trial ? "trial_started" : "subscription_started", properties)
                     celebrate()
                 case .cancelled: break
                 case .pending: alert = .pending
                 }
             } catch {
-                Telemetry.report(error, flow: "purchase")
+                Telemetry.report(error, flow: .purchase)
                 alert = .failed(error.localizedDescription)
             }
         }
@@ -309,7 +309,7 @@ struct PaywallView: View {
                     alert = .nothingToRestore
                 }
             } catch {
-                Telemetry.report(error, flow: "purchase")
+                Telemetry.report(error, flow: .purchase)
                 alert = .failed(error.localizedDescription)
             }
         }

@@ -437,8 +437,10 @@ export function TrackerApp() {
     metadata: CompletionMetadata,
     files: File[],
   ) => {
+    let flow = "photo_upload";
     try {
       const uploaded = await uploadPhotos(files);
+      flow = "sync";
       const photos = uploaded.reduce(
         (next, photo) => addPhotoMetadata(next, photo),
         metadata.photos ?? entriesById.get(fell.id)?.photos ?? [],
@@ -460,7 +462,7 @@ export function TrackerApp() {
       });
       toast.success("Journal saved");
     } catch (error) {
-      reportError(error, "photo_upload");
+      reportError(error, flow);
       toast.error(
         errorMessage(
           error,
