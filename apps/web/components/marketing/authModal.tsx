@@ -40,6 +40,10 @@ export function openAuthModal(modal: AuthModal) {
     showModal(modal);
     return;
   }
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  if (!publishableKey) {
+    throw new Error("Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY");
+  }
   const mounting = requested !== undefined;
   requested = modal;
   if (mounting) return;
@@ -47,10 +51,7 @@ export function openAuthModal(modal: AuthModal) {
   const host = document.createElement("div");
   document.body.append(host);
   createRoot(host).render(
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? ""}
-      afterSignOutUrl="/"
-    >
+    <ClerkProvider publishableKey={publishableKey} afterSignOutUrl="/">
       <ModalOpener />
     </ClerkProvider>,
   );
