@@ -79,7 +79,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 ### 5. App Store submission ([#732](https://github.com/JorgeMenaDev/matias/issues/732))
 
 - [ ] Listing: subtitle, description, keywords, category set. Screenshots: 3 of 7 for 6.9" (`APP_IPHONE_67`, 1320×2868); the four map screens wait on Mapbox. 6.5" is optional when 6.9" is provided.
-- [ ] Privacy labels: email, name, photos and notes, user ID; location is used on the device only and not collected.
+- [x] Privacy labels published 2026-09-25: linked Contact Info, User Content, Identifiers, Purchases; not linked Location (Mapbox telemetry); no tracking.
 - [x] Age rating, support URL (contact page), privacy URL (`/privacy`), marketing URL.
 - [x] Review notes and demo account.
 - [ ] Submit 1.0 with both subscriptions attached; answer review.
