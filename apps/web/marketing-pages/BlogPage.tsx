@@ -1,22 +1,18 @@
-// BlogPage — the /blog index.
+// BlogPage — the /blog index, rendered on the server.
 // Same Slope design language as the landing, upgraded with editorial cards,
 // thumbnails and richer metadata for SEO-led posts.
 
 import Image from "next/image";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 import { SlopeNav } from "@/components/marketing/SlopeNav";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
 import { BLOG_POSTS, formatBlogDate } from "@/content/blog/posts";
 
-type BlogPageProps = {
-  signedIn?: boolean;
-};
-
-export function BlogPage({ signedIn = false }: BlogPageProps) {
+export function BlogPage() {
   return (
-    <SlopeShell signedIn={signedIn}>
-      <SlopeNav signedIn={signedIn} variant="solid" />
+    <SlopeShell>
+      <SlopeNav variant="solid" />
 
       {/* ── BANNER — editorial header for SEO field guides */}
       <header className="slope-banner slope-banner-rich">
@@ -34,7 +30,7 @@ export function BlogPage({ signedIn = false }: BlogPageProps) {
       <ul className="post-list post-list-rich">
         {BLOG_POSTS.map((post) => (
           <li key={post.slug} className="post-card post-card-rich">
-            <Link to={`/blog/${post.slug}`}>
+            <Link href={`/blog/${post.slug}`}>
               <Image
                 src={post.heroImage}
                 alt={post.heroImageAlt}

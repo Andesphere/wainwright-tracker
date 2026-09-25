@@ -1,24 +1,18 @@
-// LandingPage — the public "/" route.
+// LandingPage — the public "/" route, rendered on the server.
 // Sells the iPhone app and the web tracker in the app's own visual
 // language: sage map greens, warm cream, a serif for titles, glass cards.
 // Shares the Slope nav and footer with the blog; page-only styles live in
-// styles/landing.css under the ld-* prefix.
+// styles/landing.css under the ld-* prefix. The journal CTAs are client
+// islands (components/marketing/AuthCta.tsx).
 
-import { SignUpButton } from "@clerk/clerk-react";
-import { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
 
 import { AppStoreBadge } from "@/components/marketing/AppStoreBadge";
+import { JournalCta } from "@/components/marketing/AuthCta";
 import { PhoneFrame } from "@/components/marketing/PhoneFrame";
 import { SlopeNav } from "@/components/marketing/SlopeNav";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
 import { BLOG_POSTS } from "@/content/blog/posts";
-import { trackCtaClick, trackSignupClick } from "@/lib/analytics";
-
-type LandingPageProps = {
-  /** When true, CTAs deep-link into /app; otherwise they open Clerk modals. */
-  signedIn?: boolean;
-};
 
 // Real captures from the iPhone app (apps/web/public/screens/ios).
 const SCREENS = {
@@ -75,53 +69,13 @@ const NOTES = BLOG_POSTS.slice(0, 3);
 
 const PHONE_SIZES = "(min-width: 900px) 280px, 66vw";
 
-export function LandingPage({ signedIn = false }: LandingPageProps) {
-  // The shared nav links to /#map and /#pricing. react-router does not
-  // scroll to hashes on client navigation, so do it here.
-  const { hash } = useLocation();
-  useEffect(() => {
-    if (!hash) return;
-    document.getElementById(hash.slice(1))?.scrollIntoView({ block: "start" });
-  }, [hash]);
-
-  // The web CTA: a link into the tracker when signed in, otherwise the
-  // Clerk sign-up modal. Same pill either way.
-  const webCta = (
-    label: string,
-    location: string,
-    variant: "dark" | "light" = "dark",
-  ) => {
-    const className =
-      variant === "dark" ? "btn-pill btn-pill-light" : "btn-pill";
-    const trackClick = () => {
-      trackCtaClick(location, label);
-      if (!signedIn) trackSignupClick(location, label);
-    };
-
-    if (signedIn) {
-      return (
-        <Link to="/app" className={className} onClick={trackClick}>
-          {label}
-          <i className="btn-arr" />
-        </Link>
-      );
-    }
-    return (
-      <SignUpButton mode="modal">
-        <button type="button" className={className} onClick={trackClick}>
-          {label}
-          <i className="btn-arr" />
-        </button>
-      </SignUpButton>
-    );
-  };
-
+export function LandingPage() {
   return (
-    <SlopeShell signedIn={signedIn}>
+    <SlopeShell>
       {/* ── HERO — copy left, the app itself right */}
       <section className="ld-hero">
         <div className="ld-contours" aria-hidden />
-        <SlopeNav signedIn={signedIn} variant="plain" />
+        <SlopeNav variant="plain" />
 
         <div className="ld-wrap ld-hero-grid">
           <div className="ld-hero-copy">
@@ -137,7 +91,7 @@ export function LandingPage({ signedIn = false }: LandingPageProps) {
             </p>
             <div className="ld-cta-row">
               <AppStoreBadge location="home_hero" />
-              {webCta("Open the journal", "home_hero")}
+              <JournalCta label="Open the journal" location="home_hero" />
             </div>
             <p className="ld-fine">
               Free forever. Pro adds the photo journal and more, from £1.99 a
@@ -299,7 +253,7 @@ export function LandingPage({ signedIn = false }: LandingPageProps) {
                 Sign in on any computer and the tracker opens on the same round.
                 Nothing to install.
               </p>
-              {webCta("Open the journal", "home_ways")}
+              <JournalCta label="Open the journal" location="home_ways" />
             </article>
           </div>
         </div>
@@ -352,14 +306,14 @@ export function LandingPage({ signedIn = false }: LandingPageProps) {
             <h2 className="ld-h2 ld-h2--small" id="ld-notes-h">
               From the field notes
             </h2>
-            <Link to="/blog" className="ld-notes-all">
+            <Link href="/blog" className="ld-notes-all">
               All field notes
             </Link>
           </div>
           <ul className="ld-notes-list">
             {NOTES.map((post) => (
               <li key={post.slug} className="ld-note">
-                <Link to={`/blog/${post.slug}`}>
+                <Link href={`/blog/${post.slug}`}>
                   <span className="ld-note-cat">{post.category}</span>
                   <h3>{post.title}</h3>
                   <p>{post.excerpt}</p>
@@ -382,7 +336,11 @@ export function LandingPage({ signedIn = false }: LandingPageProps) {
           </p>
           <div className="ld-cta-row ld-cta-row--center">
             <AppStoreBadge location="home_bottom" />
-            {webCta("Open the journal", "home_bottom", "light")}
+            <JournalCta
+              label="Open the journal"
+              location="home_bottom"
+              variant="light"
+            />
           </div>
         </div>
       </section>

@@ -1,3 +1,5 @@
+"use client";
+
 // AppStoreBadge — Apple's official "Download on the App Store" badge
 // (black, en-GB, from App Store Marketing Tools) linking to the listing.
 // Apple asks for the badge to be shown unaltered at 40px tall or more.

@@ -286,6 +286,15 @@
   color: var(--moss);
 }
 
+/* not-found page */
+.design-slope .slope-notfound {
+  width: 100%;
+  border-bottom: 0;
+}
+.design-slope .slope-notfound .ld-cta-row {
+  margin-top: 2.4rem;
+}
+
 /* blog index list */
 .design-slope .post-list {
   list-style: none;

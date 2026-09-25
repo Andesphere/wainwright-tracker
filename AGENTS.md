@@ -97,7 +97,7 @@ From the repo root:
 ```sh
 bun install
 bun run test          # web unit tests + Convex tests (convex-test)
-bun run check         # typecheck, lint and build; apps/web lint has two known errors (app/privacy/page.tsx, components/marketing/SlopeFooter.tsx)
+bun run check         # typecheck, lint and build; apps/web lint has one known error (app/privacy/page.tsx)
 bun run format
 ```
 

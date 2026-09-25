@@ -1,39 +1,27 @@
-// BlogPostPage — the /blog/:slug detail page.
+// BlogPostPage — the /blog/:slug detail page, rendered on the server.
 // Rich editorial layout using the same Slope design language as the rest of
 // the marketing surface, with hero photography, tables, callouts and CTAs.
 
 import Image from "next/image";
-import { Link, Navigate, useParams } from "react-router-dom";
+import Link from "next/link";
 
+import { BlogCtaLink } from "@/components/marketing/BlogCtaLink";
 import { SlopeNav } from "@/components/marketing/SlopeNav";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
 import {
   type BlogBlock,
+  type BlogPost,
   formatBlogDate,
-  getBlogPost,
 } from "@/content/blog/posts";
-import { trackBlogCtaClick } from "@/lib/analytics";
 
-type BlogPostPageProps = {
-  signedIn?: boolean;
-};
-
-export function BlogPostPage({ signedIn = false }: BlogPostPageProps) {
-  const { slug } = useParams<{ slug: string }>();
-  const post = slug ? getBlogPost(slug) : undefined;
-
-  // No matching post → bounce back to the blog index. Avoids 404 noise.
-  if (!post) {
-    return <Navigate to="/blog" replace />;
-  }
-
+export function BlogPostPage({ post }: { post: BlogPost }) {
   return (
-    <SlopeShell signedIn={signedIn}>
-      <SlopeNav signedIn={signedIn} variant="solid" />
+    <SlopeShell>
+      <SlopeNav variant="solid" />
 
       <article className="post-article post-article-rich">
         <header className="post-header-rich">
-          <Link to="/blog" className="post-back">
+          <Link href="/blog" className="post-back">
             ← Field Notes
           </Link>
           <div className="post-meta">
@@ -165,14 +153,7 @@ function BlogBlockView({ block, slug }: { block: BlogBlock; slug: string }) {
     <aside className="post-cta-box">
       <h2>{block.title}</h2>
       <p>{block.text}</p>
-      <Link
-        to={block.href}
-        className="btn-pill btn-pill-light"
-        onClick={() => trackBlogCtaClick(slug, block.label, block.href)}
-      >
-        {block.label}
-        <i className="btn-arr" />
-      </Link>
+      <BlogCtaLink slug={slug} label={block.label} href={block.href} />
     </aside>
   );
 }
