@@ -63,7 +63,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 ### 3. Web
 
 - [ ] New landing: Jorge chose the Fable design on 2026-09-24. [wainwright-tracker#4](https://github.com/Andesphere/wainwright-tracker/pull/4) is ready and merges on App Store launch day ([#736](https://github.com/JorgeMenaDev/matias/issues/736)).
-- [ ] Web tracker matches the iOS experience: Mapbox GL JS with the same style, 3D terrain, contours and lighting, the same sheet, book progress and fell card ([#733](https://github.com/JorgeMenaDev/matias/issues/733)). Built in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7); map screenshots wait for the Mapbox account (paused until a card is added).
+- [ ] Web tracker matches the iOS experience: Mapbox GL JS with the same style, 3D terrain, contours and lighting, the same sheet, book progress and fell card ([#733](https://github.com/JorgeMenaDev/matias/issues/733)). Built in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7) and checked on its preview on 2026-09-25 with the live map (desktop and phone, all three layers, dusk and night, free and Pro). Done when #7 merges.
 - [ ] Pro on the web through RevenueCat Web Billing on Stripe, the same entitlement as iOS ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
 - [ ] AI bulk import: set `AI_GATEWAY_API_KEY` on Convex prod, or remove the feature and its blog mention.
 - [x] Fix the two typecheck errors in `apps/web/components/ui/badge.tsx` and `button.tsx` (no longer reproduce; `tsc` is clean on both configs, checked 2026-09-24).
