@@ -46,7 +46,10 @@ export type RouteSeo = {
   title: string;
   description: string;
   image: OgImage;
-  /** Date (YYYY-MM-DD) the page's content last changed; drives the sitemap. Indexable pages only. */
+  /**
+   * Date (YYYY-MM-DD) the page's copy last changed; drives the sitemap. Kept
+   * by hand: bump it in the same change as the copy. Indexable pages only.
+   */
   lastModified?: string;
   /** The trail above and including this page; omitted where there is none. */
   breadcrumbs?: Breadcrumb[];
@@ -68,8 +71,6 @@ const blogCrumbs: Breadcrumb[] = [
   { name: "Home", path: "/" },
   { name: BLOG_NAME, path: "/blog" },
 ];
-
-const latest = (dates: string[]) => [...dates].sort().at(-1) as string;
 
 export function absoluteUrl(path = "/"): string {
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
@@ -137,7 +138,9 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
       title: "Wainwright Walking Guides & Tracker Tips",
       description: blogDescription,
       image: DEFAULT_OG_IMAGE,
-      lastModified: latest(BLOG_POSTS.map((post) => post.updatedAt)),
+      lastModified: BLOG_POSTS.map((post) => post.updatedAt)
+        .sort()
+        .at(-1),
       breadcrumbs: blogCrumbs,
     };
   }
@@ -424,18 +427,15 @@ export function JsonLd({ seo }: { seo: RouteSeo }) {
 
 /** Every indexable page with the date its content last changed. */
 export function sitemapEntries(): MetadataRoute.Sitemap {
-  const paths = [
-    "/",
-    "/contact",
-    "/privacy",
-    "/blog",
-    ...BLOG_POSTS.map((post) => `/blog/${post.slug}`),
+  const slugs = [
+    [],
+    ["contact"],
+    ["privacy"],
+    ["blog"],
+    ...BLOG_POSTS.map((post) => ["blog", post.slug]),
   ];
-  return paths
-    .map((path) => getRouteSeo(path.split("/").filter(Boolean)))
-    .filter((seo) => !seo.noIndex)
-    .map((seo) => ({
-      url: absoluteUrl(seo.path),
-      lastModified: seo.lastModified,
-    }));
+  return slugs.map((slug) => {
+    const seo = getRouteSeo(slug);
+    return { url: absoluteUrl(seo.path), lastModified: seo.lastModified };
+  });
 }

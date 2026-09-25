@@ -9,26 +9,14 @@ import { usePathname } from "next/navigation";
 import { pageGroup, trackAppStoreClick } from "@/lib/analytics";
 import { appStoreLink } from "@/lib/appStore";
 
-type AppStoreLinkProps = {
+type AppStoreLinkProps = Omit<React.ComponentProps<"a">, "href" | "onClick"> & {
   /** Analytics location, e.g. "home_hero". */
   location: string;
-  className?: string;
-  children: React.ReactNode;
 };
 
-export function AppStoreLink({
-  location,
-  className,
-  children,
-}: AppStoreLinkProps) {
+export function AppStoreLink({ location, ...anchor }: AppStoreLinkProps) {
   const href = appStoreLink(pageGroup(usePathname()));
   return (
-    <a
-      href={href}
-      className={className}
-      onClick={() => trackAppStoreClick(location)}
-    >
-      {children}
-    </a>
+    <a {...anchor} href={href} onClick={() => trackAppStoreClick(location)} />
   );
 }

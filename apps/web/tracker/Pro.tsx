@@ -5,8 +5,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { trackAppStoreClick } from "@/lib/analytics";
-import { APP_STORE_LIVE, appStoreLink } from "@/lib/appStore";
+import { AppStoreLink } from "@/components/marketing/AppStoreLink";
+import { APP_STORE_LIVE } from "@/lib/appStore";
 import { cn } from "@/lib/utils";
 import {
   BookIcon,
@@ -202,9 +202,8 @@ export function ProUpsell({
 
         <div className="grid gap-3 px-6 pb-6 pt-5">
           {APP_STORE_LIVE ? (
-            <a
-              href={appStoreLink("app")}
-              onClick={() => trackAppStoreClick("pro_sheet")}
+            <AppStoreLink
+              location="pro_sheet"
               target="_blank"
               rel="noreferrer"
               className="wb-press flex h-[52px] items-center justify-center gap-2 rounded-full bg-[var(--wb-brand)] text-[17px] font-semibold text-white shadow-[0_10px_24px_-12px_rgba(31,66,50,0.8)]"
@@ -219,7 +218,7 @@ export function ProUpsell({
                 <path d="M14.1 10.6c0-2.5 2-3.7 2.1-3.8-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9C3.8 4.9 2.2 5.9 1.3 7.4c-1.8 3.2-.5 7.9 1.3 10.4.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.8-1-2.8-4.4ZM11.6 3.2c.7-.8 1.2-2 1-3.2-1 .1-2.3.7-3 1.5-.7.7-1.2 1.9-1.1 3.1 1.2.1 2.4-.6 3.1-1.4Z" />
               </svg>
               Get Pro in the iPhone app
-            </a>
+            </AppStoreLink>
           ) : (
             <span className="flex h-[52px] items-center justify-center gap-2 rounded-full bg-[var(--wb-brand)] text-[17px] font-semibold text-white shadow-[0_10px_24px_-12px_rgba(31,66,50,0.8)]">
               Coming soon to iPhone
