@@ -15,11 +15,11 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 
 | Area | State |
 | --- | --- |
-| iOS app | Native SwiftUI + Mapbox, TestFlight 1.0 (18). Map, location, bagging, live sync, account deletion, Pro through RevenueCat (paywall, photo journal, albums with PDF, map layers, stats). Real purchases wait for the Paid Apps agreement. |
+| iOS app | Native SwiftUI + Mapbox, TestFlight 1.0 (18). Map, location, bagging, live sync, account deletion, Pro through RevenueCat (paywall, photo journal, albums with PDF, map layers, stats). Paid Apps agreement Active 2026-09-25; real sandbox purchases next. |
 | Web app | Live on the old MapLibre map. The iOS-style tracker (Mapbox, sheet, fell card, Pro gating) is ready in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7). No web payments. |
 | Backend | Convex prod `tame-avocet-977` (EU), recreated 2026-09-24. Server-side merge, account deletion, photo cleanup, Convex tests. Pro entitlements from RevenueCat webhooks; Clerk `user.deleted` cleanup. |
 | Sign-in | Clerk production on web, iOS and Convex prod. Email and password, Google, Sign in with Apple (in the iOS build since 16). |
-| App Store Connect | App `6771147426`, version 1.0. Listing, categories, age rating 4+, review details and demo account set; 3 of 7 6.9" screenshots uploaded (the map screens wait on Mapbox). Both plans READY_TO_SUBMIT. Paid Apps agreement accepted, tax forms signed, bank in review (2026-09-24). |
+| App Store Connect | App `6771147426`, version 1.0. Listing, categories, age rating 4+, review details and demo account set; all 7 6.9" screenshots uploaded. Both plans READY_TO_SUBMIT. Paid Apps agreement, bank and both US tax forms Active (2026-09-25). |
 | Landing | New Fable design live since 2026-09-25 (#4). App Store links read "coming soon" until `APP_STORE_LIVE` in `apps/web/lib/appStore.ts` is set to true on launch day. Previews use Clerk Development and Convex dev. |
 
 ## Done on 2026-09-24
@@ -42,12 +42,12 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 
 - [x] RevenueCat: Andesphere account, project, iOS app `com.wainwrightsbaggers.mobile`, entitlement `pro`, offering with both products.
 - [x] App Store Connect In-App Purchase key for RevenueCat, and App Store Server Notifications (V2) pointed at RevenueCat.
-- [ ] Check the Paid Apps agreement, tax and banking are active in App Store Connect > Business. Accepted, EU trader status Active, W-8BEN-E and certificate signed on 2026-09-24; bank account in Apple's review (up to 24 hours).
+- [x] Paid Apps agreement, tax and banking active in App Store Connect > Business (checked 2026-09-25): Paid Apps Active Sep 24, 2026 to May 19, 2027; bank account (GBP) Active; W-8BEN-E and Certificate of Foreign Status Active; EU DSA trader status Active. The Compliance row "Model Reporting Rules for Digital Platforms" (4 countries) shows Missing Info; it covers apps that sell personal services, so it does not apply to this app.
 - [x] iOS: RevenueCat SDK with the Clerk user ID as app user ID, paywall, restore purchases, manage-subscription link.
 - [x] Convex: RevenueCat webhook into an `entitlements` table, recomputed from RevenueCat API v2; `billing.mine`, `billing.refresh`. Proven on prod with a dashboard test event and a Test Store purchase.
 - [ ] Convex: Pro-only operations checked on the server. Wired and on Convex dev in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7); deploy to prod together with that web merge ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
 - [x] Pro features on iOS: photo journal, albums with PDF print export, extra map layers, stats.
-- [ ] Sandbox and TestFlight tests: buy, trial, restore, cancel, expiry, refund, switch account. Simulator runs pass on RevenueCat's Test Store (`ProFlowUITests`); real sandbox purchases wait for the Paid Apps agreement.
+- [ ] Sandbox and TestFlight tests: buy, trial, restore, cancel, expiry, refund, switch account. Simulator runs pass on RevenueCat's Test Store (`ProFlowUITests`); real sandbox purchases are unblocked since the Paid Apps agreement went Active (2026-09-25).
 - [x] Review screenshot of the paywall and review notes on both plans (READY_TO_SUBMIT).
 - [ ] Jorge: consider enrolling in the Apple Small Business Program (15% commission instead of 30%).
 
