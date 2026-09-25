@@ -13,7 +13,7 @@ Native SwiftUI app. It replaced the Expo app (removed 2026-09-24) on the same bu
 ```sh
 brew install xcodegen
 cd apps/ios
-cp Config/Secrets.example.xcconfig Config/Secrets.xcconfig   # then fill in the three values
+cp Config/Secrets.example.xcconfig Config/Secrets.xcconfig   # then fill in the five values
 xcodegen generate                                             # or: bun run ios-native:generate from the repo root
 open WainwrightsBaggers.xcodeproj
 ```

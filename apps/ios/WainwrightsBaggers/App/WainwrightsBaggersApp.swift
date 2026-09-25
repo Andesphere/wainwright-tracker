@@ -10,6 +10,7 @@ struct WainwrightsBaggersApp: App {
     @State private var clerkTheme = ClerkTheme(colors: .init(primary: .brand))
 
     init() {
+        Telemetry.start()
         Clerk.configure(publishableKey: AppConfig.string("ClerkPublishableKey"))
         let progress = ProgressStore(deploymentURL: AppConfig.string("ConvexDeploymentURL"))
         _progress = State(initialValue: progress)

@@ -42,7 +42,9 @@ const sections: { title: string; body: string[] }[] = [
   {
     title: "Who processes it for us",
     body: [
-      "Clerk (sign-in and accounts), Convex (the database and photo storage, hosted in the EU), Vercel (website hosting and privacy-friendly page statistics without cookies).",
+      "Clerk (sign-in and accounts), Convex (the database and photo storage, hosted in the EU), Vercel (website hosting).",
+      "Sentry (crash and error reports). When the app or website crashes or hits an error, Sentry receives a technical report: what went wrong, the steps in the app just before it, the app version, and your device model and system version. It does not receive your name, email address, notes or photos.",
+      "PostHog (anonymous product usage). We count what happens in the app and on the website, such as the app being opened, a fell being bagged or the Pro screen being shown, to learn what to improve. These events are not linked to your account, your name or your email address, and the website sets no analytics cookies. On the website PostHog may also record anonymous replays of how pages are used, with everything you type and all text on screen hidden.",
       "RevenueCat (Pro subscriptions). Apple tells RevenueCat about your purchases, and RevenueCat tells us whether Pro is active. It knows your account ID and your purchase history, not your card.",
       "Map tiles come from Mapbox, OpenFreeMap and OpenTopoMap. Like any website, they see your IP address and which map area you are viewing.",
       "The map in the iPhone app is made by Mapbox. Its map software sends Mapbox anonymous usage and location data to improve its maps. It is not linked to your account, and you can turn it off from the info button on the map.",

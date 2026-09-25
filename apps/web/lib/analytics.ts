@@ -1,14 +1,15 @@
-import { track } from "@vercel/analytics";
+import posthog from "posthog-js";
 
-const pagePath = () =>
-  typeof window === "undefined" ? undefined : window.location.pathname;
-
+/**
+ * Anonymous PostHog events. Nobody is identified, so properties must never carry
+ * names, emails, notes or anything else a walker typed.
+ */
 export const trackCtaClick = (location: string, label: string) => {
-  track("cta_click", { location, label, path: pagePath() });
+  posthog.capture("cta_clicked", { location, label });
 };
 
 export const trackSignupClick = (location: string, label: string) => {
-  track("signup_click", { location, label, path: pagePath() });
+  posthog.capture("signup_clicked", { location, label });
 };
 
 export const trackBlogCtaClick = (
@@ -16,5 +17,19 @@ export const trackBlogCtaClick = (
   label: string,
   href: string,
 ) => {
-  track("blog_cta_click", { slug, label, href, path: pagePath() });
+  posthog.capture("blog_cta_clicked", { slug, label, href });
+};
+
+/** The tracker at /app opened for a signed-in walker. */
+export const trackAppOpened = () => {
+  posthog.capture("app_opened");
+};
+
+export const trackFellBagged = () => {
+  posthog.capture("fell_bagged");
+};
+
+/** The Pro upsell opened; `feature` is the locked feature that was tapped. */
+export const trackPaywallShown = (feature: string) => {
+  posthog.capture("paywall_shown", { feature });
 };

@@ -106,8 +106,14 @@ final class ProgressStore {
         if bagged { args["completedAt"] = JournalDate.string(from: date) }
         do {
             try await client.mutation("progress:setBagged", with: args)
-            if bagged { syncedIds.insert(fell.id) } else { syncedIds.remove(fell.id) }
+            if bagged {
+                syncedIds.insert(fell.id)
+                Telemetry.capture("fell_bagged")
+            } else {
+                syncedIds.remove(fell.id)
+            }
         } catch {
+            Telemetry.report(error, flow: .sync)
             errorMessage = "Could not save \(fell.name). Check your connection and try again."
         }
         optimistic[fell.id] = nil
@@ -123,7 +129,12 @@ final class ProgressStore {
         ]
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty { args["note"] = trimmed }
-        try await client.mutation("progress:setBagged", with: args)
+        do {
+            try await client.mutation("progress:setBagged", with: args)
+        } catch {
+            Telemetry.report(error, flow: .sync)
+            throw error
+        }
     }
 
     /// Downscales, uploads to Convex storage and attaches a photo to a bagged fell.
@@ -155,6 +166,7 @@ final class ProgressStore {
             ])
             ImageCache.shared.remember(preview, forStorageId: storageId)
         } catch {
+            Telemetry.report(error, flow: .photoUpload)
             errorMessage = "Could not upload the photo. Check your connection and try again."
         }
     }
@@ -172,6 +184,7 @@ final class ProgressStore {
         do {
             try await client.mutation("progress:setBagged", with: args)
         } catch {
+            Telemetry.report(error, flow: .sync)
             errorMessage = "Could not remove the photo. Check your connection and try again."
         }
     }
@@ -210,6 +223,7 @@ final class ProgressStore {
                 }
             } catch {
                 guard !Task.isCancelled else { return }
+                Telemetry.report(error, flow: .sync)
                 self?.sync = .failed
             }
         }
