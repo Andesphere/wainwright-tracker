@@ -310,11 +310,6 @@ describe("Clerk webhook", () => {
     });
 
   const seedWalker = async (t: ReturnType<typeof convexTest>) => {
-    await t.withIdentity(walker).mutation(api.progress.setBagged, {
-      id: "helvellyn",
-      bagged: true,
-      note: "Striding Edge",
-    });
     await t.run((ctx) =>
       ctx.db.insert("entitlements", {
         pro: true,
@@ -322,6 +317,11 @@ describe("Clerk webhook", () => {
         userId: "user_walker",
       }),
     );
+    await t.withIdentity(walker).mutation(api.progress.setBagged, {
+      id: "helvellyn",
+      bagged: true,
+      note: "Striding Edge",
+    });
   };
 
   const leftFor = (t: ReturnType<typeof convexTest>) =>

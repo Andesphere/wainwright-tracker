@@ -5,6 +5,7 @@ import {
   type MutationCtx,
   type QueryCtx,
 } from "./_generated/server";
+import { requirePro } from "./billing";
 import { deleteReleasedPhotos } from "./photos";
 
 const requireUserId = async (ctx: QueryCtx | MutationCtx) => {
@@ -164,6 +165,22 @@ export const setBagged = mutation({
       .unique();
     const previous = existing?.completed ?? [];
     const previousEntries = existing?.entries ?? [];
+    const previousEntry = previousEntries.find((entry) => entry.id === args.id);
+    const note = cleanOptionalText(args.note);
+
+    // Bagging with a date, unbagging and removing a note or photos are free.
+    // Writing a new note or attaching a photo the fell does not hold yet is Pro.
+    if (args.bagged) {
+      const storedPhotos = new Set(
+        (previousEntry?.photos ?? []).map((photo) => photo.storageId),
+      );
+      const writesNote = note !== undefined && note !== previousEntry?.note;
+      const addsPhoto = (args.photos ?? []).some(
+        (photo) => !storedPhotos.has(photo.storageId),
+      );
+      if (writesNote || addsPhoto) await requirePro(ctx);
+    }
+
     const next = args.bagged
       ? Array.from(new Set([...previous, args.id])).sort()
       : previous.filter((id) => id !== args.id);
@@ -173,11 +190,9 @@ export const setBagged = mutation({
           {
             completedAt: cleanOptionalText(args.completedAt),
             id: args.id,
-            note: cleanOptionalText(args.note),
+            note,
             // Omitted photos keep what is stored; an empty array removes them.
-            photos:
-              args.photos ??
-              previousEntries.find((entry) => entry.id === args.id)?.photos,
+            photos: args.photos ?? previousEntry?.photos,
           },
         ].sort((a, b) => a.id.localeCompare(b.id))
       : previousEntries.filter((entry) => entry.id !== args.id);
@@ -207,7 +222,7 @@ export const generatePhotoUploadUrl = mutation({
   args: {},
   returns: v.string(),
   handler: async (ctx) => {
-    await requireUserId(ctx);
+    await requirePro(ctx);
     return ctx.storage.generateUploadUrl();
   },
 });
@@ -222,7 +237,7 @@ export const attachPhoto = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await requireUserId(ctx);
+    const userId = await requirePro(ctx);
     const existing = await ctx.db
       .query("userProgress")
       .withIndex("by_user", (q) => q.eq("userId", userId))

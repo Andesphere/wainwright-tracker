@@ -63,7 +63,7 @@ Release status, what is done and the launch checklist live in `docs/RELEASE.md`.
 
 ## Apps
 
-- `apps/web`: Next.js 16 site and web tracker at https://wainwrightsbaggers.com (Vercel team `andesphere`, project `wainwright-tracker`, git deploy from `main`). The tracker map is still MapLibre; moving it to the iOS look is on the checklist.
+- `apps/web`: Next.js 16 site and web tracker at https://wainwrightsbaggers.com (Vercel team `andesphere`, project `wainwright-tracker`, git deploy from `main`). The tracker at `/app` (`apps/web/tracker/`) follows the iOS app: Mapbox GL JS v3 (Standard, faded theme, 3D terrain, sun-driven light preset, our hillshade, contours and fell layers), a glass side panel on desktop and a bottom sheet with detents on phones. It needs `NEXT_PUBLIC_MAPBOX_TOKEN` (the public Andesphere Mapbox token; set on Vercel for production and preview). `?light=dawn|day|dusk|night` forces the lighting.
 - `apps/ios`: native SwiftUI app, Mapbox Maps SDK v11, Clerk iOS, Convex Swift. Setup, build and TestFlight upload: `apps/ios/README.md`. It replaced the Expo app, which was removed on 2026-09-24.
 - `packages/backend`: Convex functions, schema and tests.
 - `packages/catalog`: the 214 fells. `area` is the Pictorial Guide book, derived from `bookNumber`. After a change, regenerate the iOS copy with `bun run ios-native:catalog`.
@@ -85,7 +85,7 @@ The Convex project was deleted on 2026-09-23 and recreated on 2026-09-24. All ea
 - Clerk app `Wainwrights Baggers` (Arketix Clerk workspace). Production `clerk.wainwrightsbaggers.com` serves web, iOS and Convex prod: email and password, Google, Apple, Native API on. Development `settling-anchovy-85.clerk.accounts.dev` serves Convex dev only.
 - Convex env `CLERK_FRONTEND_API_URL`: production `https://clerk.wainwrightsbaggers.com`, dev the development instance. `AI_GATEWAY_API_KEY` is unset, so AI bulk import is off.
 - Progress writes: `progress.setBagged` for one fell, `progress.addBagged` merges many on the server, `progress.reset` clears. There is no whole-list replace; a stale client must never drop data. `account.deleteMyData` removes everything a user owns; clients call it before deleting the Clerk user.
-- Pro: RevenueCat is the purchase authority; app user ID = Clerk user ID; entitlement `pro`. `convex/http.ts` takes the RevenueCat webhook at `/revenuecat` (bearer `REVENUECAT_WEBHOOK_AUTH`) and recomputes the `entitlements` row from RevenueCat API v2 (`REVENUECAT_PROJECT_ID`, `REVENUECAT_SECRET_KEY`), so repeated or late events are harmless. Clients read `billing.mine` and call `billing.refresh` after a purchase or restore. `requirePro` exists but no mutation uses it yet: web gating lands with #733. The Clerk `user.deleted` webhook at `/clerk-webhook` (Svix, `CLERK_WEBHOOK_SECRET`) removes the user's data.
+- Pro: RevenueCat is the purchase authority; app user ID = Clerk user ID; entitlement `pro`. `convex/http.ts` takes the RevenueCat webhook at `/revenuecat` (bearer `REVENUECAT_WEBHOOK_AUTH`) and recomputes the `entitlements` row from RevenueCat API v2 (`REVENUECAT_PROJECT_ID`, `REVENUECAT_SECRET_KEY`), so repeated or late events are harmless. Clients read `billing.mine` and call `billing.refresh` after a purchase or restore. `requirePro` guards journal writes: `progress.setBagged` needs Pro only when it writes a new note or attaches a photo the fell does not hold yet (bagging with a date, unbagging, reset and removing a note or photo stay free); `progress.generatePhotoUploadUrl` and `progress.attachPhoto` need Pro. The web shows Pro features locked with a link to the iPhone app; notes and photos saved while Pro stay visible, read-only. The Clerk `user.deleted` webhook at `/clerk-webhook` (Svix, `CLERK_WEBHOOK_SECRET`) removes the user's data.
 - Deploy functions from `packages/backend`: `bunx --bun convex deploy -y --typecheck=disable`. Vercel does not deploy Convex. Deploy Convex before merging web code that calls new functions.
 - QA: production accounts are created through the Clerk Backend API and need an emailed code on each new device. The Matias credentials store holds the standing QA account and the recipe.
 - Never run `convex dev` against a local deployment on this Mac without pinning ports; other projects own 3214, 3215 and 8081.
@@ -97,7 +97,7 @@ From the repo root:
 ```sh
 bun install
 bun run test          # web unit tests + Convex tests (convex-test)
-bun run check         # typecheck and lint; apps/web has two known errors in components/ui/badge.tsx and button.tsx
+bun run check         # typecheck, lint and build; apps/web lint has two known errors (app/privacy/page.tsx, components/marketing/SlopeFooter.tsx)
 bun run format
 ```
 
