@@ -20,7 +20,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 | Backend | Convex prod `tame-avocet-977` (EU), recreated 2026-09-24. Server-side merge, account deletion, photo cleanup, Convex tests. Pro entitlements from RevenueCat webhooks; Clerk `user.deleted` cleanup. |
 | Sign-in | Clerk production on web, iOS and Convex prod. Email and password, Google, Sign in with Apple (in the iOS build since 16). |
 | App Store Connect | App `6771147426`, version 1.0. Listing, categories, age rating 4+, review details and demo account set; 3 of 7 6.9" screenshots uploaded (the map screens wait on Mapbox). Both plans READY_TO_SUBMIT. Paid Apps agreement accepted, tax forms signed, bank in review (2026-09-24). |
-| Landing | New Fable design chosen and ready in PR #4; merges on launch day. Previews use Clerk Development and Convex dev. |
+| Landing | New Fable design live since 2026-09-25 (#4). App Store links read "coming soon" until `APP_STORE_LIVE` in `apps/web/lib/appStore.ts` is set to true on launch day. Previews use Clerk Development and Convex dev. |
 
 ## Done on 2026-09-24
 
@@ -63,7 +63,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 
 ### 3. Web
 
-- [ ] New landing: Jorge chose the Fable design on 2026-09-24. [wainwright-tracker#4](https://github.com/Andesphere/wainwright-tracker/pull/4) is ready and merges on App Store launch day ([#736](https://github.com/JorgeMenaDev/matias/issues/736)).
+- [x] New landing: the Fable design, live on 2026-09-25 ([wainwright-tracker#4](https://github.com/Andesphere/wainwright-tracker/pull/4), [#736](https://github.com/JorgeMenaDev/matias/issues/736)), with App Store links as "coming soon" until launch.
 - [ ] Web tracker matches the iOS experience: Mapbox GL JS with the same style, 3D terrain, contours and lighting, the same sheet, book progress and fell card ([#733](https://github.com/JorgeMenaDev/matias/issues/733)). Built in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7) and checked on its preview on 2026-09-25 with the live map (desktop and phone, all three layers, dusk and night, free and Pro). Done when #7 merges.
 - [ ] Pro on the web through RevenueCat Web Billing on Stripe, the same entitlement as iOS ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
 - [ ] AI bulk import: set `AI_GATEWAY_API_KEY` on Convex prod, or remove the feature and its blog mention.
@@ -83,7 +83,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 - [x] Age rating, support URL (contact page), privacy URL (`/privacy`), marketing URL.
 - [x] Review notes and demo account.
 - [ ] Submit 1.0 with both subscriptions attached; answer review.
-- [ ] On approval: release, merge the new landing (PR #4), tag the GitHub release (andes-release skill), update this file.
+- [ ] On approval: release, set `APP_STORE_LIVE = true` in `apps/web/lib/appStore.ts`, tag the GitHub release (andes-release skill), update this file.
 
 ### After launch
 
