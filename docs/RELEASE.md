@@ -83,7 +83,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 - [x] Age rating, support URL (contact page), privacy URL (`/privacy`), marketing URL.
 - [x] Review notes and demo account.
 - [x] Submitted 1.0 (build 18) with Pro Monthly, Pro Yearly and the Wainwrights Baggers Pro group on 2026-09-25 22:09Z (review submission `50c1bfd3-1190-453a-b3aa-fee8e2a82137`, Waiting for Review). Release is manual. First subscriptions must be added from each subscription page ("Add for Review"), not the API or the version page. Answer review if Apple asks.
-- [ ] On approval: release, set `APP_STORE_LIVE = true` in `apps/web/lib/appStore.ts`, tag the GitHub release (andes-release skill), update this file.
+- [ ] On approval: release, set `APP_STORE_PROVIDER_TOKEN` (the `pt` from App Store Connect > App Analytics > Campaign Generator) and `APP_STORE_LIVE = true` in `apps/web/lib/appStore.ts`, tag the GitHub release (andes-release skill), update this file. Going live also turns on the App Store badges with `ct=web-<page group>` campaign tokens, the `MobileApplication` structured data and the Organization `sameAs`; check the home page in Google's Rich Results Test after the deploy.
 
 ### After launch
 

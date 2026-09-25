@@ -1,38 +1,6 @@
 import type { MetadataRoute } from "next";
-import { getIndexableBlogUrls, SITE_URL } from "@/lib/seo";
-
-const now = new Date();
+import { sitemapEntries } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: SITE_URL,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${SITE_URL}/blog`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: `${SITE_URL}/contact`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${SITE_URL}/privacy`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.2,
-    },
-    ...getIndexableBlogUrls().map((entry) => ({
-      ...entry,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    })),
-  ];
+  return sitemapEntries();
 }

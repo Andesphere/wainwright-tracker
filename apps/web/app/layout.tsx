@@ -4,7 +4,7 @@ import {
   Newsreader,
   Plus_Jakarta_Sans,
 } from "next/font/google";
-import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { defaultMetadata, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -28,7 +28,7 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  ...defaultMetadata(),
   applicationName: SITE_NAME,
   category: "travel",
   icons: {

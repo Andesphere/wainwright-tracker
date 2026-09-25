@@ -20,13 +20,16 @@ export type BlogPost = {
   title: string;
   excerpt: string;
   publishedAt: string;
+  /** Date (YYYY-MM-DD) the text last changed; the sitemap and dateModified read it. */
+  updatedAt: string;
   readMinutes: number;
   author: string;
   category: string;
   keywords: string[];
   heroImage: string;
   heroImageAlt: string;
-  ogImage: string;
+  /** A 1200x630 JPEG share card; without one the post uses the site card. */
+  ogImage?: string;
   /** Rich editorial blocks rendered on the post page. */
   body: BlogBlock[];
 };
@@ -38,6 +41,7 @@ export const BLOG_POSTS: BlogPost[] = [
     excerpt:
       "Use an easy Wainwright walks map to choose gentle Lake District fell days, avoid common planning traps, and log every summit properly during your 214.",
     publishedAt: "2026-05-22",
+    updatedAt: "2026-05-22",
     readMinutes: 8,
     author: "Wainwrights Baggers",
     category: "Route planning",
@@ -202,6 +206,7 @@ export const BLOG_POSTS: BlogPost[] = [
     excerpt:
       "Best beginner Wainwrights for new Lake District fell baggers: nine gentler first summits, planning checks, safety caveats, and tracker tips.",
     publishedAt: "2026-05-22",
+    updatedAt: "2026-05-22",
     readMinutes: 9,
     author: "Wainwrights Baggers",
     category: "Beginner guide",
@@ -363,6 +368,7 @@ export const BLOG_POSTS: BlogPost[] = [
     excerpt:
       "A practical guide to choosing a Wainwright bagging app: checklist, map, notes, photos, sync, and the small details that make all 214 fells easier to track.",
     publishedAt: "2026-05-19",
+    updatedAt: "2026-05-19",
     readMinutes: 8,
     author: "Wainwrights Baggers",
     category: "Buyer's guide",
@@ -498,13 +504,13 @@ export const BLOG_POSTS: BlogPost[] = [
     excerpt:
       "A map-first field journal for tracking all 214 Wainwright fells — with notes, photos, albums, and progress that follows you from ridge to browser.",
     publishedAt: "2026-05-18",
+    updatedAt: "2026-09-24",
     readMinutes: 4,
     author: "Wainwrights Baggers",
     category: "Product note",
     keywords: ["Wainwright tracker", "Wainwright journal", "Lake District app"],
     heroImage: "/hero-slope.png",
     heroImageAlt: "Lake District fells under a quiet sky",
-    ogImage: "/hero-slope.png",
     body: [
       {
         type: "paragraph",
