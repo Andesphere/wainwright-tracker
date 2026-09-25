@@ -18,6 +18,10 @@ extension Color {
     static let bagged = Color(Palette.bracken)
     static let pine = Color(Palette.pine)
     static let cream = Color(Palette.cream)
+    /// Cream paper in light mode, deep pine in dark: behind the paywall and the journal.
+    static let paper = Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(hex: 0x0D1912) : Palette.cream })
+    /// Cards on paper: white in light mode, a lifted pine in dark.
+    static let card = Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(hex: 0x17271E) : .white })
 }
 
 extension UIColor {

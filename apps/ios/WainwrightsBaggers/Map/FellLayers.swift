@@ -10,9 +10,14 @@ enum MapIds {
 /// Relief on top of Mapbox Standard: 3D terrain, a soft hillshade and contour lines.
 ///
 /// Hillshade and contours sit in the `bottom` slot, above land and water but under
-/// roads and labels, so they read as part of the base map.
+/// roads and labels, so they read as part of the base map. The satellite layer keeps
+/// only the terrain (the imagery has its own shadows); the Pro contours layer starts
+/// further out, draws heavier lines and labels every fifth line instead of every tenth.
 struct ReliefLayers: MapStyleContent {
     let isDark: Bool
+    var layer: MapLayer = .standard
+
+    private var detailed: Bool { layer == .contours }
 
     /// 514 px tiles carry a one-pixel border, which avoids seams in the 3D mesh.
     private static let terrainSource: RasterDemSource = {
@@ -28,12 +33,19 @@ struct ReliefLayers: MapStyleContent {
         Terrain(sourceId: "wb-terrain-dem")
             .exaggeration(1.3)
 
+        if layer != .satellite {
+            relief
+        }
+    }
+
+    @MapStyleContentBuilder
+    private var relief: some MapStyleContent {
         RasterDemSource(id: "wb-hillshade-dem")
             .url("mapbox://mapbox.mapbox-terrain-dem-v1")
             .maxzoom(14)
         HillshadeLayer(id: "wb-hillshade", source: "wb-hillshade-dem")
             .slot(.bottom)
-            .hillshadeExaggeration(isDark ? 0.3 : 0.55)
+            .hillshadeExaggeration(isDark ? (detailed ? 0.4 : 0.3) : (detailed ? 0.7 : 0.55))
             .hillshadeIlluminationDirection(315)
             .hillshadeShadowColor(UIColor(hex: 0x1F3A2B, alpha: 0.5))
             .hillshadeHighlightColor(UIColor(white: 1, alpha: isDark ? 0.04 : 0.18))
@@ -44,34 +56,34 @@ struct ReliefLayers: MapStyleContent {
         LineLayer(id: "wb-contour-lines", source: "wb-contours")
             .sourceLayer("contour")
             .slot(.bottom)
-            .minZoom(11)
+            .minZoom(detailed ? 9.5 : 11)
             .lineColor(isDark ? UIColor(hex: 0xC9B48F) : Palette.contour)
             .lineWidth(Exp(.switchCase) {
                 Exp(.eq) { Exp(.get) { "index" }; 10 }
-                1.1
+                detailed ? 1.6 : 1.1
                 Exp(.eq) { Exp(.get) { "index" }; 5 }
-                0.75
-                0.45
+                detailed ? 1.1 : 0.75
+                detailed ? 0.6 : 0.45
             })
             .lineOpacity(Exp(.interpolate) {
                 Exp(.linear)
                 Exp(.zoom)
-                11
+                detailed ? 9.5 : 11
                 0
-                12
-                isDark ? 0.22 : 0.3
+                detailed ? 10.5 : 12
+                isDark ? (detailed ? 0.38 : 0.22) : (detailed ? 0.5 : 0.3)
                 15
-                isDark ? 0.32 : 0.45
+                isDark ? (detailed ? 0.55 : 0.32) : (detailed ? 0.72 : 0.45)
             })
         SymbolLayer(id: "wb-contour-labels", source: "wb-contours")
             .sourceLayer("contour")
             .slot(.bottom)
-            .minZoom(13.5)
-            .filter(Exp(.eq) { Exp(.get) { "index" }; 10 })
+            .minZoom(detailed ? 12 : 13.5)
+            .filter(detailed ? Exp(.gte) { Exp(.get) { "index" }; 5 } : Exp(.eq) { Exp(.get) { "index" }; 10 })
             .symbolPlacement(.line)
             .textField(Exp(.concat) { Exp(.toString) { Exp(.get) { "ele" } }; " m" })
             .textFont(["DIN Pro Medium", "Arial Unicode MS Regular"])
-            .textSize(10)
+            .textSize(detailed ? 11 : 10)
             .textColor(isDark ? UIColor(hex: 0xC9B48F) : Palette.contour)
             .textHaloColor(isDark ? UIColor(white: 0, alpha: 0.4) : UIColor(white: 1, alpha: 0.6))
             .textHaloWidth(1)

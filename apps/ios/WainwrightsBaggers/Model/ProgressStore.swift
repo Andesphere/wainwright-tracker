@@ -1,13 +1,16 @@
 @preconcurrency import ConvexMobile
 import Foundation
+import ImageIO
 import Observation
+import UIKit
 
 /// The signed-in walker's bagged fells, live from Convex.
 ///
 /// Clerk owns the session; this store follows it. While signed in it keeps one
 /// subscription to `progress:get` open, so a fell bagged on the web appears here
 /// within a second. Bagging is optimistic: the map changes at once and rolls back
-/// if the mutation fails.
+/// if the mutation fails. A second subscription, `progress:getEntries`, carries the
+/// journal: dates, notes and photos.
 @Observable
 final class ProgressStore {
     enum Sync: Equatable {
@@ -22,6 +25,12 @@ final class ProgressStore {
         let date: Date
     }
 
+    /// A photo on its way up, shown from the local copy until the server lists it.
+    struct PendingPhoto: Identifiable, Equatable {
+        let id = UUID()
+        let image: UIImage
+    }
+
     private(set) var sync: Sync = .signedOut
     private(set) var isSignedIn = false
     /// Last server truth.
@@ -32,6 +41,10 @@ final class ProgressStore {
     var bagAfterSignIn: PendingBag?
     /// Short, human message for the map notice.
     var errorMessage: String?
+    /// Journal entries by fell id.
+    private(set) var entries: [String: JournalEntry] = [:]
+    /// Uploads in flight by fell id.
+    private(set) var pendingPhotos: [String: [PendingPhoto]] = [:]
 
     var baggedIds: Set<String> {
         var ids = syncedIds
@@ -45,9 +58,19 @@ final class ProgressStore {
 
     func isBagged(_ fell: Fell) -> Bool { baggedIds.contains(fell.id) }
 
-    @ObservationIgnored private let client: ConvexClientWithAuth<String>
+    func entry(for fell: Fell) -> JournalEntry? { entries[fell.id] }
+
+    /// Journal entries of fells that are bagged right now.
+    var baggedEntries: [JournalEntry] {
+        let bagged = baggedIds
+        return bagged.map { entries[$0] ?? JournalEntry(id: $0, completedAt: nil, note: nil, photos: nil) }
+    }
+
+    /// Shared with `ProStore`, so both follow the same Convex session.
+    @ObservationIgnored let client: ConvexClientWithAuth<String>
     @ObservationIgnored private var authTask: Task<Void, Never>?
     @ObservationIgnored private var subscriptionTask: Task<Void, Never>?
+    @ObservationIgnored private var entriesTask: Task<Void, Never>?
 
     init(deploymentURL: String) {
         client = ConvexClientWithAuth(deploymentUrl: deploymentURL, authProvider: ClerkConvexAuthProvider())
@@ -80,7 +103,7 @@ final class ProgressStore {
         guard sync == .live else { return }
         optimistic[fell.id] = bagged
         var args: [String: ConvexEncodable?] = ["id": fell.id, "bagged": bagged]
-        if bagged { args["completedAt"] = Self.dayFormatter.string(from: date) }
+        if bagged { args["completedAt"] = JournalDate.string(from: date) }
         do {
             try await client.mutation("progress:setBagged", with: args)
             if bagged { syncedIds.insert(fell.id) } else { syncedIds.remove(fell.id) }
@@ -88,6 +111,69 @@ final class ProgressStore {
             errorMessage = "Could not save \(fell.name). Check your connection and try again."
         }
         optimistic[fell.id] = nil
+    }
+
+    /// Saves the day and note of a bagged fell. Photos are left as they are: the server keeps
+    /// stored photos when the argument is omitted.
+    func saveJournal(_ fell: Fell, date: Date, note: String) async throws {
+        var args: [String: ConvexEncodable?] = [
+            "id": fell.id,
+            "bagged": true,
+            "completedAt": JournalDate.string(from: date),
+        ]
+        let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty { args["note"] = trimmed }
+        try await client.mutation("progress:setBagged", with: args)
+    }
+
+    /// Downscales, uploads to Convex storage and attaches a photo to a bagged fell.
+    func addPhoto(_ fell: Fell, imageData: Data) async {
+        let stored = entries[fell.id]?.photoList.count ?? 0
+        guard stored + (pendingPhotos[fell.id]?.count ?? 0) < JournalEntry.maxPhotos else { return }
+        guard let jpeg = await Self.journalJPEG(from: imageData), let preview = UIImage(data: jpeg) else {
+            errorMessage = "That photo could not be read. Try another."
+            return
+        }
+        let pending = PendingPhoto(image: preview)
+        pendingPhotos[fell.id, default: []].append(pending)
+        defer { pendingPhotos[fell.id]?.removeAll { $0.id == pending.id } }
+
+        do {
+            let uploadURL: String = try await client.mutation("progress:generatePhotoUploadUrl")
+            guard let url = URL(string: uploadURL) else { throw URLError(.badURL) }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+            let (body, response) = try await URLSession.shared.upload(for: request, from: jpeg)
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw URLError(.badServerResponse) }
+            let storageId = try JSONDecoder().decode(StorageUpload.self, from: body).storageId
+            try await client.mutation("progress:attachPhoto", with: [
+                "id": fell.id,
+                "storageId": storageId,
+                "mimeType": "image/jpeg",
+                "sizeBytes": Double(jpeg.count),
+            ])
+            ImageCache.shared.remember(preview, forStorageId: storageId)
+        } catch {
+            errorMessage = "Could not upload the photo. Check your connection and try again."
+        }
+    }
+
+    /// Removes one photo; the server deletes the file once nothing refers to it.
+    func removePhoto(_ photo: JournalPhoto, from fell: Fell) async {
+        guard let entry = entries[fell.id] else { return }
+        var args: [String: ConvexEncodable?] = [
+            "id": fell.id,
+            "bagged": true,
+            "photos": entry.photoList.filter { $0.id != photo.id }.map { $0.argument as ConvexEncodable? },
+        ]
+        if let completedAt = entry.completedAt { args["completedAt"] = completedAt }
+        if let note = entry.note { args["note"] = note }
+        do {
+            try await client.mutation("progress:setBagged", with: args)
+        } catch {
+            errorMessage = "Could not remove the photo. Check your connection and try again."
+        }
     }
 
     /// Removes the walker's progress, photos, profile and follows from Convex.
@@ -106,8 +192,11 @@ final class ProgressStore {
         case .unauthenticated:
             subscriptionTask?.cancel()
             subscriptionTask = nil
+            entriesTask?.cancel()
+            entriesTask = nil
             syncedIds = []
             optimistic = [:]
+            entries = [:]
             sync = isSignedIn ? .failed : .signedOut
         }
     }
@@ -124,6 +213,15 @@ final class ProgressStore {
                 self?.sync = .failed
             }
         }
+        entriesTask?.cancel()
+        entriesTask = Task { [weak self, client] in
+            // The journal is extra: if this fails, bagging still works and the next reconnect retries.
+            do {
+                for try await list in client.subscribe(to: "progress:getEntries", yielding: [JournalEntry].self).values {
+                    self?.entries = Dictionary(list.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
+                }
+            } catch {}
+        }
     }
 
     private func received(_ ids: [String]) {
@@ -136,11 +234,20 @@ final class ProgressStore {
         }
     }
 
-    private static let dayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
+    private struct StorageUpload: Decodable {
+        let storageId: String
+    }
+
+    /// At most 2048 px on the long side, upright, JPEG. Keeps uploads near 500 KB.
+    nonisolated private static func journalJPEG(from data: Data) async -> Data? {
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: 2048,
+        ]
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)
+        else { return nil }
+        return UIImage(cgImage: image).jpegData(compressionQuality: 0.8)
+    }
 }

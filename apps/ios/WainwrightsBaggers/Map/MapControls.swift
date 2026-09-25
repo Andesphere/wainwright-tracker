@@ -20,12 +20,14 @@ final class CameraHeading {
     }
 }
 
-/// Floating glass controls, top right: 2D/3D, locate, and a compass while the map is rotated.
+/// Floating glass controls, top right: 2D/3D, locate, map layers, and a compass while the map is rotated.
 struct MapControls: View {
     let heading: CameraHeading
     let locateSymbol: String
+    let showsLayers: Bool
     let toggle3D: () -> Void
     let locate: () -> Void
+    let toggleLayers: () -> Void
     let resetNorth: () -> Void
 
     var body: some View {
@@ -49,6 +51,19 @@ struct MapControls: View {
                         .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Show my location")
+
+                Divider().frame(width: 30)
+
+                Button(action: toggleLayers) {
+                    Image(systemName: showsLayers ? "square.3.layers.3d.top.filled" : "square.3.layers.3d")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(showsLayers ? Color.brand : .primary)
+                        .contentTransition(.symbolEffect(.replace))
+                        .frame(width: 48, height: 46)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityLabel("Map layers")
+                .accessibilityAddTraits(showsLayers ? .isSelected : [])
             }
             .buttonStyle(.plain)
             .foregroundStyle(.primary)

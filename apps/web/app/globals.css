@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@fontsource-variable/geist";
-@import "maplibre-gl/dist/maplibre-gl.css";
 @import "../styles/slope.css";
 @import "../styles/landing.css";
 
@@ -233,119 +232,6 @@ h6,
 .contour-texture {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'><g fill='none' stroke='%231f2d23' stroke-width='1'><path d='M0 220 Q80 180 160 210 T320 200'/><path d='M0 180 Q80 140 160 170 T320 160'/><path d='M0 140 Q80 100 160 130 T320 120'/><path d='M0 100 Q80 60 160 90 T320 80'/></g></svg>");
   background-size: 420px 420px;
-}
-
-/* MapLibre tweaks so the map feels at home inside the journal. */
-.maplibregl-ctrl-group {
-  border-radius: 14px !important;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(20, 28, 18, 0.18) !important;
-  border: 1px solid color-mix(in oklab, var(--moss) 14%, white) !important;
-}
-.maplibregl-ctrl-group button {
-  background: var(--parchment) !important;
-}
-.peak-popup .maplibregl-popup-content {
-  border-radius: 14px;
-  padding: 10px 14px;
-  background: var(--parchment);
-  border: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
-  box-shadow: 0 16px 40px rgba(20, 28, 18, 0.22);
-  font-family: var(--font-sans);
-  color: var(--ink);
-}
-.peak-popup .maplibregl-popup-content strong {
-  font-family: var(--font-heading);
-  font-size: 18px;
-  font-weight: 400;
-  font-style: italic;
-  letter-spacing: -0.01em;
-  display: block;
-}
-.peak-popup .maplibregl-popup-content span {
-  display: block;
-  margin-top: 2px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: color-mix(in oklab, var(--ink) 60%, transparent);
-}
-.peak-popup-action {
-  margin-top: 10px;
-  width: 100%;
-  border: 0;
-  border-radius: 999px;
-  background: var(--primary);
-  color: var(--primary-foreground);
-  cursor: pointer;
-  padding: 8px 12px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: lowercase;
-}
-.peak-popup-action:hover,
-.peak-popup-action:focus-visible {
-  filter: brightness(0.96);
-  outline: 2px solid color-mix(in oklab, var(--primary) 45%, transparent);
-  outline-offset: 2px;
-}
-.peak-popup .maplibregl-popup-tip {
-  border-top-color: var(--parchment) !important;
-}
-.completed-peak-pin {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  font-size: 27px;
-  line-height: 1;
-  filter: drop-shadow(0 2px 2px rgba(20, 28, 18, 0.35))
-    drop-shadow(0 0 2px #fbf7ec);
-  transform-origin: 50% 100%;
-  transition:
-    transform 150ms ease,
-    filter 150ms ease;
-}
-.completed-peak-pin:hover,
-.completed-peak-pin:focus-visible,
-.completed-peak-pin-selected {
-  transform: scale(1.15);
-  filter: drop-shadow(0 4px 5px rgba(20, 28, 18, 0.4))
-    drop-shadow(0 0 3px #fbf7ec);
-  outline: none;
-}
-.completed-peak-pin-selected {
-  transform: scale(1.25);
-}
-.maplibregl-ctrl-attrib {
-  background: color-mix(in oklab, var(--parchment) 85%, transparent) !important;
-  border-radius: 10px !important;
-  font-family: var(--font-mono) !important;
-  font-size: 10px !important;
-}
-
-@media (max-width: 1023px) {
-  .maplibregl-ctrl-bottom-right {
-    bottom: calc(env(safe-area-inset-bottom) + 5rem) !important;
-    right: 1rem !important;
-  }
-
-  .maplibregl-ctrl-bottom-left {
-    bottom: calc(env(safe-area-inset-bottom) + 4.75rem) !important;
-    left: 1rem !important;
-    max-width: calc(100vw - 7.5rem);
-  }
-  .has-selected-fell .maplibregl-ctrl-bottom-right {
-    bottom: calc(env(safe-area-inset-bottom) + 13.5rem) !important;
-  }
-
-  .has-selected-fell .maplibregl-ctrl-bottom-left {
-    bottom: calc(env(safe-area-inset-bottom) + 13rem) !important;
-  }
 }
 
 .completion-drawer-content {

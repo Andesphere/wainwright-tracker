@@ -25,6 +25,10 @@ struct BrowseView: View {
                             .padding(.horizontal, 16)
                             .padding(.top, 14)
 
+                        ProShortcuts()
+                            .padding(.horizontal, 16)
+                            .padding(.top, 14)
+
                         SectionTitle("The seven books")
                         BookStrip()
 
@@ -225,6 +229,62 @@ private struct ProgressSummary: View {
             let left = FellCatalog.all.count - progress.baggedCount
             Text(progress.baggedCount == 0 ? "Tap a fell to bag your first" : left == 0 ? "All 214 bagged" : "\(left) to go")
         }
+    }
+}
+
+/// Journal and Stats, one tap from the sheet. Free walkers see them locked; a tap opens the paywall.
+private struct ProShortcuts: View {
+    @Environment(AppModel.self) private var model
+    @Environment(ProStore.self) private var pro
+    @Environment(ProgressStore.self) private var progress
+
+    var body: some View {
+        HStack(spacing: 10) {
+            shortcut(title: "Journal", subtitle: journalSubtitle, symbol: "book.closed", feature: .albums, screen: .journal)
+            shortcut(title: "Stats", subtitle: "Years, books, records", symbol: "chart.bar.xaxis", feature: .stats, screen: .stats)
+        }
+    }
+
+    private var journalSubtitle: String {
+        guard pro.isPro else { return "Notes, photos, albums" }
+        let photos = progress.entries.values.reduce(0) { $0 + $1.photoList.count }
+        return photos == 0 ? "Albums by year" : "\(photos) \(photos == 1 ? "photo" : "photos")"
+    }
+
+    private func shortcut(title: String, subtitle: String, symbol: String, feature: ProFeature, screen: AppModel.Screen) -> some View {
+        Button {
+            if pro.isPro { model.screen = screen } else { model.paywall = feature }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: symbol)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.brand)
+                    .frame(width: 34, height: 34)
+                    .background(Color.brand.opacity(0.14), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(title)
+                        .font(.subheadline.weight(.semibold))
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                }
+                Spacer(minLength: 0)
+                if !pro.isPro {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity)
+            .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(pro.isPro ? title : "\(title), Pro")
     }
 }
 

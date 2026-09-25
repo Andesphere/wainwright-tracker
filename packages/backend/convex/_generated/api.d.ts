@@ -9,10 +9,13 @@
  */
 
 import type * as account from "../account.js";
+import type * as billing from "../billing.js";
+import type * as http from "../http.js";
 import type * as importer from "../importer.js";
 import type * as photos from "../photos.js";
 import type * as progress from "../progress.js";
 import type * as social from "../social.js";
+import type * as svix from "../svix.js";
 
 import type {
   ApiFromModules,
@@ -22,10 +25,13 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   account: typeof account;
+  billing: typeof billing;
+  http: typeof http;
   importer: typeof importer;
   photos: typeof photos;
   progress: typeof progress;
   social: typeof social;
+  svix: typeof svix;
 }>;
 
 /**
