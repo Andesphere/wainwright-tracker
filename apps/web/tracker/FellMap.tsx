@@ -403,7 +403,9 @@ export function FellMap(props: FellMapProps) {
       role="region"
       aria-label="Map of the 214 Wainwrights"
     >
-      <div ref={container} className="absolute inset-0" />
+      {/* Sized, not positioned: mapbox-gl.css forces position: relative on the
+          container, and its unlayered rule beats Tailwind utilities. */}
+      <div ref={container} className="size-full" />
       {failed ? (
         <div className="absolute inset-0 grid place-items-center bg-[var(--wb-paper)] p-6 text-center">
           <div className="max-w-sm">

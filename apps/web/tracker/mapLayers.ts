@@ -359,9 +359,8 @@ export function replaceRelief(
       url: "mapbox://mapbox.mapbox-terrain-v2",
     });
   }
-  // Under our fell layers, which sit on top of the style.
-  const before = map.getLayer(IDS.markers) ? IDS.markers : undefined;
-  for (const spec of relief) map.addLayer(spec, before);
+  // The bottom slot keeps relief under the fell layers without a beforeId.
+  for (const spec of relief) map.addLayer(spec);
 }
 
 /** A fell marker: a disc with a pine outline (and a pine tick when bagged), drawn at 3x. */
