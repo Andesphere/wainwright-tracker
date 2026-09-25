@@ -1,12 +1,17 @@
-// SlopeMark — the small mountain glyph used in the nav and footer.
-// Kept in its own file so SlopeNav / SlopeFooter can pull it in without
-// creating an import cycle with SlopeShell.
+// SlopeMark — the app icon (the trig pillar) used as the logo in the nav and
+// footer. It is the small-size cut from /favicon.svg, which stays legible at
+// nav size. Kept in its own file so SlopeNav / SlopeFooter can pull it in
+// without creating an import cycle with SlopeShell.
 
 export function SlopeMark() {
   return (
-    <svg viewBox="0 0 28 28" className="slope-mark" aria-hidden>
-      <path d="M2 22 L9 12 L13 17 L18 8 L26 22 Z" fill="currentColor" />
-      <circle cx="22" cy="7" r="2.5" fill="currentColor" opacity="0.6" />
-    </svg>
+    // eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimisation needed
+    <img
+      src="/favicon.svg"
+      alt=""
+      className="slope-mark"
+      width={32}
+      height={32}
+    />
   );
 }

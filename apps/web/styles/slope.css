@@ -55,8 +55,9 @@
   text-decoration: none;
 }
 .design-slope .slope-mark {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
+  display: block;
 }
 .design-slope .slope-wordmark {
   font-family: var(--font-serif);
