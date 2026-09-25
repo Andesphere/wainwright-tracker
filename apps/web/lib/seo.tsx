@@ -5,7 +5,7 @@ import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/appStore";
 
 export const SITE_URL = "https://wainwrightsbaggers.com";
 export const SITE_NAME = "Wainwrights Baggers";
-export const DEFAULT_OG_IMAGE = "/hero-slope.png";
+export const DEFAULT_OG_IMAGE = "/wainwrights-214-og.jpg";
 
 export type SeoRoute = "home" | "blog" | "app" | "post" | "unknown";
 
@@ -49,7 +49,7 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
       title: "Wainwrights Baggers | Map, Checklist & Journal for the 214 Fells",
       description: homeDescription,
       image: DEFAULT_OG_IMAGE,
-      imageAlt: "Lake District fells above a Wainwright walking journal",
+      imageAlt: "Bag all 214 Wainwrights: fells of the Lake District under a Wainwrights Baggers title card",
     };
   }
 
@@ -60,7 +60,7 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
       title: "Wainwright Walking Guides & Tracker Tips",
       description: blogDescription,
       image: DEFAULT_OG_IMAGE,
-      imageAlt: "Lake District fells and Wainwright walking notes",
+      imageAlt: "Bag all 214 Wainwrights: fells of the Lake District under a Wainwrights Baggers title card",
     };
   }
 
@@ -71,7 +71,7 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
       title: "Open the Wainwright Tracker",
       description: appDescription,
       image: DEFAULT_OG_IMAGE,
-      imageAlt: "Interactive map for tracking Wainwright fells",
+      imageAlt: "Bag all 214 Wainwrights: fells of the Lake District under a Wainwrights Baggers title card",
       noIndex: true,
     };
   }
@@ -98,7 +98,7 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
     title: "Wainwrights Baggers",
     description: homeDescription,
     image: DEFAULT_OG_IMAGE,
-    imageAlt: "Lake District fells above a Wainwright walking journal",
+    imageAlt: "Bag all 214 Wainwrights: fells of the Lake District under a Wainwrights Baggers title card",
     noIndex: true,
   };
 }
