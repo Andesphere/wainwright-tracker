@@ -13,3 +13,5 @@ apps/mobile/android
 apps/mobile/ios
 apps/mobile/src/uniwind-types.d.ts
 packages/backend/convex/_generated
+packages/backend/.agents
+packages/backend/.claude

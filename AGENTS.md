@@ -65,7 +65,7 @@ Release status, what is done and the launch checklist live in `docs/RELEASE.md`.
 
 - `apps/web`: Next.js 16 site and web tracker at https://wainwrightsbaggers.com (Vercel team `andesphere`, project `wainwright-tracker`, git deploy from `main`). The tracker at `/app` (`apps/web/tracker/`) follows the iOS app: Mapbox GL JS v3 (Standard, faded theme, 3D terrain, sun-driven light preset, our hillshade, contours and fell layers), a glass side panel on desktop and a bottom sheet with detents on phones. It needs `NEXT_PUBLIC_MAPBOX_TOKEN` (the public Andesphere Mapbox token; set on Vercel for production and preview). `?light=dawn|day|dusk|night` forces the lighting.
 - `apps/ios`: native SwiftUI app, Mapbox Maps SDK v11, Clerk iOS, Convex Swift. Setup, build and TestFlight upload: `apps/ios/README.md`. It replaced the Expo app, which was removed on 2026-09-24.
-- `packages/backend`: Convex functions, schema and tests.
+- `packages/backend`: Convex functions, schema and tests. Its `AGENTS.md` points at Convex's managed guidelines (`npx convex ai-files update` refreshes them and the Convex skills in `packages/backend/.agents/skills`).
 - `packages/catalog`: the 214 fells. `area` is the Pictorial Guide book, derived from `bookNumber`. After a change, regenerate the iOS copy with `bun run ios-native:catalog`.
 
 ## iOS identity
