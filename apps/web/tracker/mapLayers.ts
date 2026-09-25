@@ -4,6 +4,7 @@ import type {
   GeoJSONSourceSpecification,
   LayerSpecification,
   Map as MapboxMap,
+  SymbolLayerSpecification,
 } from "mapbox-gl";
 import { type Book, heightLabel, WAINWRIGHTS } from "./fells";
 import type { LightPreset } from "./lightClock";
@@ -21,6 +22,7 @@ export const IDS = {
   fells: "wb-fells",
   markers: "wb-fell-markers",
   labels: "wb-fell-labels",
+  selectedLabel: "wb-fell-selected-label",
   terrain: "wb-terrain-dem",
   hillshadeDem: "wb-hillshade-dem",
   hillshade: "wb-hillshade",
@@ -111,13 +113,41 @@ export const markerOpacity = (
   0.3,
 ];
 
-export const labelFilter = (book: Book | null) =>
-  inBook(book) as FilterSpecification;
+export const labelFilter = (book: Book | null, selectedId: string | null) =>
+  [
+    "all",
+    inBook(book),
+    ["!=", ["get", "id"], selectedId ?? ""],
+  ] as FilterSpecification;
+
+export const selectedLabelFilter = (selectedId: string | null) =>
+  ["==", ["get", "id"], selectedId ?? ""] as FilterSpecification;
 
 export const labelColors = (isDark: boolean) => ({
   "text-color": isDark ? "#F3F1E4" : COLORS.ink,
   "text-halo-color": isDark ? "rgba(11,26,18,0.85)" : "rgba(250,250,232,0.92)",
 });
+
+const labelLayout = {
+  "text-font": FONT,
+  "text-size": ["interpolate", ["linear"], ["zoom"], 9, 10.5, 14, 13.5],
+  "text-radial-offset": 1.05,
+  "text-justify": "auto",
+  "text-line-height": 1.1,
+  "text-max-width": 8,
+  "text-padding": 4,
+  "symbol-sort-key": ["get", "sortKey"],
+} satisfies SymbolLayerSpecification["layout"];
+
+const labelPaint = (isDark: boolean) =>
+  ({
+    ...labelColors(isDark),
+    "text-halo-width": 1.4,
+    "text-halo-blur": 0.4,
+    "text-opacity": ["interpolate", ["linear"], ["zoom"], 8.4, 0, 9, 1],
+    "text-emissive-strength": 1,
+    "text-occlusion-opacity": 0.3,
+  }) satisfies SymbolLayerSpecification["paint"];
 
 /** Markers that never hide, then name labels that give way to each other. */
 export function fellLayers({
@@ -170,8 +200,9 @@ export function fellLayers({
       type: "symbol",
       source: IDS.fells,
       minzoom: 8.4,
-      filter: labelFilter(book),
+      filter: labelFilter(book, selectedId),
       layout: {
+        ...labelLayout,
         // Zoomed out, only the big summits are named; more appear as you zoom in.
         "text-field": [
           "step",
@@ -184,24 +215,24 @@ export function fellLayers({
           12,
           label(0),
         ],
-        "text-font": FONT,
-        "text-size": ["interpolate", ["linear"], ["zoom"], 9, 10.5, 14, 13.5],
         "text-variable-anchor": ["top", "bottom", "left", "right"],
-        "text-radial-offset": 1.05,
-        "text-justify": "auto",
-        "text-line-height": 1.1,
-        "text-max-width": 8,
-        "text-padding": 4,
-        "symbol-sort-key": ["get", "sortKey"],
       },
-      paint: {
-        ...labelColors(isDark),
-        "text-halo-width": 1.4,
-        "text-halo-blur": 0.4,
-        "text-opacity": ["interpolate", ["linear"], ["zoom"], 8.4, 0, 9, 1],
-        "text-emissive-strength": 1,
-        "text-occlusion-opacity": 0.3,
+      paint: labelPaint(isDark),
+    },
+    {
+      // The selected fell's name always sits under its pin, never behind the pin's head.
+      id: IDS.selectedLabel,
+      type: "symbol",
+      source: IDS.fells,
+      minzoom: 8.4,
+      filter: selectedLabelFilter(selectedId),
+      layout: {
+        ...labelLayout,
+        "text-field": label(0),
+        "text-variable-anchor": ["top"],
+        "text-allow-overlap": true,
       },
+      paint: labelPaint(isDark),
     },
   ];
 }

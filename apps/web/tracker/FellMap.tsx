@@ -18,6 +18,7 @@ import {
   installLayers,
   labelColors,
   labelFilter,
+  selectedLabelFilter,
   MAP_LAYERS,
   markerOpacity,
   replaceRelief,
@@ -203,7 +204,7 @@ export function FellMap(props: FellMapProps) {
         });
       });
 
-      const hitLayers = [IDS.markers, IDS.labels];
+      const hitLayers = [IDS.markers, IDS.labels, IDS.selectedLabel];
       created.on("click", (event) => {
         const { x, y } = event.point;
         const features = created
@@ -278,7 +279,8 @@ export function FellMap(props: FellMapProps) {
       "icon-opacity",
       markerOpacity(selectedId, book),
     );
-    map.setFilter(IDS.labels, labelFilter(book));
+    map.setFilter(IDS.labels, labelFilter(book, selectedId));
+    map.setFilter(IDS.selectedLabel, selectedLabelFilter(selectedId));
   }, [book, ready, selectedId]);
 
   // Lighting and layer. Satellite is its own style; Standard and Contours differ only in relief.
@@ -297,13 +299,10 @@ export function FellMap(props: FellMapProps) {
     map.setConfigProperty("basemap", "lightPreset", lightPreset);
     replaceRelief(map, isDark, effectiveLayer);
     const colors = labelColors(isDark || effectiveLayer === "satellite");
-    if (map.getLayer(IDS.labels)) {
-      map.setPaintProperty(IDS.labels, "text-color", colors["text-color"]);
-      map.setPaintProperty(
-        IDS.labels,
-        "text-halo-color",
-        colors["text-halo-color"],
-      );
+    for (const id of [IDS.labels, IDS.selectedLabel]) {
+      if (!map.getLayer(id)) continue;
+      map.setPaintProperty(id, "text-color", colors["text-color"]);
+      map.setPaintProperty(id, "text-halo-color", colors["text-halo-color"]);
     }
   }, [effectiveLayer, isDark, lightPreset, ready]);
 
