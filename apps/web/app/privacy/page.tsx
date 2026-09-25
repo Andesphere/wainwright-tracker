@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/privacy` },
 };
 
-const UPDATED = "24 September 2026";
+const UPDATED = "25 September 2026";
 
 const sections: { title: string; body: string[] }[] = [
   {
@@ -30,7 +30,7 @@ const sections: { title: string; body: string[] }[] = [
     title: "What we do not store",
     body: [
       "Your location. The iPhone app uses it on your device to show where you are on the map. It is not sent to us.",
-      "Card details. When Pro subscriptions launch, Apple handles payment in the App Store and we only learn whether your subscription is active.",
+      "Card details. Apple handles Pro payments in the App Store, and we only learn whether your subscription is active.",
     ],
   },
   {
@@ -43,7 +43,9 @@ const sections: { title: string; body: string[] }[] = [
     title: "Who processes it for us",
     body: [
       "Clerk (sign-in and accounts), Convex (the database and photo storage, hosted in the EU), Vercel (website hosting and privacy-friendly page statistics without cookies).",
+      "RevenueCat (Pro subscriptions). Apple tells RevenueCat about your purchases, and RevenueCat tells us whether Pro is active. It knows your account ID and your purchase history, not your card.",
       "Map tiles come from Mapbox, OpenFreeMap and OpenTopoMap. Like any website, they see your IP address and which map area you are viewing.",
+      "The map in the iPhone app is made by Mapbox. Its map software sends Mapbox anonymous usage and location data to improve its maps. It is not linked to your account, and you can turn it off from the info button on the map.",
       "If you use bulk import, the list you paste is sent to an AI model through Vercel AI Gateway to match fell names. Nothing else is sent.",
       "Some of these providers are in the United States. They are bound by standard data protection terms for transfers out of the UK.",
     ],
