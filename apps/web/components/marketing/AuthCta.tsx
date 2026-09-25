@@ -33,13 +33,16 @@ function openModal(modal: AuthModal) {
 export function JournalCta({
   label,
   location,
-  className,
+  variant = "dark",
 }: {
   label: string;
+  /** Analytics location, e.g. "home_hero". */
   location: string;
-  className: string;
+  /** "dark" is the pine pill; "light" the cream one on the dark close. */
+  variant?: "dark" | "light";
 }) {
   const signedIn = useSignedIn();
+  const className = variant === "dark" ? "btn-pill btn-pill-light" : "btn-pill";
   const onClick = () => {
     trackCtaClick(location, label);
     if (!signedIn) trackSignupClick(location, label);

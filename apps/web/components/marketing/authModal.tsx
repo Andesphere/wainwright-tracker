@@ -11,13 +11,16 @@ import { createRoot } from "react-dom/client";
 
 export type AuthModal = "signIn" | "signUp";
 
-let open: ((modal: AuthModal) => void) | undefined;
+/** The modal asked for most recently; set before Clerk's root mounts. */
+let requested: AuthModal | undefined;
+/** Opens a modal once the Clerk root has mounted. */
+let showModal: ((modal: AuthModal) => void) | undefined;
 
-function Opener({ initial }: { initial: AuthModal }) {
+function ModalOpener() {
   const clerk = useClerk();
   useEffect(() => {
     // Clerk queues the call until clerk-js has loaded.
-    open = (modal) =>
+    showModal = (modal) =>
       modal === "signUp"
         ? clerk.openSignUp({
             forceRedirectUrl: "/app",
@@ -27,24 +30,28 @@ function Opener({ initial }: { initial: AuthModal }) {
             forceRedirectUrl: "/app",
             signUpForceRedirectUrl: "/app",
           });
-    open(initial);
-  }, [clerk, initial]);
+    if (requested) showModal(requested);
+  }, [clerk]);
   return null;
 }
 
 export function openAuthModal(modal: AuthModal) {
-  if (open) {
-    open(modal);
+  if (showModal) {
+    showModal(modal);
     return;
   }
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-  if (!publishableKey)
-    throw new Error("Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY");
+  const mounting = requested !== undefined;
+  requested = modal;
+  if (mounting) return;
+
   const host = document.createElement("div");
   document.body.append(host);
   createRoot(host).render(
-    <ClerkProvider publishableKey={publishableKey} afterSignOutUrl="/">
-      <Opener initial={modal} />
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? ""}
+      afterSignOutUrl="/"
+    >
+      <ModalOpener />
     </ClerkProvider>,
   );
 }

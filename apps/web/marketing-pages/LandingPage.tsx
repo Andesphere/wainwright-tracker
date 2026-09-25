@@ -70,18 +70,6 @@ const NOTES = BLOG_POSTS.slice(0, 3);
 const PHONE_SIZES = "(min-width: 900px) 280px, 66vw";
 
 export function LandingPage() {
-  const webCta = (
-    label: string,
-    location: string,
-    variant: "dark" | "light" = "dark",
-  ) => (
-    <JournalCta
-      label={label}
-      location={location}
-      className={variant === "dark" ? "btn-pill btn-pill-light" : "btn-pill"}
-    />
-  );
-
   return (
     <SlopeShell>
       {/* ── HERO — copy left, the app itself right */}
@@ -103,7 +91,7 @@ export function LandingPage() {
             </p>
             <div className="ld-cta-row">
               <AppStoreBadge location="home_hero" />
-              {webCta("Open the journal", "home_hero")}
+              <JournalCta label="Open the journal" location="home_hero" />
             </div>
             <p className="ld-fine">
               Free forever. Pro adds the photo journal and more, from £1.99 a
@@ -265,7 +253,7 @@ export function LandingPage() {
                 Sign in on any computer and the tracker opens on the same round.
                 Nothing to install.
               </p>
-              {webCta("Open the journal", "home_ways")}
+              <JournalCta label="Open the journal" location="home_ways" />
             </article>
           </div>
         </div>
@@ -318,14 +306,14 @@ export function LandingPage() {
             <h2 className="ld-h2 ld-h2--small" id="ld-notes-h">
               From the field notes
             </h2>
-            <Link href="/blog" prefetch={false} className="ld-notes-all">
+            <Link href="/blog" className="ld-notes-all">
               All field notes
             </Link>
           </div>
           <ul className="ld-notes-list">
             {NOTES.map((post) => (
               <li key={post.slug} className="ld-note">
-                <Link href={`/blog/${post.slug}`} prefetch={false}>
+                <Link href={`/blog/${post.slug}`}>
                   <span className="ld-note-cat">{post.category}</span>
                   <h3>{post.title}</h3>
                   <p>{post.excerpt}</p>
@@ -348,7 +336,11 @@ export function LandingPage() {
           </p>
           <div className="ld-cta-row ld-cta-row--center">
             <AppStoreBadge location="home_bottom" />
-            {webCta("Open the journal", "home_bottom", "light")}
+            <JournalCta
+              label="Open the journal"
+              location="home_bottom"
+              variant="light"
+            />
           </div>
         </div>
       </section>

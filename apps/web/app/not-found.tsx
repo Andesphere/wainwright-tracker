@@ -15,7 +15,7 @@ export default function NotFound() {
     <SlopeShell>
       <SlopeNav variant="solid" />
       <section className="slope-banner slope-notfound">
-        <p className="slope-banner-tag">— 404, off the map</p>
+        <p className="slope-banner-tag">404, off the map</p>
         <h1 className="slope-banner-h">
           No path <em>this way</em>.
         </h1>
@@ -28,7 +28,7 @@ export default function NotFound() {
             Back to the home page
             <i className="btn-arr" />
           </Link>
-          <Link href="/blog" prefetch={false} className="btn-pill">
+          <Link href="/blog" className="btn-pill">
             Read the field notes
             <i className="btn-arr" />
           </Link>

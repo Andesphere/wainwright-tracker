@@ -29,9 +29,7 @@ export function SlopeFooter() {
           <span>iPhone app soon</span>
         )}
         <FooterTrackerLink />
-        <Link href="/blog" prefetch={false}>
-          Field Notes
-        </Link>
+        <Link href="/blog">Field Notes</Link>
         <Link href="/contact">Contact</Link>
         <a href="/privacy">Privacy</a>
         <span>© {year} · made in the dales</span>

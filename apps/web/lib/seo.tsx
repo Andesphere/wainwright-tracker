@@ -9,7 +9,7 @@ export const DEFAULT_OG_IMAGE = "/wainwrights-214-og.jpg";
 const DEFAULT_OG_IMAGE_ALT =
   "Bag all 214 Wainwrights: fells of the Lake District under a Wainwrights Baggers title card";
 
-export type SeoRoute = "home" | "contact" | "blog" | "app" | "post" | "unknown";
+export type SeoRoute = "home" | "contact" | "blog" | "app" | "post";
 
 export type RouteSeo = {
   route: SeoRoute;
@@ -106,15 +106,7 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
     }
   }
 
-  return {
-    route: "unknown",
-    path,
-    title: "Wainwrights Baggers",
-    description: homeDescription,
-    image: DEFAULT_OG_IMAGE,
-    imageAlt: DEFAULT_OG_IMAGE_ALT,
-    noIndex: true,
-  };
+  throw new Error(`No SEO route for ${path}`);
 }
 
 export function buildMetadata(seo: RouteSeo): Metadata {

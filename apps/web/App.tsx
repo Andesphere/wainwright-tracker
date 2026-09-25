@@ -1,7 +1,7 @@
 "use client";
 
-// The client-only app behind /app (the tracker) and, until the guides
-// replace it, /blog. The public pages are server-rendered App Router routes.
+// The client-only app behind /app: the tracker. Every public page is a
+// server-rendered App Router route.
 
 import { SignIn, useAuth } from "@clerk/clerk-react";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
@@ -9,8 +9,6 @@ import { Route, Routes } from "react-router-dom";
 
 import { AppErrorBoundary } from "@/components/error-boundary";
 import { Toaster } from "@/components/ui/sonner";
-import { BlogPage } from "@/marketing-pages/BlogPage";
-import { BlogPostPage } from "@/marketing-pages/BlogPostPage";
 import { TrackerApp } from "@/tracker/TrackerApp";
 
 function TrackerRoute() {
@@ -34,8 +32,6 @@ function App() {
   return (
     <AppErrorBoundary>
       <Routes>
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/app" element={<TrackerRoute />} />
       </Routes>
     </AppErrorBoundary>

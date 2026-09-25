@@ -29,10 +29,7 @@ export function SlopeNav({ variant = "solid" }: SlopeNavProps) {
       <nav className="slope-nav-links">
         <Link href="/#map">The map</Link>
         <Link href="/#pricing">Free and Pro</Link>
-        {/* The blog still runs in the client app: no prefetch of its code. */}
-        <Link href="/blog" prefetch={false}>
-          Field Notes
-        </Link>
+        <Link href="/blog">Field Notes</Link>
         <Link href="/contact">Contact</Link>
       </nav>
       <NavAuthCta />
