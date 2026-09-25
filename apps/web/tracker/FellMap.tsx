@@ -142,10 +142,17 @@ export function FellMap(props: FellMapProps) {
         "bottom-right",
       );
       const geolocate = new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
+        // A timeout, so a fix that never comes ends in a notice, not a spinner.
+        positionOptions: { enableHighAccuracy: true, timeout: 10_000 },
         trackUserLocation: true,
         showUserHeading: true,
-        fitBoundsOptions: { maxZoom: 13.5 },
+        // Mapbox spreads these into each follow move, so the getter keeps 3D in 3D.
+        fitBoundsOptions: {
+          maxZoom: 13.5,
+          get pitch() {
+            return created.getPitch();
+          },
+        },
       });
       // Its own button stays hidden; the locate control below drives it.
       created.addControl(geolocate, "top-left");
@@ -153,6 +160,8 @@ export function FellMap(props: FellMapProps) {
       geolocate.on("trackuserlocationstart", () => setFollowing(true));
       geolocate.on("trackuserlocationend", () => setFollowing(false));
       geolocate.on("error", (error: GeolocationPositionError) => {
+        // Mapbox parks a failed watch in an error state; stop it so the next tap retries.
+        if (error.code !== 1) geolocate.trigger();
         setFollowing(false);
         latest.current.onNotice(
           error.code === 1
