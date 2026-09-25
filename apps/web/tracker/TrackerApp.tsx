@@ -2,11 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
+import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { ConvexError } from "convex/values";
 import { toast } from "sonner";
 
 import { FeatureErrorBoundary } from "@/components/error-boundary";
+import {
+  trackAppOpened,
+  trackFellBagged,
+  trackPaywallShown,
+} from "@/lib/analytics";
 import { api } from "@wainwrights/backend/convex/_generated/api";
 import type { Id } from "@wainwrights/backend/convex/_generated/dataModel";
 import {
@@ -81,6 +87,12 @@ function loadMapLayer(): MapLayer {
   const stored = localStorage.getItem(MAP_LAYER_KEY);
   return stored === "satellite" || stored === "contours" ? stored : "standard";
 }
+
+/** Sends unexpected failures to Sentry. A ConvexError is a message meant for the walker, not a bug. */
+const reportError = (error: unknown, flow: string) => {
+  if (error instanceof ConvexError) return;
+  Sentry.captureException(error, { tags: { flow } });
+};
 
 const errorMessage = (error: unknown, fallback: string) =>
   error instanceof ConvexError
@@ -267,6 +279,10 @@ export function TrackerApp() {
     void upsertCurrentProfile();
   }, [upsertCurrentProfile]);
 
+  useEffect(() => {
+    trackAppOpened();
+  }, []);
+
   // Tell Andes Relay about the account once per session.
   useEffect(() => {
     if (!user || trackedAccount.current === user.id) return;
@@ -292,9 +308,9 @@ export function TrackerApp() {
     migrated.current = true;
     const local = loadLegacyProgress();
     if (local.length === 0) return;
-    void addBagged({ ids: local }).then(() =>
-      toast.success(`Imported ${local.length} saved fells`),
-    );
+    void addBagged({ ids: local })
+      .then(() => toast.success(`Imported ${local.length} saved fells`))
+      .catch((error) => reportError(error, "sync"));
   }, [addBagged, progress]);
 
   // Escape closes the fell card when nothing else is open.
@@ -342,6 +358,7 @@ export function TrackerApp() {
   const showUpsell = (feature: ProFeature) => {
     setUpsell(feature);
     setUpsellOpen(true);
+    trackPaywallShown(feature);
   };
 
   const openPro = (target: "journal" | "stats") => {
@@ -362,7 +379,9 @@ export function TrackerApp() {
     try {
       await setBagged({ id: fell.id, bagged: true, completedAt });
       toast.success(`${fell.name} bagged`);
+      trackFellBagged();
     } catch (error) {
+      reportError(error, "sync");
       toast.error(
         errorMessage(
           error,
@@ -380,6 +399,7 @@ export function TrackerApp() {
       await setBagged({ id: fell.id, bagged: false });
       toast(`${fell.name} marked as not bagged`);
     } catch (error) {
+      reportError(error, "sync");
       toast.error(
         errorMessage(error, "Could not save progress. Please try again."),
       );
@@ -440,6 +460,7 @@ export function TrackerApp() {
       });
       toast.success("Journal saved");
     } catch (error) {
+      reportError(error, "photo_upload");
       toast.error(
         errorMessage(
           error,
@@ -456,7 +477,8 @@ export function TrackerApp() {
     try {
       await addBagged({ ids });
       toast.success(`Added ${ids.length} bagged fells`);
-    } catch {
+    } catch (error) {
+      reportError(error, "sync");
       toast.error("Could not save imported fells. Please try again.");
       throw new Error("Bulk import failed");
     }
@@ -466,7 +488,10 @@ export function TrackerApp() {
     if (bagged.size === 0) return;
     void resetBagged({})
       .then(() => toast("Journal reset"))
-      .catch(() => toast.error("Could not reset progress. Please try again."));
+      .catch((error) => {
+        reportError(error, "sync");
+        toast.error("Could not reset progress. Please try again.");
+      });
   };
 
   const handleToggleFollow = async (bagger: BaggerSummary) => {

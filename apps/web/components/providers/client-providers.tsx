@@ -1,7 +1,7 @@
 "use client";
 
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
-import { Analytics } from "@vercel/analytics/react";
+import * as Sentry from "@sentry/nextjs";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import {
@@ -37,6 +37,9 @@ class ErrorBoundary extends Component<
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error("App render failed", error, info.componentStack);
+    Sentry.captureException(error, {
+      contexts: { react: { componentStack: info.componentStack } },
+    });
   }
 
   render() {
@@ -93,10 +96,6 @@ export function ClientProviders({ children }: ClientProvidersProps) {
         <RequiredRuntimeProviders>
           <TooltipProvider delayDuration={200}>
             {mounted ? <BrowserRouter>{children}</BrowserRouter> : null}
-            <Analytics
-              framework="react"
-              scriptSrc="https://va.vercel-scripts.com/v1/script.js"
-            />
           </TooltipProvider>
         </RequiredRuntimeProviders>
       </ErrorBoundary>

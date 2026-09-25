@@ -32,8 +32,10 @@ struct RootView: View {
                 async let revenueCat: Void = pro.sessionChanged(userId: active ? clerk.user?.id : nil)
                 _ = await (convex, revenueCat)
             }
-            .onChange(of: scenePhase) { _, phase in
-                if phase == .active { Task { await progress.reconnectIfNeeded() } }
+            .onChange(of: scenePhase, initial: true) { _, phase in
+                guard phase == .active else { return }
+                Telemetry.capture("app_opened")
+                Task { await progress.reconnectIfNeeded() }
             }
             .onChange(of: progress.errorMessage) { _, message in
                 guard let message else { return }

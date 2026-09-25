@@ -83,6 +83,7 @@ final class ProStore {
             }
             offeringState = current == nil ? .failed : .loaded
         } catch {
+            Telemetry.report(error, flow: "purchase")
             offeringState = .failed
         }
     }

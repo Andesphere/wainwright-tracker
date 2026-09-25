@@ -48,6 +48,7 @@ struct PaywallView: View {
         .animation(.smooth(duration: 0.35), value: succeeded)
         .sensoryFeedback(.success, trigger: succeeded)
         .task { await pro.loadOffering() }
+        .onAppear { Telemetry.capture("paywall_shown", ["feature": highlight?.rawValue ?? "none"]) }
         .sheet(isPresented: $showsAuth) {
             AuthView()
                 .environment(clerk)
@@ -272,16 +273,22 @@ struct PaywallView: View {
             return
         }
         guard let package = selectedPackage else { return }
+        let trial = startsTrial
+        let properties: [String: Any] = ["plan": plan == .yearly ? "yearly" : "monthly", "trial": trial]
+        Telemetry.capture("purchase_started", properties)
         working = .purchasing
         Task {
             defer { working = nil }
             do {
                 switch try await pro.purchase(package, userId: userId) {
-                case .purchased: celebrate()
+                case .purchased:
+                    Telemetry.capture(trial ? "trial_started" : "subscribed", properties)
+                    celebrate()
                 case .cancelled: break
                 case .pending: alert = .pending
                 }
             } catch {
+                Telemetry.report(error, flow: "purchase")
                 alert = .failed(error.localizedDescription)
             }
         }
@@ -302,6 +309,7 @@ struct PaywallView: View {
                     alert = .nothingToRestore
                 }
             } catch {
+                Telemetry.report(error, flow: "purchase")
                 alert = .failed(error.localizedDescription)
             }
         }

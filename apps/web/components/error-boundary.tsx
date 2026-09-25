@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,6 +25,9 @@ export class ErrorBoundaryBase extends Component<
 
   componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
     console.error(`${this.props.label} crashed`, error, errorInfo);
+    Sentry.captureException(error, {
+      contexts: { react: { componentStack: errorInfo.componentStack } },
+    });
   }
 
   render() {
