@@ -47,7 +47,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 - [x] Convex: RevenueCat webhook into an `entitlements` table, recomputed from RevenueCat API v2; `billing.mine`, `billing.refresh`. Proven on prod with a dashboard test event and a Test Store purchase.
 - [ ] Convex: Pro-only operations checked on the server. Wired and on Convex dev in [wainwright-tracker#7](https://github.com/Andesphere/wainwright-tracker/pull/7); deploy to prod together with that web merge ([#733](https://github.com/JorgeMenaDev/matias/issues/733)).
 - [x] Pro features on iOS: photo journal, albums with PDF print export, extra map layers, stats.
-- [ ] Sandbox and TestFlight tests: buy, trial, restore, cancel, expiry, refund, switch account. Simulator runs pass on RevenueCat's Test Store (`ProFlowUITests`); real sandbox purchases are unblocked since the Paid Apps agreement went Active (2026-09-25).
+- [x] Real-device TestFlight test 2026-09-25 on Jorge's iPhone, build 18: prices load, yearly trial bought (Convex entitlement pro/trial/app_store at 21:32Z), journal, satellite, contours and Stats unlock, Restore Purchases works. Cancel, expiry, refund and account switch stay covered by the simulator runs on RevenueCat's Test Store (`ProFlowUITests`).
 - [x] Review screenshot of the paywall and review notes on both plans (READY_TO_SUBMIT).
 - [ ] Jorge: consider enrolling in the Apple Small Business Program (15% commission instead of 30%).
 
@@ -82,7 +82,7 @@ Jorge approved all of this on 2026-09-24 ([#601](https://github.com/JorgeMenaDev
 - [x] Privacy labels published 2026-09-25: linked Contact Info, User Content, Identifiers, Purchases; not linked Location (Mapbox telemetry); no tracking.
 - [x] Age rating, support URL (contact page), privacy URL (`/privacy`), marketing URL.
 - [x] Review notes and demo account.
-- [ ] Submit 1.0 with both subscriptions attached; answer review.
+- [x] Submitted 1.0 (build 18) with Pro Monthly, Pro Yearly and the Wainwrights Baggers Pro group on 2026-09-25 22:09Z (review submission `50c1bfd3-1190-453a-b3aa-fee8e2a82137`, Waiting for Review). Release is manual. First subscriptions must be added from each subscription page ("Add for Review"), not the API or the version page. Answer review if Apple asks.
 - [ ] On approval: release, set `APP_STORE_LIVE = true` in `apps/web/lib/appStore.ts`, tag the GitHub release (andes-release skill), update this file.
 
 ### After launch
