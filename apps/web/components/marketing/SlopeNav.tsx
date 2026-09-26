@@ -29,6 +29,7 @@ export function SlopeNav({ variant = "solid" }: SlopeNavProps) {
       <nav className="slope-nav-links">
         <Link href="/#map">The map</Link>
         <Link href="/#pricing">Free and Pro</Link>
+        <Link href="/fells">All 214 fells</Link>
         <Link href="/guides">Guides</Link>
         <Link href="/contact">Contact</Link>
       </nav>

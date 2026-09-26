@@ -3,6 +3,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Author } from "@/content/authors";
+import { BOOKS } from "@/lib/fells";
 import { getGuides } from "@/lib/guides";
 import {
   buildJsonLd,
@@ -53,13 +54,29 @@ const INDEXABLE_PATHS = [
   ["privacy"],
   ["guides"],
   ...getGuides().map((guide) => ["guides", guide.slug]),
+  ["fells"],
+  ...BOOKS.map((book) => ["fells", "books", book.slug]),
 ];
-const ALL_PATHS = [...INDEXABLE_PATHS, ["app"]];
+const ALL_PATHS = [...INDEXABLE_PATHS, ["app"], ["fells", "catbells"]];
 
 type GraphNode = { "@type": string; [key: string]: unknown };
 const graphOf = (slug: string[]) =>
   buildJsonLd(getRouteSeo(slug))["@graph"] as GraphNode[];
 const typesOf = (slug: string[]) => graphOf(slug).map((node) => node["@type"]);
+
+describe("titles and descriptions", () => {
+  it("are unique across indexable pages", () => {
+    const seos = INDEXABLE_PATHS.map((slug) => getRouteSeo(slug));
+    expect(new Set(seos.map((seo) => seo.title)).size).toBe(seos.length);
+    expect(new Set(seos.map((seo) => seo.description)).size).toBe(seos.length);
+  });
+
+  it("keeps unreleased fell pages out of the index", () => {
+    expect(buildMetadata(getRouteSeo(["fells", "catbells"])).robots).toEqual(
+      expect.objectContaining({ index: false, follow: true }),
+    );
+  });
+});
 
 describe("share cards", () => {
   const images = new Map<string, OgImage>(
@@ -143,6 +160,69 @@ describe("structured data", () => {
     ],
   ])("graph for /%s has %j", (slug, types) => {
     expect(typesOf(slug)).toEqual(types);
+  });
+
+  it.each([
+    [["fells"], ["Organization", "WebSite", "ItemList", "BreadcrumbList"]],
+    [
+      ["fells", "books", "eastern-fells"],
+      ["Organization", "WebSite", "ItemList", "BreadcrumbList"],
+    ],
+    [
+      ["fells", "catbells"],
+      ["Organization", "WebSite", "BreadcrumbList"],
+    ],
+  ])("graph for /%s has %j", (slug, types) => {
+    expect(typesOf(slug)).toEqual(types);
+  });
+
+  type ItemList = {
+    numberOfItems: number;
+    itemListElement: { position: number; name: string; url: string }[];
+  };
+  const itemListOf = (slug: string[]) =>
+    graphOf(slug).find(
+      (node) => node["@type"] === "ItemList",
+    ) as unknown as ItemList;
+
+  it("lists all 214 fells on /fells, highest first, linking fell pages", () => {
+    const list = itemListOf(["fells"]);
+    expect(list.numberOfItems).toBe(214);
+    expect(list.itemListElement).toHaveLength(214);
+    expect(list.itemListElement[0]).toEqual({
+      "@type": "ListItem",
+      position: 1,
+      name: "Scafell Pike",
+      url: "https://wainwrightsbaggers.com/fells/scafell-pike",
+    });
+    expect(list.itemListElement.at(-1)?.name).toBe("Castle Crag");
+  });
+
+  it("lists each book's fells in book order with the book's total", () => {
+    expect(
+      BOOKS.map(
+        (book) => itemListOf(["fells", "books", book.slug]).numberOfItems,
+      ),
+    ).toEqual([35, 36, 27, 30, 24, 29, 33]);
+    const eastern = itemListOf(["fells", "books", "eastern-fells"]);
+    expect(eastern.itemListElement[0].name).toBe("Arnison Crag");
+    expect(eastern.itemListElement.at(-1)?.name).toBe("White Side");
+  });
+
+  it("trails a book hub and a fell page back through /fells", () => {
+    const trail = (slug: string[]) =>
+      getRouteSeo(slug).breadcrumbs?.map((crumb) => crumb.path);
+    expect(trail(["fells", "books", "north-western-fells"])).toEqual([
+      "/",
+      "/fells",
+      "/fells/books/north-western-fells",
+    ]);
+    expect(trail(["fells", "catbells"])).toEqual([
+      "/",
+      "/fells",
+      "/fells/books/north-western-fells",
+      "/fells/catbells",
+    ]);
   });
 
   it("files the web app under Travel with a free offer and no rating", () => {
@@ -304,6 +384,15 @@ describe("sitemap", () => {
   it("leaves out the noindex tracker", () => {
     expect(sitemapEntries().map((entry) => entry.url)).not.toContain(
       "https://wainwrightsbaggers.com/app",
+    );
+  });
+
+  it("leaves out fell pages until they are released", () => {
+    const urls = sitemapEntries().map((entry) => entry.url);
+    expect(urls.filter((url) => url.includes("/fells/"))).toEqual(
+      BOOKS.map(
+        (book) => `https://wainwrightsbaggers.com/fells/books/${book.slug}`,
+      ),
     );
   });
 });

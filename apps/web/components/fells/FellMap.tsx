@@ -1,0 +1,79 @@
+// A light map of the summits: one dot per fell, placed by latitude and
+// longitude, the seven books labelled where their fells cluster. Plain SVG,
+// rendered on the server, so it costs no script and no map tiles.
+
+import { WAINWRIGHTS } from "@wainwrights/catalog/wainwrights";
+
+import { BOOKS, type Book, bookOf, fellsInBook } from "@/lib/fells";
+
+const WIDTH = 1000;
+const PAD = 40;
+const LATS = WAINWRIGHTS.map((fell) => fell.latitude);
+const LONS = WAINWRIGHTS.map((fell) => fell.longitude);
+const [minLat, maxLat] = [Math.min(...LATS), Math.max(...LATS)];
+const [minLon, maxLon] = [Math.min(...LONS), Math.max(...LONS)];
+// Degrees of longitude shrink with latitude; scale them so the fells keep their shape.
+const lonScale = Math.cos((((minLat + maxLat) / 2) * Math.PI) / 180);
+const scale = (WIDTH - PAD * 2) / ((maxLon - minLon) * lonScale);
+const HEIGHT = Math.round((maxLat - minLat) * scale + PAD * 2);
+
+function project(latitude: number, longitude: number) {
+  return {
+    x: PAD + (longitude - minLon) * lonScale * scale,
+    y: PAD + (maxLat - latitude) * scale,
+  };
+}
+
+function centre(book: Book) {
+  const fells = fellsInBook(book);
+  const mean = (values: number[]) =>
+    values.reduce((sum, value) => sum + value, 0) / values.length;
+  return project(
+    mean(fells.map((fell) => fell.latitude)),
+    mean(fells.map((fell) => fell.longitude)),
+  );
+}
+
+export function FellMap({ highlight }: { highlight?: Book }) {
+  const label = highlight
+    ? `Map of the 214 Wainwright summits with the ${fellsInBook(highlight).length} fells of ${highlight.title} highlighted`
+    : "Map of the 214 Wainwright summits, grouped into Wainwright's seven books";
+
+  return (
+    <svg
+      className="fl-map"
+      viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+      role="img"
+      aria-label={label}
+    >
+      {WAINWRIGHTS.map((fell) => {
+        const { x, y } = project(fell.latitude, fell.longitude);
+        const on = !highlight || bookOf(fell) === highlight;
+        return (
+          <circle
+            key={fell.id}
+            cx={x.toFixed(1)}
+            cy={y.toFixed(1)}
+            r={on ? 6 : 4}
+            className={on ? "fl-dot" : "fl-dot fl-dot--off"}
+          />
+        );
+      })}
+      {BOOKS.map((book) => {
+        const { x, y } = centre(book);
+        const on = !highlight || book === highlight;
+        return (
+          <text
+            key={book.slug}
+            x={x.toFixed(1)}
+            y={y.toFixed(1)}
+            className={on ? "fl-map-label" : "fl-map-label fl-map-label--off"}
+            textAnchor="middle"
+          >
+            {book.number} · {book.area}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
