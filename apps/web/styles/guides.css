@@ -1,0 +1,913 @@
+/* ── Guides ──────────────────────────────────────────────────────────
+   The /guides hub, each guide and author pages (marketing-pages/Guide*.tsx,
+   AuthorPage.tsx, components/guides). A long read in the landing's language:
+   the serif for titles and body, cream paper, contour lines, pine panels.
+   Shares palette, nav, footer, pills and ld- helpers with slope.css and
+   landing.css. Everything here is prefixed gd-.
+*/
+
+/* ── Band: contours, nav and the page header ────────────────────────── */
+.design-slope .gd-band {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--cream) 0%, var(--paper) 100%);
+}
+.design-slope .gd-band .ld-contours {
+  inset: -10% -4% 0;
+  -webkit-mask-image:
+    url("/contours.svg"), linear-gradient(180deg, #000 20%, transparent 95%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    url("/contours.svg"), linear-gradient(180deg, #000 20%, transparent 95%);
+  mask-composite: intersect;
+  -webkit-mask-size:
+    1500px auto,
+    100% 100%;
+  mask-size:
+    1500px auto,
+    100% 100%;
+  -webkit-mask-position:
+    center top,
+    center;
+  mask-position:
+    center top,
+    center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.design-slope .gd-band .slope-nav {
+  position: relative;
+  z-index: 2;
+}
+.design-slope .gd-head {
+  position: relative;
+  z-index: 1;
+  width: min(860px, 100% - 8vw);
+  margin: 0 auto;
+  padding: 2.2rem 0 3.6rem;
+  text-align: center;
+}
+.design-slope .gd-head .ld-kicker {
+  margin-bottom: 1.1rem;
+}
+.design-slope .gd-h1 {
+  margin: 0 auto 1.3rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(2.4rem, 5.2vw, 4.3rem);
+  line-height: 1.03;
+  letter-spacing: -0.02em;
+  color: var(--pine);
+  text-wrap: balance;
+}
+.design-slope .gd-h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--leaf);
+}
+.design-slope .gd-head--hub .gd-h1 {
+  font-size: clamp(2.8rem, 6.4vw, 5rem);
+}
+.design-slope .gd-dek {
+  margin: 0 auto;
+  max-width: 46ch;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.15rem, 1.8vw, 1.36rem);
+  line-height: 1.5;
+  color: var(--moss);
+  text-wrap: pretty;
+}
+
+/* Breadcrumbs */
+.design-slope .gd-crumbs {
+  margin-bottom: 1.8rem;
+}
+.design-slope .gd-crumbs ol {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.2rem 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: var(--quiet);
+}
+.design-slope .gd-crumbs li + li::before {
+  content: "/";
+  margin: 0 0.6rem;
+  color: rgba(62, 110, 84, 0.4);
+}
+.design-slope .gd-crumbs a {
+  color: var(--moss);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.design-slope .gd-crumbs a:hover {
+  color: var(--pine);
+}
+.design-slope .gd-crumbs [aria-current] {
+  max-width: 30ch;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Byline */
+.design-slope .gd-byline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 2rem;
+  text-align: left;
+}
+.design-slope .gd-byline p {
+  margin: 0;
+}
+.design-slope .gd-byline-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--pine);
+}
+.design-slope .gd-byline-name a,
+.design-slope .gd-about-name a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.design-slope .gd-byline .gd-byline-meta {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+  font-size: 0.84rem;
+  white-space: nowrap;
+  color: var(--quiet);
+}
+.design-slope .gd-avatar {
+  flex: none;
+  display: block;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--cream);
+  border: 1px solid var(--line);
+}
+.design-slope .gd-avatar--brand {
+  padding: 7px;
+  box-sizing: border-box;
+}
+
+/* ── Hero photograph ────────────────────────────────────────────────── */
+.design-slope .gd-hero {
+  width: min(1180px, 100% - 8vw);
+  margin: 0 auto;
+  border-radius: 28px;
+  overflow: hidden;
+  background: var(--sage);
+  box-shadow: 0 30px 70px -36px rgba(17, 35, 24, 0.45);
+}
+.design-slope .gd-hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+}
+
+/* ── Body: a centred measure, with the contents in the left margin ──── */
+.design-slope .gd-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 680px) minmax(0, 1fr);
+  column-gap: 3.5rem;
+  padding: 4.5rem 4vw 5.5rem;
+}
+.design-slope .gd-body--single {
+  padding-top: 3.5rem;
+  padding-bottom: 3rem;
+}
+.design-slope .gd-prose {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+.design-slope .gd-toc {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  align-self: start;
+  position: sticky;
+  top: 2rem;
+  width: 100%;
+  max-width: 220px;
+  padding-top: 0.4rem;
+}
+.design-slope .gd-toc-title {
+  margin: 0 0 0.9rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+.design-slope .gd-toc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--line);
+}
+.design-slope .gd-toc a {
+  display: block;
+  padding: 0.4rem 0 0.4rem 1rem;
+  margin-left: -1px;
+  border-left: 1px solid transparent;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--moss);
+  text-decoration: none;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+.design-slope .gd-toc a:hover {
+  color: var(--pine);
+  border-left-color: var(--bracken);
+}
+
+/* ── Long-read type ─────────────────────────────────────────────────── */
+/* :where keeps these at class weight, so component styles below win. */
+.design-slope .gd-prose :where(p, li) {
+  font-family: var(--font-serif);
+  font-size: var(--gd-text, 1.24rem);
+  line-height: var(--gd-leading, 1.7);
+  color: #1c3024;
+  text-wrap: pretty;
+}
+.design-slope .gd-prose :where(p) {
+  margin: 0 0 1.35em;
+}
+.design-slope .gd-prose > p:first-child::first-letter {
+  float: left;
+  margin: 0.1em 0.12em 0 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 4.3em;
+  line-height: 0.8;
+  color: var(--leaf);
+}
+.design-slope .gd-prose h2 {
+  margin: 2.6em 0 0.75em;
+  scroll-margin-top: 2rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 48;
+  font-size: clamp(1.75rem, 2.8vw, 2.25rem);
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  color: var(--pine);
+  text-wrap: balance;
+}
+.design-slope .gd-prose h2::before {
+  content: "";
+  display: block;
+  width: 2.4rem;
+  height: 2px;
+  margin-bottom: 1.1rem;
+  background: var(--bracken);
+}
+.design-slope .gd-prose h3 {
+  margin: 2em 0 0.5em;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.45rem;
+  color: var(--pine);
+}
+.design-slope .gd-prose a:not(.btn-pill) {
+  color: var(--pine);
+  text-decoration: underline;
+  text-decoration-color: rgba(92, 148, 111, 0.55);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.3s ease;
+}
+.design-slope .gd-prose a:not(.btn-pill):hover {
+  text-decoration-color: var(--bracken);
+}
+.design-slope .gd-prose strong {
+  font-weight: 600;
+  color: var(--pine);
+}
+.design-slope .gd-prose ul,
+.design-slope .gd-prose ol {
+  margin: 0 0 1.6em;
+  padding: 0;
+}
+.design-slope .gd-prose ul {
+  list-style: none;
+}
+.design-slope .gd-prose ul li {
+  position: relative;
+  padding-left: 1.6rem;
+}
+.design-slope .gd-prose ul li::before {
+  content: "";
+  position: absolute;
+  left: 0.1rem;
+  top: 0.62em;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--moss);
+  background: var(--cream);
+}
+.design-slope .gd-prose ol {
+  padding-left: 1.4rem;
+}
+.design-slope .gd-prose li {
+  margin: 0 0 0.55em;
+}
+.design-slope .gd-prose li p {
+  margin: 0;
+}
+
+/* <Fell id> in running text */
+.design-slope .gd-fell {
+  color: var(--pine);
+  font-weight: 500;
+}
+.design-slope .gd-fell-h {
+  display: inline-block;
+  margin-left: 0.15em;
+  padding: 0.12em 0.45em 0.1em;
+  border-radius: 999px;
+  background: rgba(232, 237, 220, 0.9);
+  border: 1px solid var(--line);
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.62em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  vertical-align: 0.18em;
+  white-space: nowrap;
+  color: var(--moss);
+}
+
+/* ── Figures, tables and pull quotes run wider than the measure ────── */
+.design-slope .gd-figure {
+  margin: 2.8rem 0;
+}
+.design-slope .gd-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  background: var(--sage);
+}
+.design-slope .gd-figure figcaption,
+.design-slope .gd-pullquote figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
+  margin-top: 0.9rem;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--bracken);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--moss);
+}
+.design-slope .gd-credit {
+  color: var(--quiet);
+  font-size: 0.8rem;
+}
+.design-slope .gd-table {
+  margin: 2.6rem 0;
+}
+.design-slope .gd-table figcaption,
+.design-slope .gd-callout-title,
+.design-slope .gd-facts-tag,
+.design-slope .gd-about-tag,
+.design-slope .gd-cta-tag {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+.design-slope .gd-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--cream);
+}
+.design-slope .gd-table table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.design-slope .gd-table th,
+.design-slope .gd-table td {
+  padding: 0.95rem 1.1rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.design-slope .gd-table th {
+  background: var(--sage);
+  color: var(--pine);
+  font-weight: 600;
+}
+.design-slope .gd-table td:first-child {
+  font-weight: 600;
+  color: var(--pine);
+}
+.design-slope .gd-table td {
+  color: var(--ink);
+}
+.design-slope .gd-table tr:last-child td {
+  border-bottom: 0;
+}
+.design-slope .gd-pullquote {
+  margin: 3.2rem 0;
+  padding: 0.4rem 0 0;
+}
+.design-slope .gd-pullquote blockquote {
+  position: relative;
+  margin: 0;
+  padding-top: 2.2rem;
+}
+.design-slope .gd-pullquote blockquote::before {
+  content: "\201C";
+  position: absolute;
+  top: -0.9rem;
+  left: 0;
+  font-family: var(--font-serif);
+  font-size: 5.5rem;
+  line-height: 1;
+  color: var(--bracken);
+}
+.design-slope .gd-prose .gd-pullquote blockquote p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-variation-settings: "opsz" 60;
+  font-size: clamp(1.6rem, 2.8vw, 2.15rem);
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  color: var(--pine);
+  text-wrap: balance;
+}
+
+/* ── Callout ────────────────────────────────────────────────────────── */
+.design-slope .gd-callout {
+  margin: 2.4rem 0;
+  padding: 1.6rem 1.8rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--cream);
+  box-shadow: 0 12px 40px -28px rgba(31, 66, 50, 0.3);
+}
+.design-slope .gd-prose .gd-callout-body p,
+.design-slope .gd-prose .gd-callout-body li {
+  font-size: 1.1rem;
+  line-height: 1.62;
+}
+.design-slope .gd-prose .gd-callout-body > :last-child {
+  margin-bottom: 1.2rem;
+}
+
+/* ── Fell facts ─────────────────────────────────────────────────────── */
+.design-slope .gd-facts {
+  position: relative;
+  overflow: hidden;
+  margin: 2.4rem 0 2.6rem;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--cream);
+}
+.design-slope .gd-facts::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-color: var(--contour);
+  opacity: 0.14;
+  -webkit-mask: url("/contours.svg") right -240px top -120px / 900px auto
+    no-repeat;
+  mask: url("/contours.svg") right -240px top -120px / 900px auto no-repeat;
+}
+.design-slope .gd-facts-head {
+  position: relative;
+  padding: 1.5rem 1.7rem 1.2rem;
+}
+.design-slope .gd-facts-tag {
+  margin-bottom: 0.3rem;
+}
+.design-slope .gd-facts-name {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--pine);
+}
+.design-slope .gd-facts-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+.design-slope .gd-facts-grid > div {
+  padding: 1.1rem 1.2rem 1.2rem 1.7rem;
+  border-right: 1px solid var(--line);
+}
+.design-slope .gd-facts-grid > div:last-child {
+  border-right: 0;
+}
+.design-slope .gd-facts dt {
+  margin-bottom: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--quiet);
+}
+.design-slope .gd-facts dd {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  line-height: 1.15;
+  color: var(--pine);
+}
+.design-slope .gd-facts dd small {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--moss);
+}
+.design-slope .gd-facts-grid-ref {
+  position: relative;
+  margin: 0;
+  padding: 0.85rem 1.7rem;
+  border-top: 1px solid var(--line);
+  background: rgba(232, 237, 220, 0.5);
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.84rem;
+  color: var(--moss);
+}
+.design-slope .gd-facts-grid-ref span {
+  margin-left: 0.4rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--pine);
+}
+
+/* ── Fells in this guide ────────────────────────────────────────────── */
+.design-slope .gd-fells {
+  margin-top: 3.2rem;
+}
+.design-slope .gd-prose .gd-fells ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.7rem;
+}
+.design-slope .gd-prose .gd-fells li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--cream);
+}
+.design-slope .gd-prose .gd-fells li::before {
+  content: none;
+}
+.design-slope .gd-fells strong {
+  font-size: 1.08rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+.design-slope .gd-fells span {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.8rem;
+  color: var(--moss);
+}
+
+/* ── "Bag it in the app" ────────────────────────────────────────────── */
+.design-slope .gd-cta {
+  position: relative;
+  overflow: hidden;
+  margin: 3.4rem 0 0;
+  padding: 2.4rem 2.2rem;
+  border-radius: 28px;
+  background: var(--pine);
+  color: var(--cream);
+}
+.design-slope .gd-cta .ld-contours {
+  background-color: var(--cream);
+  opacity: 0.1;
+  -webkit-mask-position: right -200px center;
+  mask-position: right -200px center;
+}
+.design-slope .gd-cta-inner {
+  position: relative;
+  z-index: 1;
+}
+.design-slope .gd-cta .gd-cta-tag {
+  color: rgba(250, 250, 232, 0.66);
+}
+.design-slope .gd-cta .gd-cta-title {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 60;
+  font-size: clamp(1.9rem, 3.2vw, 2.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--cream);
+}
+.design-slope .gd-cta .gd-cta-text p {
+  max-width: 46ch;
+  margin: 0 0 1.6rem;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(250, 250, 232, 0.82);
+}
+.design-slope .gd-cta-soon {
+  font-size: 0.86rem;
+  color: rgba(250, 250, 232, 0.66);
+}
+
+/* ── Written by ─────────────────────────────────────────────────────── */
+.design-slope .gd-about {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  margin-top: 3rem;
+  padding-top: 2.2rem;
+  border-top: 1px solid var(--line);
+}
+.design-slope .gd-prose .gd-about .gd-about-tag {
+  margin-bottom: 0.2rem;
+  font-size: 0.74rem;
+}
+.design-slope .gd-prose .gd-about p {
+  margin: 0;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.design-slope .gd-prose .gd-about .gd-about-name {
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  font-weight: 500;
+  color: var(--pine);
+}
+.design-slope .gd-prose .gd-about .gd-about-role {
+  margin-bottom: 0.7rem;
+  color: var(--moss);
+}
+.design-slope .gd-prose .gd-about .gd-about-bio {
+  color: var(--ink);
+}
+.design-slope .gd-prose .gd-about .gd-about-dates {
+  margin-top: 0.8rem;
+  font-size: 0.84rem;
+  color: var(--quiet);
+}
+
+/* ── Cards: hub, related guides, author's guides ────────────────────── */
+.design-slope .gd-hub {
+  padding: 3.6rem 0 5.5rem;
+}
+.design-slope .gd-hub-cta {
+  max-width: 880px;
+  margin: 4rem auto 0;
+}
+.design-slope .gd-related {
+  padding: 4.5rem 0 5.5rem;
+  border-top: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--sage) 0%, var(--paper) 100%);
+}
+.design-slope .gd-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.4rem;
+  margin: 1.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.design-slope .gd-grid--hub {
+  margin-top: 0;
+}
+.design-slope .gd-card a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--cream);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.design-slope .gd-card a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(20, 46, 34, 0.1);
+}
+.design-slope .gd-card-media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--sage);
+}
+.design-slope .gd-card-media img {
+  object-fit: cover;
+}
+.design-slope .gd-card-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 1.4rem 1.5rem 1.5rem;
+}
+.design-slope .gd-card-cat {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+.design-slope .gd-card-title {
+  margin: 0.5rem 0 0.5rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 32;
+  font-size: 1.45rem;
+  line-height: 1.18;
+  color: var(--pine);
+  text-wrap: balance;
+}
+.design-slope .gd-card-dek {
+  margin: 0 0 1.2rem;
+  font-size: 0.93rem;
+  line-height: 1.55;
+  color: var(--moss);
+}
+.design-slope .gd-card-meta {
+  display: flex;
+  gap: 0.5rem;
+  margin: auto 0 0;
+  font-size: 0.8rem;
+  color: var(--quiet);
+}
+.design-slope .gd-card[data-featured] {
+  grid-column: 1 / -1;
+}
+.design-slope .gd-card[data-featured] a {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+.design-slope .gd-card[data-featured] .gd-card-media {
+  aspect-ratio: auto;
+  min-height: 400px;
+}
+.design-slope .gd-card[data-featured] .gd-card-copy {
+  justify-content: center;
+  padding: 2.8rem 2.6rem;
+}
+.design-slope .gd-card[data-featured] .gd-card-title {
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  line-height: 1.08;
+}
+.design-slope .gd-card[data-featured] .gd-card-dek {
+  font-size: 1.02rem;
+}
+.design-slope .gd-card[data-featured] .gd-card-meta {
+  margin-top: 0.4rem;
+}
+
+/* ── Author page ────────────────────────────────────────────────────── */
+.design-slope .gd-head--author .gd-avatar {
+  margin: 0 auto 1.6rem;
+  box-shadow: 0 18px 40px -20px rgba(17, 35, 24, 0.45);
+}
+.design-slope .gd-photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1.6rem;
+  padding-bottom: 3rem;
+}
+.design-slope .gd-photos .gd-figure {
+  margin: 0 0 2rem;
+}
+
+/* ── Wide screens: figures, tables and pull quotes step out ─────────── */
+@media (min-width: 1100px) {
+  .design-slope .gd-prose .gd-figure,
+  .design-slope .gd-prose .gd-table {
+    margin-inline: -5rem;
+  }
+  .design-slope .gd-prose .gd-pullquote {
+    margin-inline: -3rem;
+  }
+}
+
+/* ── Narrow screens ─────────────────────────────────────────────────── */
+@media (max-width: 1099px) {
+  .design-slope .gd-body {
+    grid-template-columns: minmax(0, 680px);
+    justify-content: center;
+    padding-top: 3rem;
+  }
+  .design-slope .gd-prose {
+    grid-column: 1;
+  }
+  .design-slope .gd-toc {
+    display: none;
+  }
+}
+@media (max-width: 899px) {
+  .design-slope .gd-grid {
+    grid-template-columns: 1fr;
+  }
+  .design-slope .gd-card[data-featured] a {
+    display: flex;
+  }
+  .design-slope .gd-card[data-featured] .gd-card-media {
+    aspect-ratio: 16 / 10;
+    min-height: 0;
+  }
+  .design-slope .gd-card[data-featured] .gd-card-copy {
+    padding: 1.5rem 1.5rem 1.6rem;
+  }
+  .design-slope .gd-photos {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .design-slope .gd-head {
+    padding: 1.2rem 0 2.6rem;
+  }
+  .design-slope .gd-crumbs {
+    margin-bottom: 1.4rem;
+  }
+  .design-slope .gd-crumbs [aria-current] {
+    max-width: 18ch;
+  }
+  .design-slope .gd-hero {
+    border-radius: 18px;
+  }
+  .design-slope .gd-hero img {
+    aspect-ratio: 4 / 3;
+  }
+  .design-slope .gd-body {
+    padding: 2.4rem 5vw 4rem;
+  }
+  .design-slope .gd-prose {
+    --gd-text: 1.14rem;
+    --gd-leading: 1.66;
+  }
+  .design-slope .gd-facts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .design-slope .gd-facts-grid > div {
+    padding-left: 1.3rem;
+  }
+  .design-slope .gd-facts-grid > div:nth-child(2n) {
+    border-right: 0;
+  }
+  .design-slope .gd-facts-grid > div:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
+  }
+  .design-slope .gd-facts-head,
+  .design-slope .gd-facts-grid-ref {
+    padding-inline: 1.3rem;
+  }
+  .design-slope .gd-callout {
+    padding: 1.3rem 1.3rem 0.3rem;
+  }
+  .design-slope .gd-cta {
+    padding: 2rem 1.5rem;
+    border-radius: 22px;
+  }
+  .design-slope .gd-figure img {
+    border-radius: 14px;
+  }
+  .design-slope .gd-about {
+    gap: 1rem;
+  }
+}

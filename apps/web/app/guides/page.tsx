@@ -1,15 +1,15 @@
 import { buildMetadata, getRouteSeo, JsonLd } from "@/lib/seo";
-import { BlogPage } from "@/marketing-pages/BlogPage";
+import { GuidesPage } from "@/marketing-pages/GuidesPage";
 
-const seo = getRouteSeo(["blog"]);
+const seo = getRouteSeo(["guides"]);
 
 export const metadata = buildMetadata(seo);
 
-export default function BlogIndexPage() {
+export default function GuidesIndexPage() {
   return (
     <>
       <JsonLd seo={seo} />
-      <BlogPage />
+      <GuidesPage seo={seo} />
     </>
   );
 }

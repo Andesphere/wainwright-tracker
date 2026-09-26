@@ -1,4 +1,4 @@
-import { formatBlogDate } from "@/content/blog/posts";
+import { formatDate } from "@/lib/dates";
 import { buildMetadata, getRouteSeo, JsonLd, SITE_NAME } from "@/lib/seo";
 
 // The policy's date lives in the SEO route, so the page and sitemap agree.
@@ -6,7 +6,7 @@ const seo = getRouteSeo(["privacy"]);
 
 export const metadata = buildMetadata(seo);
 
-const UPDATED = formatBlogDate(seo.lastModified as string);
+const UPDATED = formatDate(seo.lastModified as string);
 
 const sections: { title: string; body: string[] }[] = [
   {

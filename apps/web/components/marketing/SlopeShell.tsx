@@ -1,5 +1,5 @@
-// SlopeShell — outer wrapper for every marketing page (/, /contact, /blog,
-// /blog/:slug, not found). Applies the design-slope CSS scope and pins the
+// SlopeShell — outer wrapper for every marketing page (/, /contact, /guides,
+// /guides/:slug, not found). Applies the design-slope CSS scope and pins the
 // shared footer at the bottom. Children supply the nav + main content.
 
 import type { ReactNode } from "react";

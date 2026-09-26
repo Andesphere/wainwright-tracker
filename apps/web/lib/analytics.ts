@@ -10,7 +10,7 @@ export const setPosthog = (posthog: PostHog) => resolvePosthog(posthog);
 
 /**
  * The site section a path belongs to: "home" for /, else its first segment
- * (blog, contact, app...). Events and App Store campaign links carry it.
+ * (guides, contact, app...). Events and App Store campaign links carry it.
  */
 export function pageGroup(pathname: string): string {
   return pathname.split("/").find(Boolean) ?? "home";
@@ -43,12 +43,13 @@ export const trackAppStoreClick = (location: string) => {
   capture("appstore_clicked", { location });
 };
 
-export const trackBlogCtaClick = (
+/** A call to action inside a guide was followed; `slug` is the guide. */
+export const trackGuideCtaClick = (
   slug: string,
   label: string,
   href: string,
 ) => {
-  capture("blog_cta_clicked", { slug, label, href });
+  capture("guide_cta_clicked", { slug, label, href });
 };
 
 /** The tracker at /app opened for a signed-in walker. */

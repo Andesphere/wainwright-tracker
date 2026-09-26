@@ -1,7 +1,7 @@
-// SlopeNav — the navbar shared between the landing hero and the blog pages.
+// SlopeNav — the navbar shared between the landing hero and the other marketing pages.
 // Two visual variants:
 //   - "solid" → paper background with a border (sits on a plain page)
-//   - "plain" → transparent, dark text (sits on the cream landing hero)
+//   - "plain" → transparent, dark text (sits on the cream landing and guide heroes)
 //
 // Server-rendered; only the right-hand auth button is a client island.
 
@@ -29,7 +29,7 @@ export function SlopeNav({ variant = "solid" }: SlopeNavProps) {
       <nav className="slope-nav-links">
         <Link href="/#map">The map</Link>
         <Link href="/#pricing">Free and Pro</Link>
-        <Link href="/blog">Field Notes</Link>
+        <Link href="/guides">Guides</Link>
         <Link href="/contact">Contact</Link>
       </nav>
       <NavAuthCta />

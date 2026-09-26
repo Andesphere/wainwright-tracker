@@ -1,7 +1,7 @@
 // LandingPage — the public "/" route, rendered on the server.
 // Sells the iPhone app and the web tracker in the app's own visual
 // language: sage map greens, warm cream, a serif for titles, glass cards.
-// Shares the Slope nav and footer with the blog; page-only styles live in
+// Shares the Slope nav and footer with the guides; page-only styles live in
 // styles/landing.css under the ld-* prefix. The journal CTAs are client
 // islands (components/marketing/AuthCta.tsx).
 
@@ -12,7 +12,7 @@ import { JournalCta } from "@/components/marketing/AuthCta";
 import { PhoneFrame } from "@/components/marketing/PhoneFrame";
 import { SlopeNav } from "@/components/marketing/SlopeNav";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
-import { BLOG_POSTS } from "@/content/blog/posts";
+import { getGuides } from "@/lib/guides";
 
 // Real captures from the iPhone app (apps/web/public/screens/ios).
 const SCREENS = {
@@ -65,11 +65,10 @@ const PRO_INCLUDES = [
   "Stats",
 ];
 
-const NOTES = BLOG_POSTS.slice(0, 3);
-
 const PHONE_SIZES = "(min-width: 900px) 280px, 66vw";
 
 export function LandingPage() {
+  const notes = getGuides().slice(0, 3);
   return (
     <SlopeShell>
       {/* ── HERO — copy left, the app itself right */}
@@ -299,24 +298,24 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── FIELD NOTES */}
+      {/* ── GUIDES — the newest three, from the MDX index */}
       <section className="ld-notes" aria-labelledby="ld-notes-h">
         <div className="ld-wrap">
           <div className="ld-notes-head">
             <h2 className="ld-h2 ld-h2--small" id="ld-notes-h">
-              From the field notes
+              From the guides
             </h2>
-            <Link href="/blog" className="ld-notes-all">
-              All field notes
+            <Link href="/guides" className="ld-notes-all">
+              All guides
             </Link>
           </div>
           <ul className="ld-notes-list">
-            {NOTES.map((post) => (
-              <li key={post.slug} className="ld-note">
-                <Link href={`/blog/${post.slug}`}>
-                  <span className="ld-note-cat">{post.category}</span>
-                  <h3>{post.title}</h3>
-                  <p>{post.excerpt}</p>
+            {notes.map((guide) => (
+              <li key={guide.slug} className="ld-note">
+                <Link href={`/guides/${guide.slug}`}>
+                  <span className="ld-note-cat">{guide.category}</span>
+                  <h3>{guide.title}</h3>
+                  <p>{guide.description}</p>
                 </Link>
               </li>
             ))}

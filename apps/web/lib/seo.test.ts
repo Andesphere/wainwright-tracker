@@ -2,9 +2,11 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { BLOG_POSTS } from "@/content/blog/posts";
+import type { Author } from "@/content/authors";
+import { getGuides } from "@/lib/guides";
 import {
   buildJsonLd,
+  authorRouteSeo,
   buildMetadata,
   DEFAULT_OG_IMAGE,
   defaultMetadata,
@@ -49,8 +51,8 @@ const INDEXABLE_PATHS = [
   [],
   ["contact"],
   ["privacy"],
-  ["blog"],
-  ...BLOG_POSTS.map((post) => ["blog", post.slug]),
+  ["guides"],
+  ...getGuides().map((guide) => ["guides", guide.slug]),
 ];
 const ALL_PATHS = [...INDEXABLE_PATHS, ["app"]];
 
@@ -134,9 +136,9 @@ describe("structured data", () => {
     [[], ["Organization", "WebSite", "WebApplication"]],
     [["contact"], ["Organization", "WebSite"]],
     [["privacy"], ["Organization", "WebSite"]],
-    [["blog"], ["Organization", "WebSite", "Blog", "BreadcrumbList"]],
+    [["guides"], ["Organization", "WebSite", "Blog", "BreadcrumbList"]],
     [
-      ["blog", "best-wainwright-app"],
+      ["guides", "best-wainwright-app"],
       ["Organization", "WebSite", "BlogPosting", "BreadcrumbList"],
     ],
   ])("graph for /%s has %j", (slug, types) => {
@@ -158,15 +160,16 @@ describe("structured data", () => {
     expect(json).not.toContain("MobileApplication");
   });
 
-  it("gives a post a three-step trail and its real modified date", () => {
-    const post = BLOG_POSTS.find(
-      (entry) => entry.slug === "introducing-the-tracker",
-    )!;
-    const graph = graphOf(["blog", post.slug]);
+  it("gives a guide a three-step trail and its real modified date", () => {
+    const graph = graphOf(["guides", "easiest-wainwrights"]);
     const article = graph.find((node) => node["@type"] === "BlogPosting");
     expect(article).toMatchObject({
-      datePublished: "2026-05-18",
-      dateModified: "2026-09-24",
+      headline: "The Easiest Wainwrights: Gentle First Fells for Beginners",
+      datePublished: "2026-05-22",
+      dateModified: "2026-09-26",
+      author: { "@id": "https://wainwrightsbaggers.com/#organization" },
+      image:
+        "https://wainwrightsbaggers.com/images/guides/easiest-wainwrights-hero.jpg",
     });
     const trail = graph.find(
       (node) => node["@type"] === "BreadcrumbList",
@@ -175,9 +178,62 @@ describe("structured data", () => {
     };
     expect(trail.itemListElement.map((item) => item.item)).toEqual([
       "https://wainwrightsbaggers.com/",
-      "https://wainwrightsbaggers.com/blog",
-      `https://wainwrightsbaggers.com/blog/${post.slug}`,
+      "https://wainwrightsbaggers.com/guides",
+      "https://wainwrightsbaggers.com/guides/easiest-wainwrights",
     ]);
+  });
+
+  it("tags a guide as an article by its author, with its own card", () => {
+    const metadata = buildMetadata(
+      getRouteSeo(["guides", "easiest-wainwrights"]),
+    );
+    expect(metadata.openGraph).toMatchObject({
+      type: "article",
+      publishedTime: "2026-05-22",
+      modifiedTime: "2026-09-26",
+      authors: ["Wainwrights Baggers"],
+      images: [
+        {
+          url: "https://wainwrightsbaggers.com/images/guides/easiest-wainwrights-og.jpg",
+        },
+      ],
+    });
+  });
+
+  describe("a person author", () => {
+    const alex: Author = {
+      slug: "alex-example",
+      name: "Alex Example",
+      kind: "person",
+      role: "Fell walker",
+      bio: ["Walks the fells."],
+      portrait: {
+        src: "/images/authors/alex-example/portrait.jpg",
+        width: 800,
+        height: 800,
+        alt: "Alex on a summit",
+      },
+    };
+
+    it("gets a profile page with a Person", () => {
+      const graph = buildJsonLd(authorRouteSeo(alex))["@graph"] as GraphNode[];
+      expect(graph.map((node) => node["@type"])).toEqual([
+        "Organization",
+        "WebSite",
+        "ProfilePage",
+        "BreadcrumbList",
+      ]);
+      expect(graph[2]).toMatchObject({
+        url: "https://wainwrightsbaggers.com/guides/authors/alex-example",
+        mainEntity: {
+          "@type": "Person",
+          name: "Alex Example",
+          url: "https://wainwrightsbaggers.com/guides/authors/alex-example",
+          image:
+            "https://wainwrightsbaggers.com/images/authors/alex-example/portrait.jpg",
+        },
+      });
+    });
   });
 });
 
@@ -209,10 +265,10 @@ describe("launch day", () => {
       expect.objectContaining({ sameAs: [listing] }),
     );
 
-    const post = seo.buildJsonLd(seo.getRouteSeo(["blog", BLOG_POSTS[0].slug]))[
-      "@graph"
-    ] as GraphNode[];
-    expect(post.map((node) => node["@type"])).not.toContain(
+    const guide = seo.buildJsonLd(
+      seo.getRouteSeo(["guides", "best-wainwright-app"]),
+    )["@graph"] as GraphNode[];
+    expect(guide.map((node) => node["@type"])).not.toContain(
       "MobileApplication",
     );
   });
@@ -233,14 +289,16 @@ describe("sitemap", () => {
     }
   });
 
-  it("dates a post by its update and the blog by its newest post", () => {
+  it("dates a guide by its update and the hub by its newest guide", () => {
     const byUrl = new Map(
       sitemapEntries().map((entry) => [entry.url, entry.lastModified]),
     );
     expect(
-      byUrl.get("https://wainwrightsbaggers.com/blog/introducing-the-tracker"),
-    ).toBe("2026-09-24");
-    expect(byUrl.get("https://wainwrightsbaggers.com/blog")).toBe("2026-09-24");
+      byUrl.get("https://wainwrightsbaggers.com/guides/best-wainwright-app"),
+    ).toBe("2026-05-19");
+    expect(byUrl.get("https://wainwrightsbaggers.com/guides")).toBe(
+      "2026-09-26",
+    );
   });
 
   it("leaves out the noindex tracker", () => {
