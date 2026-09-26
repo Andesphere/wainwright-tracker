@@ -20,6 +20,7 @@ import {
   formatHeight,
   getBook,
   getFell,
+  highestOf,
 } from "@/lib/fells";
 
 export const SITE_URL = "https://wainwrightsbaggers.com";
@@ -152,9 +153,7 @@ export function authorRouteSeo(author: Author): RouteSeo {
 export function bookRouteSeo(book: Book): RouteSeo {
   const path = bookPath(book);
   const fells = fellsInBook(book);
-  const highest = fells.reduce((a, b) =>
-    b.heightMetres > a.heightMetres ? b : a,
-  );
+  const highest = highestOf(fells);
   return {
     kind: "book",
     path,

@@ -9,15 +9,22 @@ import { BookCards, DataCredit } from "@/components/fells/FellsParts";
 import { GuideBand } from "@/components/guides/GuideBand";
 import { TrackerCta } from "@/components/guides/GuideComponents";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
-import { type Book, fellPath, fellRow, formatHeight } from "@/lib/fells";
+import {
+  type Book,
+  fellPath,
+  fellRow,
+  fellsInBook,
+  formatHeight,
+  highestOf,
+  lowestOf,
+} from "@/lib/fells";
 import type { RouteSeo } from "@/lib/seo";
 
 export function BookPage({ seo }: { seo: RouteSeo & { book: Book } }) {
   const { book } = seo;
-  const fells = seo.fells ?? [];
-  const byHeight = [...fells].sort((a, b) => b.heightMetres - a.heightMetres);
-  const highest = byHeight[0];
-  const lowest = byHeight[byHeight.length - 1];
+  const fells = fellsInBook(book);
+  const highest = highestOf(fells);
+  const lowest = lowestOf(fells);
 
   return (
     <SlopeShell>
@@ -62,7 +69,7 @@ export function BookPage({ seo }: { seo: RouteSeo & { book: Book } }) {
             <FellMap highlight={book} />
             <figcaption>
               The {fells.length} summits of Book {book.number} among all 214
-              Wainwrights, placed by grid reference.
+              Wainwrights, each in its true position.
             </figcaption>
           </figure>
           <div className="fl-atlas-books">

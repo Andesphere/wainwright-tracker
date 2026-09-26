@@ -94,6 +94,16 @@ export function fellsInBook(book: Book): Wainwright[] {
   return BY_BOOK.filter((fell) => fell.area === book.area);
 }
 
+/** The highest of some fells. */
+export function highestOf(fells: Wainwright[]): Wainwright {
+  return fells.reduce((a, b) => (b.heightMetres > a.heightMetres ? b : a));
+}
+
+/** The lowest of some fells. */
+export function lowestOf(fells: Wainwright[]): Wainwright {
+  return fells.reduce((a, b) => (b.heightMetres < a.heightMetres ? b : a));
+}
+
 /** 1 for the first fell in its book. */
 export function bookPosition(fell: Wainwright): number {
   return fellsInBook(bookOf(fell)).indexOf(fell) + 1;
@@ -154,7 +164,7 @@ export function fellRow(fell: Wainwright): FellRow {
     bookNumber: book.number,
     bookTitle: book.title,
     position: bookPosition(fell),
-    guideOrder: BY_BOOK.indexOf(fell) + 1,
+    guideOrder: fell.bookNumber,
     rank: heightRank(fell),
   };
 }

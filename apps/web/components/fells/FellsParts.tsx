@@ -8,6 +8,7 @@ import {
   bookPath,
   fellsInBook,
   formatHeight,
+  highestOf,
 } from "@/lib/fells";
 
 /** The data licence asks for this credit wherever the facts appear. */
@@ -37,9 +38,7 @@ export function BookCards({ current }: { current?: Book }) {
     <ol className="fl-books">
       {BOOKS.map((book) => {
         const fells = fellsInBook(book);
-        const highest = fells.reduce((a, b) =>
-          b.heightMetres > a.heightMetres ? b : a,
-        );
+        const highest = highestOf(fells);
         return (
           <li key={book.slug}>
             <Link

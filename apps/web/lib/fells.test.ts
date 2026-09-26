@@ -40,7 +40,6 @@ describe("fell facts", () => {
       bookNumber: 6,
       bookTitle: "The North Western Fells",
       position: bookPosition(requireFell("catbells")),
-      guideOrder: requireFell("catbells").bookNumber,
     });
   });
 

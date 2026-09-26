@@ -20,7 +20,7 @@ import {
 import type { RouteSeo } from "@/lib/seo";
 
 export function FellsPage({ seo }: { seo: RouteSeo }) {
-  const fells = seo.fells ?? [];
+  const fells = BY_HEIGHT;
   const highest = BY_HEIGHT[0];
   const lowest = BY_HEIGHT[BY_HEIGHT.length - 1];
   const counts = BOOKS.map(
@@ -70,7 +70,7 @@ export function FellsPage({ seo }: { seo: RouteSeo }) {
             </h2>
             <FellMap />
             <figcaption>
-              Every summit, placed by its grid reference. The numbers mark
+              Every summit in its true position. The numbers mark
               Wainwright&rsquo;s seven books, from the Eastern Fells (1) to the
               Western Fells (7).
             </figcaption>

@@ -66,7 +66,11 @@ export function FellTable({
           <caption className="sr-only">{caption}</caption>
           <thead>
             <tr>
-              <th scope="col" className="fl-num">
+              <th
+                scope="col"
+                className="fl-num"
+                aria-sort={showBook ? undefined : ariaSort("book")}
+              >
                 {showBook ? "Rank" : "No."}
               </th>
               <th scope="col" aria-sort={ariaSort("name")}>
