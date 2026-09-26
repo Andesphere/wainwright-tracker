@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  BOOKS,
   bookOf,
+  bookPosition,
+  fellRow,
+  fellsInBook,
+  getBook,
   formatGridReference,
   heightRank,
   ordinal,
@@ -20,6 +25,22 @@ describe("fell facts", () => {
       title: "The North Western Fells",
     });
     expect(bookOf(requireFell("latrigg")).number).toBe(5);
+  });
+
+  it("puts 35, 36, 27, 30, 24, 29 and 33 fells in the seven books", () => {
+    expect(BOOKS.map((book) => fellsInBook(book).length)).toEqual([
+      35, 36, 27, 30, 24, 29, 33,
+    ]);
+  });
+
+  it("numbers a fell within its book", () => {
+    expect(bookPosition(requireFell("arnison-crag"))).toBe(1);
+    expect(getBook("western-fells")).toBe(BOOKS[6]);
+    expect(fellRow(requireFell("catbells"))).toMatchObject({
+      bookNumber: 6,
+      bookTitle: "The North Western Fells",
+      position: bookPosition(requireFell("catbells")),
+    });
   });
 
   it("spaces a grid reference", () => {

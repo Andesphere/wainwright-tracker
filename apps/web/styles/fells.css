@@ -1,0 +1,395 @@
+/* ── Fells ───────────────────────────────────────────────────────────
+   /fells, the book hubs and the fell pages (marketing-pages/FellsPage.tsx,
+   BookPage.tsx, FellPage.tsx, components/fells). The guides' language: the
+   serif, cream paper, sage table heads, pine for what matters. Shares the
+   gd- header band and the ld- helpers. Everything here is prefixed fl-.
+*/
+
+.design-slope .fl-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4rem;
+  padding: 3.4rem 0 5.5rem;
+}
+.design-slope .fl-h2 {
+  margin: 0 0 1rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 48;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--pine);
+  text-wrap: balance;
+}
+
+/* ── The two questions ──────────────────────────────────────────────── */
+.design-slope .fl-intro {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.4rem 3.5rem;
+}
+.design-slope .fl-intro p {
+  margin: 0;
+  max-width: 56ch;
+  font-family: var(--font-serif);
+  font-size: 1.12rem;
+  line-height: 1.62;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.design-slope .fl-intro a,
+.design-slope .fl-credit a,
+.design-slope .fl-more a,
+.design-slope .fl-stats a {
+  color: var(--pine);
+  text-decoration: underline;
+  text-decoration-color: rgba(92, 148, 111, 0.45);
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color 0.3s ease;
+}
+.design-slope .fl-intro a:hover,
+.design-slope .fl-credit a:hover,
+.design-slope .fl-more a:hover,
+.design-slope .fl-stats a:hover {
+  text-decoration-color: var(--pine);
+}
+
+/* ── Map and the seven books ────────────────────────────────────────── */
+.design-slope .fl-atlas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 2.4rem;
+  align-items: start;
+}
+.design-slope .fl-map-frame {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  padding: 1.6rem 1.7rem 1.3rem;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--cream);
+}
+.design-slope .fl-map-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-color: var(--contour);
+  opacity: 0.12;
+  -webkit-mask: url("/contours.svg") center / 1100px auto no-repeat;
+  mask: url("/contours.svg") center / 1100px auto no-repeat;
+}
+.design-slope .fl-map {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.design-slope .fl-dot {
+  fill: var(--moss);
+  stroke: var(--cream);
+  stroke-width: 1.5;
+}
+.design-slope .fl-dot--off {
+  fill: var(--quiet);
+  opacity: 0.35;
+}
+.design-slope .fl-map-label {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  fill: var(--pine);
+  stroke: var(--cream);
+  stroke-width: 6px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
+.design-slope .fl-map-label--off {
+  fill: var(--quiet);
+  font-weight: 500;
+}
+.design-slope .fl-map-frame figcaption {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.9rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--moss);
+}
+
+.design-slope .fl-books {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.design-slope .fl-books a {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.9rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--cream);
+  text-decoration: none;
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+.design-slope .fl-books a:hover {
+  border-color: rgba(62, 110, 84, 0.4);
+}
+.design-slope .fl-books a[aria-current="page"] {
+  border-color: var(--pine);
+  background: var(--sage);
+}
+.design-slope .fl-books-n {
+  grid-row: span 2;
+  align-self: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--quiet);
+}
+.design-slope .fl-books-title {
+  font-family: var(--font-serif);
+  font-size: 1.12rem;
+  line-height: 1.25;
+  color: var(--pine);
+}
+.design-slope .fl-books-meta {
+  font-size: 0.8rem;
+  color: var(--moss);
+}
+
+/* ── The list ───────────────────────────────────────────────────────── */
+.design-slope .fl-sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.design-slope .fl-sort-label {
+  margin-right: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+.design-slope .fl-sort-btn {
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--cream);
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--moss);
+  cursor: pointer;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+.design-slope .fl-sort-btn:hover {
+  border-color: rgba(62, 110, 84, 0.4);
+  color: var(--pine);
+}
+.design-slope .fl-sort-btn[aria-pressed="true"] {
+  border-color: var(--pine);
+  background: var(--pine);
+  color: var(--cream);
+}
+.design-slope .fl-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--cream);
+}
+.design-slope .fl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.design-slope .fl-table th,
+.design-slope .fl-table td {
+  padding: 0.7rem 1.1rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: baseline;
+}
+.design-slope .fl-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--sage);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pine);
+}
+.design-slope .fl-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.design-slope .fl-table tbody tr:hover {
+  background: rgba(232, 237, 220, 0.5);
+}
+.design-slope .fl-table tbody th {
+  font-family: var(--font-serif);
+  font-size: 1.06rem;
+  font-weight: 500;
+}
+.design-slope .fl-table tbody th a {
+  color: var(--pine);
+  text-decoration: none;
+}
+.design-slope .fl-table tbody th a:hover {
+  text-decoration: underline;
+  text-decoration-color: rgba(92, 148, 111, 0.45);
+  text-underline-offset: 0.18em;
+}
+.design-slope .fl-table .fl-num {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.design-slope .fl-table td.fl-num {
+  color: var(--ink);
+}
+.design-slope .fl-table td.fl-quiet {
+  color: var(--quiet);
+}
+.design-slope .fl-book {
+  color: var(--moss);
+}
+.design-slope .fl-book-n {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.6rem;
+  border-radius: 50%;
+  background: var(--sage);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--pine);
+}
+
+.design-slope .fl-credit {
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--quiet);
+}
+.design-slope .fl-more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.6rem;
+  margin: 1.2rem 0 0;
+  font-size: 0.95rem;
+}
+
+/* ── Book hub numbers ───────────────────────────────────────────────── */
+.design-slope .fl-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--cream);
+}
+.design-slope .fl-stats > div {
+  padding: 1.2rem 1.4rem 1.3rem 1.7rem;
+  border-right: 1px solid var(--line);
+}
+.design-slope .fl-stats > div:last-child {
+  border-right: 0;
+}
+.design-slope .fl-stats dt {
+  margin-bottom: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--quiet);
+}
+.design-slope .fl-stats dd {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  line-height: 1.15;
+  color: var(--pine);
+}
+.design-slope .fl-stats dd small {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.78rem;
+  color: var(--moss);
+}
+
+.design-slope .fl-cta {
+  width: min(880px, 100%);
+  margin: 0 auto;
+}
+.design-slope .fl-cta .gd-cta {
+  margin-top: 0;
+}
+
+/* ── Narrow screens ─────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .design-slope .fl-intro,
+  .design-slope .fl-atlas {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .design-slope .fl-page {
+    gap: 3rem;
+    padding-top: 2.4rem;
+  }
+  .design-slope .fl-map-frame {
+    padding: 1.2rem 1.1rem 1rem;
+    border-radius: 18px;
+  }
+  .design-slope .fl-map-label {
+    font-size: 34px;
+  }
+  .design-slope .fl-table th,
+  .design-slope .fl-table td {
+    padding: 0.65rem 0.5rem;
+  }
+  .design-slope .fl-table thead th {
+    letter-spacing: 0.06em;
+  }
+  /* Phones show the book number; the title stays for screen readers. */
+  .design-slope .fl-book-t {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .design-slope .fl-book-n {
+    margin-right: 0;
+  }
+  .design-slope .fl-stats {
+    grid-template-columns: 1fr;
+  }
+  .design-slope .fl-stats > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .design-slope .fl-stats > div:last-child {
+    border-bottom: 0;
+  }
+}

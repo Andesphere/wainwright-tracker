@@ -21,11 +21,15 @@ export default function NotFound() {
         </h1>
         <p className="slope-banner-lede">
           The page you asked for is not here. The link may be old or mistyped.
-          Head back to the start, or read the guides.
+          Head back to the start, browse all 214 fells or read the guides.
         </p>
         <div className="ld-cta-row">
           <Link href="/" className="btn-pill btn-pill-light">
             Back to the home page
+            <i className="btn-arr" />
+          </Link>
+          <Link href="/fells" className="btn-pill">
+            All 214 Wainwrights
             <i className="btn-arr" />
           </Link>
           <Link href="/guides" className="btn-pill">

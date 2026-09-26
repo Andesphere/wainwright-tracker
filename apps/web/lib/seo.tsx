@@ -1,3 +1,4 @@
+import type { Wainwright } from "@wainwrights/catalog/wainwrights";
 import type { Metadata, MetadataRoute } from "next";
 import { type Author, AUTHORS, authorPath, getAuthor } from "@/content/authors";
 import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/appStore";
@@ -8,6 +9,19 @@ import {
   guideAuthor,
   latestUpdate,
 } from "@/lib/guides";
+import {
+  type Book,
+  BOOKS,
+  BY_HEIGHT,
+  bookOf,
+  bookPath,
+  fellPath,
+  fellsInBook,
+  formatHeight,
+  getBook,
+  getFell,
+  highestOf,
+} from "@/lib/fells";
 
 export const SITE_URL = "https://wainwrightsbaggers.com";
 export const SITE_NAME = "Wainwrights Baggers";
@@ -43,6 +57,9 @@ export type SeoRouteKind =
   | "guides"
   | "guide"
   | "author"
+  | "fells"
+  | "book"
+  | "fell"
   | "app";
 
 export type Breadcrumb = { name: string; path: string };
@@ -63,6 +80,10 @@ export type RouteSeo = {
   noIndex?: boolean;
   guide?: Guide;
   author?: Author;
+  /** The fells a hub lists, in the order its HTML lists them (ItemList). */
+  fells?: Wainwright[];
+  book?: Book;
+  fell?: Wainwright;
 };
 
 const homeDescription =
@@ -75,6 +96,13 @@ const appDescription =
   "Open the Wainwrights Baggers tracker to mark completed fells, add notes and photos, and plan the rest of your Lake District round.";
 
 const GUIDES_NAME = "Wainwright Guides";
+
+/** Date the hub and book hub copy last changed; bump it with the copy. */
+const FELLS_UPDATED = "2026-09-26";
+const fellsCrumbs: Breadcrumb[] = [
+  { name: "Home", path: "/" },
+  { name: "All 214 Wainwrights", path: "/fells" },
+];
 const guidesCrumbs: Breadcrumb[] = [
   { name: "Home", path: "/" },
   { name: "Guides", path: "/guides" },
@@ -118,6 +146,48 @@ export function authorRouteSeo(author: Author): RouteSeo {
       getGuides().filter((guide) => guide.author === author.slug),
     ),
     breadcrumbs: [...guidesCrumbs, { name: author.name, path }],
+  };
+}
+
+/** The SEO for a book hub. */
+export function bookRouteSeo(book: Book): RouteSeo {
+  const path = bookPath(book);
+  const fells = fellsInBook(book);
+  const highest = highestOf(fells);
+  return {
+    kind: "book",
+    path,
+    book,
+    fells,
+    title: `${book.title}: all ${fells.length} Wainwrights in Book ${book.number}`,
+    description: `The ${fells.length} fells of ${book.title}, Book ${book.number} of Wainwright's Pictorial Guide to the Lakeland Fells, in book order with heights in metres and feet. Highest: ${highest.name}, ${formatHeight(highest)}.`,
+    image: DEFAULT_OG_IMAGE,
+    lastModified: FELLS_UPDATED,
+    breadcrumbs: [...fellsCrumbs, { name: book.title, path }],
+  };
+}
+
+/**
+ * The SEO for a fell page. Until the fell pages ship (#31) every fell is a
+ * noindex placeholder, kept out of the sitemap.
+ */
+export function fellRouteSeo(fell: Wainwright): RouteSeo {
+  const path = fellPath(fell);
+  const book = bookOf(fell);
+  return {
+    kind: "fell",
+    path,
+    fell,
+    book,
+    title: `${fell.name} (${formatHeight(fell)}): a Wainwright in ${book.title}`,
+    description: `${fell.name} is one of the 214 Wainwrights, ${formatHeight(fell)} high, in Book ${book.number} of Wainwright's Pictorial Guides, ${book.title}.`,
+    image: DEFAULT_OG_IMAGE,
+    noIndex: true,
+    breadcrumbs: [
+      ...fellsCrumbs,
+      { name: book.title, path: bookPath(book) },
+      { name: fell.name, path },
+    ],
   };
 }
 
@@ -171,6 +241,20 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
     };
   }
 
+  if (path === "/fells") {
+    return {
+      kind: "fells",
+      path,
+      fells: BY_HEIGHT,
+      title: "All 214 Wainwrights: List, Map and Heights",
+      description:
+        "The full list of the 214 Wainwright fells of the Lake District, with heights in metres and feet, the Pictorial Guide each is in, and a map of every summit.",
+      image: DEFAULT_OG_IMAGE,
+      lastModified: FELLS_UPDATED,
+      breadcrumbs: fellsCrumbs,
+    };
+  }
+
   if (path === "/app") {
     return {
       kind: "app",
@@ -186,6 +270,18 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
   if (authorMatch) {
     const author = getAuthor(authorMatch[1]);
     if (author && authorPath(author)) return authorRouteSeo(author);
+  }
+
+  const bookMatch = path.match(/^\/fells\/books\/([^/]+)$/);
+  if (bookMatch) {
+    const book = getBook(bookMatch[1]);
+    if (book) return bookRouteSeo(book);
+  }
+
+  const fellMatch = path.match(/^\/fells\/([^/]+)$/);
+  if (fellMatch) {
+    const fell = getFell(fellMatch[1]);
+    if (fell) return fellRouteSeo(fell);
   }
 
   const guideMatch = path.match(/^\/guides\/([^/]+)$/);
@@ -457,6 +553,21 @@ function profileSchema(author: Author, path: string) {
   };
 }
 
+function itemListSchema(seo: RouteSeo, fells: Wainwright[]) {
+  return {
+    "@type": "ItemList",
+    "@id": `${absoluteUrl(seo.path)}#list`,
+    name: seo.title,
+    numberOfItems: fells.length,
+    itemListElement: fells.map((fell, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: fell.name,
+      url: absoluteUrl(fellPath(fell)),
+    })),
+  };
+}
+
 /** One JSON-LD graph per page: the site nodes, then what this route kind adds. */
 export function buildJsonLd(seo: RouteSeo) {
   const graph: unknown[] = [organizationSchema(), websiteSchema()];
@@ -470,6 +581,7 @@ export function buildJsonLd(seo: RouteSeo) {
     graph.push(articleSchema(seo.guide, seo.path));
   if (seo.kind === "author" && seo.author)
     graph.push(profileSchema(seo.author, seo.path));
+  if (seo.fells) graph.push(itemListSchema(seo, seo.fells));
   if (seo.breadcrumbs) graph.push(breadcrumbSchema(seo.breadcrumbs));
 
   return {
@@ -495,11 +607,16 @@ export function sitemapEntries(): MetadataRoute.Sitemap {
     ["privacy"],
     ["guides"],
     ...getGuides().map((guide) => ["guides", guide.slug]),
+    ["fells"],
   ];
   const authors = AUTHORS.filter((author) => authorPath(author)).map(
     authorRouteSeo,
   );
-  return [...slugs.map((slug) => getRouteSeo(slug)), ...authors].map((seo) => ({
+  return [
+    ...slugs.map((slug) => getRouteSeo(slug)),
+    ...BOOKS.map(bookRouteSeo),
+    ...authors,
+  ].map((seo) => ({
     url: absoluteUrl(seo.path),
     lastModified: seo.lastModified,
   }));

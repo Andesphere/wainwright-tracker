@@ -30,6 +30,7 @@ export function SlopeFooter() {
           <span>iPhone app soon</span>
         )}
         <FooterTrackerLink />
+        <Link href="/fells">All 214 Wainwrights</Link>
         <Link href="/guides">Guides</Link>
         <Link href="/contact">Contact</Link>
         <a href="/privacy">Privacy</a>
