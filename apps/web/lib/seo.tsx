@@ -1,7 +1,13 @@
 import type { Metadata, MetadataRoute } from "next";
 import { type Author, AUTHORS, authorPath, getAuthor } from "@/content/authors";
 import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/appStore";
-import { type Guide, getGuide, getGuides } from "@/lib/guides";
+import {
+  type Guide,
+  getGuide,
+  getGuides,
+  guideAuthor,
+  latestUpdate,
+} from "@/lib/guides";
 
 export const SITE_URL = "https://wainwrightsbaggers.com";
 export const SITE_NAME = "Wainwrights Baggers";
@@ -95,10 +101,6 @@ function guideImage(guide: Guide): OgImage {
   };
 }
 
-export function guideAuthor(guide: Guide): Author {
-  return getAuthor(guide.author)!;
-}
-
 /** The SEO for an author's profile page; exported so tests can pass a fixture. */
 export function authorRouteSeo(author: Author): RouteSeo {
   const path = authorPath(author);
@@ -112,11 +114,9 @@ export function authorRouteSeo(author: Author): RouteSeo {
       .trim()
       .slice(0, 160),
     image: DEFAULT_OG_IMAGE,
-    lastModified: getGuides()
-      .filter((guide) => guide.author === author.slug)
-      .map((guide) => guide.updatedAt)
-      .sort()
-      .at(-1),
+    lastModified: latestUpdate(
+      getGuides().filter((guide) => guide.author === author.slug),
+    ),
     breadcrumbs: [...guidesCrumbs, { name: author.name, path }],
   };
 }
@@ -131,7 +131,7 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
       title: "Wainwrights Baggers | Map, Checklist & Journal for the 214 Fells",
       description: homeDescription,
       image: DEFAULT_OG_IMAGE,
-      lastModified: "2026-09-25",
+      lastModified: "2026-09-26",
     };
   }
 
@@ -166,10 +166,7 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
       title: "Wainwright Walking Guides for the 214 Fells",
       description: guidesDescription,
       image: DEFAULT_OG_IMAGE,
-      lastModified: getGuides()
-        .map((guide) => guide.updatedAt)
-        .sort()
-        .at(-1),
+      lastModified: latestUpdate(getGuides()),
       breadcrumbs: guidesCrumbs,
     };
   }

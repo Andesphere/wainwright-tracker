@@ -636,7 +636,7 @@
   letter-spacing: -0.015em;
   color: var(--cream);
 }
-.design-slope .gd-cta .gd-cta-text p {
+.design-slope .gd-cta .gd-cta-text {
   max-width: 46ch;
   margin: 0 0 1.6rem;
   font-family: var(--font-plus-jakarta), sans-serif;

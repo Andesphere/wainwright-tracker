@@ -6,17 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { AuthorAvatar } from "@/components/guides/AuthorAvatar";
-import { Breadcrumbs } from "@/components/guides/Breadcrumbs";
+import { AuthorAvatar, AuthorName } from "@/components/guides/AuthorAvatar";
+import { GuideBand } from "@/components/guides/GuideBand";
 import { GuideCard } from "@/components/guides/GuideCard";
 import { TrackerCta } from "@/components/guides/GuideComponents";
-import { SlopeNav } from "@/components/marketing/SlopeNav";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
-import { authorPath } from "@/content/authors";
 import { formatDate } from "@/lib/dates";
 import { bookOf, formatHeight, requireFell } from "@/lib/fells";
-import { relatedGuides } from "@/lib/guides";
-import { guideAuthor, type RouteSeo } from "@/lib/seo";
+import { guideAuthor, relatedGuides } from "@/lib/guides";
+import type { RouteSeo } from "@/lib/seo";
 
 type GuidePageProps = {
   seo: RouteSeo & { guide: NonNullable<RouteSeo["guide"]> };
@@ -27,44 +25,31 @@ type GuidePageProps = {
 export function GuidePage({ seo, children }: GuidePageProps) {
   const { guide } = seo;
   const author = guideAuthor(guide);
-  const profile = authorPath(author);
   const related = relatedGuides(guide);
   const fells = guide.relatedFells.map(requireFell);
 
   return (
     <SlopeShell>
-      <div className="gd-band">
-        <div className="ld-contours" aria-hidden />
-        <SlopeNav variant="plain" />
-        <header className="gd-head">
-          <Breadcrumbs crumbs={seo.breadcrumbs ?? []} />
-          <p className="ld-kicker">{guide.category}</p>
-          <h1 className="gd-h1">{guide.title}</h1>
-          <p className="gd-dek">{guide.description}</p>
-          <div className="gd-byline">
-            <AuthorAvatar author={author} size={44} />
-            <div>
-              <p className="gd-byline-name">
-                By{" "}
-                {profile ? (
-                  <Link href={profile} rel="author">
-                    {author.name}
-                  </Link>
-                ) : (
-                  author.name
-                )}
-              </p>
-              <p className="gd-byline-meta">
-                <time dateTime={guide.updatedAt}>
-                  Updated {formatDate(guide.updatedAt)}
-                </time>
-                <span aria-hidden>·</span>
-                <span>{guide.readMinutes} min read</span>
-              </p>
-            </div>
+      <GuideBand crumbs={seo.breadcrumbs ?? []}>
+        <p className="ld-kicker">{guide.category}</p>
+        <h1 className="gd-h1">{guide.title}</h1>
+        <p className="gd-dek">{guide.description}</p>
+        <div className="gd-byline">
+          <AuthorAvatar author={author} size={44} />
+          <div>
+            <p className="gd-byline-name">
+              By <AuthorName author={author} />
+            </p>
+            <p className="gd-byline-meta">
+              <time dateTime={guide.updatedAt}>
+                Updated {formatDate(guide.updatedAt)}
+              </time>
+              <span aria-hidden>·</span>
+              <span>{guide.readMinutes} min read</span>
+            </p>
           </div>
-        </header>
-      </div>
+        </div>
+      </GuideBand>
 
       <figure className="gd-hero">
         <Image
@@ -72,8 +57,9 @@ export function GuidePage({ seo, children }: GuidePageProps) {
           alt={guide.heroImageAlt}
           width={1200}
           height={655}
-          priority
-          sizes="(min-width: 1240px) 1180px, 100vw"
+          preload
+          fetchPriority="high"
+          sizes="(min-width: 1240px) 1180px, 92vw"
         />
       </figure>
 
@@ -117,13 +103,7 @@ export function GuidePage({ seo, children }: GuidePageProps) {
             <div>
               <p className="gd-about-tag">Written by</p>
               <p className="gd-about-name">
-                {profile ? (
-                  <Link href={profile} rel="author">
-                    {author.name}
-                  </Link>
-                ) : (
-                  author.name
-                )}
+                <AuthorName author={author} />
               </p>
               <p className="gd-about-role">{author.role}</p>
               <p className="gd-about-bio">{author.bio[0]}</p>

@@ -10,15 +10,15 @@ import { trackGuideCtaClick } from "@/lib/analytics";
 type GuideCtaLinkProps = {
   href: string;
   label: string;
-  className?: string;
 };
 
-export function GuideCtaLink({ href, label, className }: GuideCtaLinkProps) {
-  const slug = usePathname().split("/").at(-1) ?? "";
+export function GuideCtaLink({ href, label }: GuideCtaLinkProps) {
+  // The guide's slug, or "hub" on /guides itself.
+  const slug = usePathname().match(/^\/guides\/([^/]+)$/)?.[1] ?? "hub";
   return (
     <a
       href={href}
-      className={className ?? "btn-pill"}
+      className="btn-pill"
       onClick={() => trackGuideCtaClick(slug, label, href)}
     >
       {label}

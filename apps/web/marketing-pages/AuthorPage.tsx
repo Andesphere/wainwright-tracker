@@ -4,9 +4,8 @@
 import Image from "next/image";
 
 import { AuthorAvatar } from "@/components/guides/AuthorAvatar";
-import { Breadcrumbs } from "@/components/guides/Breadcrumbs";
+import { GuideBand } from "@/components/guides/GuideBand";
 import { GuideCard } from "@/components/guides/GuideCard";
-import { SlopeNav } from "@/components/marketing/SlopeNav";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
 import { getGuides } from "@/lib/guides";
 import type { RouteSeo } from "@/lib/seo";
@@ -21,17 +20,12 @@ export function AuthorPage({ seo }: AuthorPageProps) {
 
   return (
     <SlopeShell>
-      <div className="gd-band">
-        <div className="ld-contours" aria-hidden />
-        <SlopeNav variant="plain" />
-        <header className="gd-head gd-head--author">
-          <Breadcrumbs crumbs={seo.breadcrumbs ?? []} />
-          <AuthorAvatar author={author} size={132} priority />
-          <p className="ld-kicker">Guides author</p>
-          <h1 className="gd-h1">{author.name}</h1>
-          <p className="gd-dek">{author.role}</p>
-        </header>
-      </div>
+      <GuideBand crumbs={seo.breadcrumbs ?? []} variant="author">
+        <AuthorAvatar author={author} size={132} priority />
+        <p className="ld-kicker">Guides author</p>
+        <h1 className="gd-h1">{author.name}</h1>
+        <p className="gd-dek">{author.role}</p>
+      </GuideBand>
 
       <div className="gd-body gd-body--single">
         <div className="gd-prose">

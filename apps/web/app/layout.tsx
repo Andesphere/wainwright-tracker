@@ -7,9 +7,11 @@ import {
 import { defaultMetadata, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
 
+// Only the 404 heading uses it, so it does not compete with a page's LCP image.
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
   display: "swap",
+  preload: false,
   variable: "--font-bricolage",
 });
 

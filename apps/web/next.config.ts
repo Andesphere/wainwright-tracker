@@ -26,26 +26,27 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: ["@wainwrights/backend", "@wainwrights/catalog"],
   // The old /blog posts moved to /guides (#29); two merged into one guide.
+  // `{/}?` also catches a trailing slash, which skipTrailingSlashRedirect leaves alone.
   async redirects() {
     return [
-      { source: "/blog", destination: "/guides", permanent: true },
+      { source: "/blog{/}?", destination: "/guides", permanent: true },
       {
-        source: "/blog/best-beginner-wainwrights",
+        source: "/blog/best-beginner-wainwrights{/}?",
         destination: "/guides/easiest-wainwrights",
         permanent: true,
       },
       {
-        source: "/blog/easy-wainwright-walks-map",
+        source: "/blog/easy-wainwright-walks-map{/}?",
         destination: "/guides/easiest-wainwrights",
         permanent: true,
       },
       {
-        source: "/blog/best-wainwright-app",
+        source: "/blog/best-wainwright-app{/}?",
         destination: "/guides/best-wainwright-app",
         permanent: true,
       },
       {
-        source: "/blog/introducing-the-tracker",
+        source: "/blog/introducing-the-tracker{/}?",
         destination: "/",
         permanent: true,
       },

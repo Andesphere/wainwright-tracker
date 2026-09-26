@@ -7,7 +7,7 @@ import path from "node:path";
 import { parse as parseYaml } from "yaml";
 import { z } from "zod";
 
-import { getAuthor } from "@/content/authors";
+import { type Author, getAuthor } from "@/content/authors";
 import { getFell } from "@/lib/fells";
 
 const GUIDES_DIR = path.join(process.cwd(), "content", "guides");
@@ -77,7 +77,7 @@ export function headingId(text: string): string {
 function readMinutesOf(body: string): number {
   const text = body
     .replace(/<[^>]+>/g, " ")
-    .replace(/[#*_>|`-]+/g, " ")
+    .replace(/[#*_>|`]+/g, " ")
     .replace(/\]\([^)]*\)/g, " ");
   const words = text.split(/\s+/).filter((word) => /\w/.test(word)).length;
   return Math.max(1, Math.round(words / 230));
@@ -86,6 +86,10 @@ function readMinutesOf(body: string): number {
 function headingsOf(body: string): GuideHeading[] {
   return [...body.matchAll(/^## (.+)$/gm)].map((match) => {
     const text = match[1].trim();
+    // The contents list reads the source; keep headings plain so its anchors match.
+    if (/[<{[*_`]/.test(text)) {
+      throw new Error(`Heading "${text}" must be plain text`);
+    }
     return { id: headingId(text), text };
   });
 }
@@ -142,4 +146,17 @@ export function relatedGuides(guide: Guide): Guide[] {
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, 3)
     .map(({ other }) => other);
+}
+
+/** The guide's author; front matter validation guarantees it exists. */
+export function guideAuthor(guide: Guide): Author {
+  return getAuthor(guide.author)!;
+}
+
+/** The latest updatedAt among these guides, for a list page's lastmod. */
+export function latestUpdate(guides: Guide[]): string | undefined {
+  return guides
+    .map((guide) => guide.updatedAt)
+    .sort()
+    .at(-1);
 }

@@ -23,7 +23,6 @@
     "@hugeicons/core-free-icons": "^4.1.4",
     "@hugeicons/react": "^1.1.6",
     "@mdx-js/loader": "^3.1.1",
-    "@mdx-js/react": "^3.1.1",
     "@next/mdx": "16.2.0",
     "@openandes/relay-sdk": "^0.2.1",
     "@sentry/nextjs": "10.64.0",

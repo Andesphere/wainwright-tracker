@@ -7,7 +7,7 @@
 //   <Table caption="...">| md table |</Table>
 //   <PullQuote cite="...">...</PullQuote>
 //   <Figure src width height alt caption credit />
-//   <TrackerCta />                     "Bag it in the app"
+//   <TrackerCta />                     "Bag it in the app" (also closes every guide)
 
 import Image from "next/image";
 import type { ComponentProps, ReactNode } from "react";
@@ -180,35 +180,21 @@ export function Figure({
  * "Bag it in the app": the App Store badge once the app is live, the web
  * tracker until then (and alongside it after).
  */
-export function TrackerCta({
-  title = "Bag it in the app",
-  children,
-}: {
-  title?: string;
-  children?: ReactNode;
-}) {
+export function TrackerCta() {
   return (
     <aside className="gd-cta">
       <div className="ld-contours" aria-hidden />
       <div className="gd-cta-inner">
         <p className="gd-cta-tag">Wainwrights Baggers</p>
-        <p className="gd-cta-title">{title}</p>
-        <div className="gd-cta-text">
-          {children ?? (
-            <p>
-              Mark the fells you have climbed on a 3D map of the Lake District,
-              add the date, and watch the seven books fill in. Free, on iPhone
-              and the web.
-            </p>
-          )}
-        </div>
+        <p className="gd-cta-title">Bag it in the app</p>
+        <p className="gd-cta-text">
+          Mark the fells you have climbed on a 3D map of the Lake District, add
+          the date, and watch the seven books fill in. Free, on iPhone and the
+          web.
+        </p>
         <div className="ld-cta-row">
           {APP_STORE_LIVE ? <AppStoreBadge location="guide_cta" /> : null}
-          <GuideCtaLink
-            href="/app"
-            label="Open the tracker"
-            className="btn-pill"
-          />
+          <GuideCtaLink href="/app" label="Open the tracker" />
           {APP_STORE_LIVE ? null : (
             <span className="gd-cta-soon">iPhone app coming soon</span>
           )}

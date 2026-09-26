@@ -57,6 +57,12 @@ describe("guide front matter", () => {
     expect(() => parseGuide("broken", source(frontMatter))).toThrow(message);
   });
 
+  it("rejects a heading the contents list cannot anchor", () => {
+    expect(() =>
+      parseGuide("jsx", source(valid, '## Up <Fell id="catbells" />\n')),
+    ).toThrow("must be plain text");
+  });
+
   it("rejects a file without front matter", () => {
     expect(() => parseGuide("bare", "# Just text\n")).toThrow(
       "no front matter",
