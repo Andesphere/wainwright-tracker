@@ -1,4 +1,12 @@
-import posthog from "posthog-js";
+import type { PostHog } from "posthog-js";
+
+let resolvePosthog: (posthog: PostHog) => void;
+const posthogReady = new Promise<PostHog>((resolve) => {
+  resolvePosthog = resolve;
+});
+
+/** Called by instrumentation-client once PostHog has started. */
+export const setPosthog = (posthog: PostHog) => resolvePosthog(posthog);
 
 /**
  * The site section a path belongs to: "home" for /, else its first segment
@@ -11,13 +19,15 @@ export function pageGroup(pathname: string): string {
 /**
  * Anonymous PostHog events. Nobody is identified, so properties must never carry
  * names, emails, notes or anything else a walker typed. Every event carries the
- * page group it fired on.
+ * page group it fired on. On marketing pages PostHog starts once the page is
+ * idle; earlier events wait for it.
  */
 function capture(event: string, properties: Record<string, string> = {}) {
-  posthog.capture(event, {
+  const withGroup = {
     ...properties,
     page_group: pageGroup(window.location.pathname),
-  });
+  };
+  void posthogReady.then((posthog) => posthog.capture(event, withGroup));
 }
 
 export const trackCtaClick = (location: string, label: string) => {
