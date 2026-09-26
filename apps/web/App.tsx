@@ -5,7 +5,7 @@
 
 import { SignIn, useAuth } from "@clerk/clerk-react";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 import { AppErrorBoundary } from "@/components/error-boundary";
 import { Toaster } from "@/components/ui/sonner";
@@ -38,9 +38,13 @@ function App() {
   );
 }
 
-/** Signed-out visitors to /app sign in (or sign up) in place, then land in the tracker. */
+/**
+ * Signed-out visitors to /app sign in (or sign up) in place, then land in the
+ * tracker on the same URL, so /app?fell=<id> still opens that fell.
+ */
 function TrackerSignIn() {
   const { isSignedIn } = useAuth();
+  const { search } = useLocation();
   // Signed in with Clerk while Convex still waits for its token: keep waiting.
   if (isSignedIn) return <LoadingGate />;
   return (
@@ -48,8 +52,8 @@ function TrackerSignIn() {
       <SignIn
         routing="hash"
         withSignUp
-        forceRedirectUrl="/app"
-        signUpForceRedirectUrl="/app"
+        forceRedirectUrl={`/app${search}`}
+        signUpForceRedirectUrl={`/app${search}`}
       />
     </main>
   );

@@ -3,7 +3,9 @@ import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Author } from "@/content/authors";
-import { BOOKS } from "@/lib/fells";
+import { RELEASED_FELLS } from "@/content/fells/release";
+import { isReleased } from "@/lib/fellPages";
+import { BOOKS, BY_HEIGHT } from "@/lib/fells";
 import { getGuides } from "@/lib/guides";
 import {
   buildJsonLd,
@@ -56,8 +58,14 @@ const INDEXABLE_PATHS = [
   ...getGuides().map((guide) => ["guides", guide.slug]),
   ["fells"],
   ...BOOKS.map((book) => ["fells", "books", book.slug]),
+  ...BY_HEIGHT.filter((fell) => isReleased(fell.id)).map((fell) => [
+    "fells",
+    fell.id,
+  ]),
 ];
-const ALL_PATHS = [...INDEXABLE_PATHS, ["app"], ["fells", "catbells"]];
+/** Great End is on the walker-check list (#47), so it stays unreleased. */
+const UNRELEASED_FELL = ["fells", "great-end"];
+const ALL_PATHS = [...INDEXABLE_PATHS, ["app"], UNRELEASED_FELL];
 
 type GraphNode = { "@type": string; [key: string]: unknown };
 const graphOf = (slug: string[]) =>
@@ -72,19 +80,43 @@ describe("titles and descriptions", () => {
   });
 
   it("keeps unreleased fell pages out of the index", () => {
-    expect(buildMetadata(getRouteSeo(["fells", "catbells"])).robots).toEqual(
+    expect(buildMetadata(getRouteSeo(UNRELEASED_FELL)).robots).toEqual(
       expect.objectContaining({ index: false, follow: true }),
     );
+  });
+
+  it("indexes a released fell with its own description", () => {
+    const seo = getRouteSeo(["fells", "catbells"]);
+    expect(buildMetadata(seo).robots).toEqual(
+      expect.objectContaining({ index: true }),
+    );
+    expect(seo.title).toBe("Catbells (451 m): walk, route map and free GPX");
+    expect(seo.description).toMatch(/^Catbells \(451 m\) from /);
+    expect(seo.lastModified).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });
 
 describe("share cards", () => {
+  // Fell cards are generated at build time (app/fells/[id]/card-v1.png), not files in public/.
   const images = new Map<string, OgImage>(
-    ALL_PATHS.map((slug) => {
-      const { image } = getRouteSeo(slug);
-      return [image.url, image];
-    }),
+    ALL_PATHS.map((slug) => getRouteSeo(slug).image)
+      .filter((image) => !image.url.startsWith("/fells/"))
+      .map((image) => [image.url, image]),
   );
+
+  it("gives every fell a versioned 1200x630 PNG card of its own", () => {
+    const card = getRouteSeo(["fells", "scafell-pike"]).image;
+    expect(card).toEqual({
+      url: "/fells/scafell-pike/card-v1.png",
+      width: 1200,
+      height: 630,
+      type: "image/png",
+      alt: "Scafell Pike, 978 m, a Wainwright in The Southern Fells",
+    });
+    expect(getRouteSeo(UNRELEASED_FELL).image.url).toBe(
+      "/fells/great-end/card-v1.png",
+    );
+  });
 
   it.each([...images.values()])(
     "$url has the size and type the tags claim, under 300 KB",
@@ -170,8 +202,9 @@ describe("structured data", () => {
     ],
     [
       ["fells", "catbells"],
-      ["Organization", "WebSite", "BreadcrumbList"],
+      ["Organization", "WebSite", "Place", "BreadcrumbList"],
     ],
+    [UNRELEASED_FELL, ["Organization", "WebSite", "Place", "BreadcrumbList"]],
   ])("graph for /%s has %j", (slug, types) => {
     expect(typesOf(slug)).toEqual(types);
   });
@@ -223,6 +256,23 @@ describe("structured data", () => {
       "/fells/books/north-western-fells",
       "/fells/catbells",
     ]);
+  });
+
+  it("places a fell with its summit position and height", () => {
+    const place = graphOf(["fells", "scafell-pike"]).find(
+      (node) => node["@type"] === "Place",
+    );
+    expect(place).toMatchObject({
+      name: "Scafell Pike",
+      url: "https://wainwrightsbaggers.com/fells/scafell-pike",
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: 54.454219,
+        longitude: -3.211511,
+        elevation: 978,
+      },
+      containedInPlace: { name: "Lake District National Park" },
+    });
   });
 
   it("files the web app under Travel with a free offer and no rating", () => {
@@ -387,12 +437,13 @@ describe("sitemap", () => {
     );
   });
 
-  it("leaves out fell pages until they are released", () => {
+  it("lists the book hubs and the released fells, no other fell page", () => {
     const urls = sitemapEntries().map((entry) => entry.url);
-    expect(urls.filter((url) => url.includes("/fells/"))).toEqual(
-      BOOKS.map(
-        (book) => `https://wainwrightsbaggers.com/fells/books/${book.slug}`,
-      ),
+    const fellUrls = urls.filter((url) => url.includes("/fells/"));
+    expect(fellUrls).toHaveLength(BOOKS.length + RELEASED_FELLS.length);
+    expect(fellUrls).toContain("https://wainwrightsbaggers.com/fells/catbells");
+    expect(fellUrls).not.toContain(
+      "https://wainwrightsbaggers.com/fells/great-end",
     );
   });
 });

@@ -12,7 +12,7 @@ import { GuideCard } from "@/components/guides/GuideCard";
 import { TrackerCta } from "@/components/guides/GuideComponents";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
 import { formatDate } from "@/lib/dates";
-import { bookOf, formatHeight, requireFell } from "@/lib/fells";
+import { bookOf, fellPath, formatHeight, requireFell } from "@/lib/fells";
 import { guideAuthor, relatedGuides } from "@/lib/guides";
 import type { RouteSeo } from "@/lib/seo";
 
@@ -86,7 +86,9 @@ export function GuidePage({ seo, children }: GuidePageProps) {
               <ul>
                 {fells.map((fell) => (
                   <li key={fell.id}>
-                    <strong>{fell.name}</strong>
+                    <strong>
+                      <Link href={fellPath(fell)}>{fell.name}</Link>
+                    </strong>
                     <span>
                       {formatHeight(fell)} · Book {bookOf(fell).number}
                     </span>

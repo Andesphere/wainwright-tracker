@@ -52,6 +52,11 @@ export const trackGuideCtaClick = (
   capture("guide_cta_clicked", { slug, label, href });
 };
 
+/** "Bag it" on a fell page was followed into the tracker; `fell` is the fell id. */
+export const trackFellBagClick = (fell: string) => {
+  capture("fell_bag_clicked", { fell });
+};
+
 /** The tracker at /app opened for a signed-in walker. */
 export const trackAppOpened = () => {
   capture("app_opened");

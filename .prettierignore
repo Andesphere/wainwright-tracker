@@ -15,3 +15,4 @@ apps/mobile/src/uniwind-types.d.ts
 packages/backend/convex/_generated
 packages/backend/.agents
 packages/backend/.claude
+apps/web/content/fell-routes

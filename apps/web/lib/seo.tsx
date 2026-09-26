@@ -22,6 +22,7 @@ import {
   getFell,
   highestOf,
 } from "@/lib/fells";
+import { getAscent, isReleased } from "@/lib/fellPages";
 
 export const SITE_URL = "https://wainwrightsbaggers.com";
 export const SITE_NAME = "Wainwrights Baggers";
@@ -168,21 +169,41 @@ export function bookRouteSeo(book: Book): RouteSeo {
 }
 
 /**
- * The SEO for a fell page. Until the fell pages ship (#31) every fell is a
- * noindex placeholder, kept out of the sitemap.
+ * A fell's share card, generated at build time (app/fells/[id]/card-v1.png).
+ * Bump the version in the path when the design changes; networks cache by URL.
+ */
+export function fellCard(fell: Wainwright): OgImage {
+  return {
+    url: `${fellPath(fell)}/card-v1.png`,
+    width: 1200,
+    height: 630,
+    type: "image/png",
+    alt: `${fell.name}, ${formatHeight(fell)}, a Wainwright in ${bookOf(fell).title}`,
+  };
+}
+
+/**
+ * The SEO for a fell page. Fells on the release list are indexable, with
+ * their own description; the rest stay noindex and out of the sitemap.
  */
 export function fellRouteSeo(fell: Wainwright): RouteSeo {
   const path = fellPath(fell);
   const book = bookOf(fell);
+  const text = getAscent(fell.id)?.text;
   return {
     kind: "fell",
     path,
     fell,
     book,
-    title: `${fell.name} (${formatHeight(fell)}): a Wainwright in ${book.title}`,
-    description: `${fell.name} is one of the 214 Wainwrights, ${formatHeight(fell)} high, in Book ${book.number} of Wainwright's Pictorial Guides, ${book.title}.`,
-    image: DEFAULT_OG_IMAGE,
-    noIndex: true,
+    title: text
+      ? `${fell.name} (${formatHeight(fell)}): walk, route map and free GPX`
+      : `${fell.name} (${formatHeight(fell)}): a Wainwright in ${book.title}`,
+    description:
+      text?.description ??
+      `${fell.name} is one of the 214 Wainwrights, ${formatHeight(fell)} high, in Book ${book.number} of Wainwright's Pictorial Guides, ${book.title}.`,
+    image: fellCard(fell),
+    lastModified: text?.updatedAt,
+    noIndex: !text,
     breadcrumbs: [
       ...fellsCrumbs,
       { name: book.title, path: bookPath(book) },
@@ -553,6 +574,26 @@ function profileSchema(author: Author, path: string) {
   };
 }
 
+function placeSchema(seo: RouteSeo, fell: Wainwright) {
+  return {
+    "@type": "Place",
+    "@id": `${absoluteUrl(seo.path)}#place`,
+    name: fell.name,
+    description: seo.description,
+    url: absoluteUrl(seo.path),
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: fell.latitude,
+      longitude: fell.longitude,
+      elevation: fell.heightMetres,
+    },
+    containedInPlace: {
+      "@type": "Place",
+      name: "Lake District National Park",
+    },
+  };
+}
+
 function itemListSchema(seo: RouteSeo, fells: Wainwright[]) {
   return {
     "@type": "ItemList",
@@ -581,6 +622,7 @@ export function buildJsonLd(seo: RouteSeo) {
     graph.push(articleSchema(seo.guide, seo.path));
   if (seo.kind === "author" && seo.author)
     graph.push(profileSchema(seo.author, seo.path));
+  if (seo.kind === "fell" && seo.fell) graph.push(placeSchema(seo, seo.fell));
   if (seo.fells) graph.push(itemListSchema(seo, seo.fells));
   if (seo.breadcrumbs) graph.push(breadcrumbSchema(seo.breadcrumbs));
 
@@ -612,9 +654,13 @@ export function sitemapEntries(): MetadataRoute.Sitemap {
   const authors = AUTHORS.filter((author) => authorPath(author)).map(
     authorRouteSeo,
   );
+  const fells = BY_HEIGHT.filter((fell) => isReleased(fell.id)).map(
+    fellRouteSeo,
+  );
   return [
     ...slugs.map((slug) => getRouteSeo(slug)),
     ...BOOKS.map(bookRouteSeo),
+    ...fells,
     ...authors,
   ].map((seo) => ({
     url: absoluteUrl(seo.path),

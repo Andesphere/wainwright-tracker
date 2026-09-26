@@ -116,6 +116,38 @@ export function heightRank(fell: Wainwright): number {
   );
 }
 
+/** Mean Earth radius in metres. */
+export const EARTH_RADIUS = 6371008.8;
+
+/** Straight-line distance between two summits in metres. */
+export function distanceBetween(a: Wainwright, b: Wainwright): number {
+  const rad = Math.PI / 180;
+  const dLat = (b.latitude - a.latitude) * rad;
+  const dLon = (b.longitude - a.longitude) * rad;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(a.latitude * rad) *
+      Math.cos(b.latitude * rad) *
+      Math.sin(dLon / 2) ** 2;
+  return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(h));
+}
+
+/** The `count` Wainwrights whose summits are closest to this one's, nearest first. */
+export function nearestFells(
+  fell: Wainwright,
+  count = 5,
+): { fell: Wainwright; metres: number }[] {
+  return WAINWRIGHTS.filter((other) => other !== fell)
+    .map((other) => ({ fell: other, metres: distanceBetween(fell, other) }))
+    .sort((a, b) => a.metres - b.metres)
+    .slice(0, count);
+}
+
+/** One of the four Wainwrights of 3,000 ft or more. */
+export function isThreeThousander(fell: Wainwright): boolean {
+  return fell.heightFt >= 3000;
+}
+
 export function formatHeight(fell: Wainwright): string {
   return `${Math.round(fell.heightMetres)} m`;
 }

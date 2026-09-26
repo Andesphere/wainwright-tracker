@@ -1,6 +1,7 @@
 import { WAINWRIGHTS } from "@wainwrights/catalog/wainwrights";
 import { notFound } from "next/navigation";
 
+import { getAscent } from "@/lib/fellPages";
 import { buildMetadata, getRouteSeo, JsonLd } from "@/lib/seo";
 import { FellPage } from "@/marketing-pages/FellPage";
 
@@ -31,7 +32,7 @@ export default async function FellRoute(props: FellRouteProps) {
   return (
     <>
       <JsonLd seo={seo} />
-      <FellPage seo={{ ...seo, fell, book }} />
+      <FellPage seo={{ ...seo, fell, book }} ascent={getAscent(fell.id)} />
     </>
   );
 }

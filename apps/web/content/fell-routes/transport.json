@@ -1,0 +1,368 @@
+{
+ "licence": "OGL-UK-3.0",
+ "notice": "Bus stops from NaPTAN (Department for Transport) and services from the Bus Open Data Service. Contains public sector information licensed under the Open Government Licence v3.0.",
+ "naptanDownloaded": "2026-09-26",
+ "bodsFeedVersion": "20260926_024917",
+ "routes": {
+  "scafell-pike": null,
+  "helvellyn": {
+   "atco": "090002500721",
+   "name": "car park",
+   "indicator": "opp",
+   "locality": "Thirlmere",
+   "point": [
+    -3.05872,
+    54.5424
+   ],
+   "distanceFromStartMetres": 85,
+   "services": [
+    {
+     "line": "555",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "559",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "catbells": {
+   "atco": "090002111548",
+   "name": "Brandelhow Park",
+   "indicator": "at",
+   "locality": "Brandelhow",
+   "point": [
+    -3.16337,
+    54.57094
+   ],
+   "distanceFromStartMetres": 383,
+   "services": [
+    {
+     "line": "77A",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "skiddaw": {
+   "atco": "090002371641",
+   "name": "Brentfield",
+   "indicator": "near",
+   "locality": "Keswick",
+   "point": [
+    -3.11192,
+    54.60465
+   ],
+   "distanceFromStartMetres": 1537,
+   "services": [
+    {
+     "line": "509",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "X4",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "X5",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "loughrigg-fell": {
+   "atco": "090079414228",
+   "name": "White Moss Common",
+   "indicator": "near",
+   "locality": "Rydal",
+   "point": [
+    -3.00331,
+    54.45006
+   ],
+   "distanceFromStartMetres": 36,
+   "services": [
+    {
+     "line": "555",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "599",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "latrigg": {
+   "atco": "090002371641",
+   "name": "Brentfield",
+   "indicator": "near",
+   "locality": "Keswick",
+   "point": [
+    -3.11192,
+    54.60465
+   ],
+   "distanceFromStartMetres": 1537,
+   "services": [
+    {
+     "line": "509",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "X4",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "X5",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "walla-crag": {
+   "atco": "090002500665",
+   "name": "Calfclose Bay",
+   "indicator": "near",
+   "locality": "Ashness",
+   "point": [
+    -3.12984,
+    54.58234
+   ],
+   "distanceFromStartMetres": 142,
+   "services": [
+    {
+     "line": "78",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "great-gable": {
+   "atco": "090002110087",
+   "name": "Youth Hostel",
+   "indicator": "o/s",
+   "locality": "Honister",
+   "point": [
+    -3.19708,
+    54.51164
+   ],
+   "distanceFromStartMetres": 1602,
+   "services": [
+    {
+     "line": "77A",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "helm-crag": {
+   "atco": "090079414226",
+   "name": "Village Hall",
+   "indicator": "o/s",
+   "locality": "Grasmere",
+   "point": [
+    -3.02265,
+    54.46107
+   ],
+   "distanceFromStartMetres": 69,
+   "services": [
+    {
+     "line": "555",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "559",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "599",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "hallin-fell": {
+   "atco": "090074435318",
+   "name": "Cattle Grid",
+   "indicator": "at",
+   "locality": "Martindale",
+   "point": [
+    -2.86818,
+    54.56742
+   ],
+   "distanceFromStartMetres": 501,
+   "services": [
+    {
+     "line": "UB1",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "castle-crag": {
+   "atco": "090002112926",
+   "name": "General Store",
+   "indicator": "near",
+   "locality": "Rosthwaite",
+   "point": [
+    -3.14758,
+    54.52411
+   ],
+   "distanceFromStartMetres": 77,
+   "services": [
+    {
+     "line": "77",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "78",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "rannerdale-knotts": {
+   "atco": "090002190083",
+   "name": "Court Hotel",
+   "indicator": "o/s",
+   "locality": "Buttermere",
+   "point": [
+    -3.27732,
+    54.54086
+   ],
+   "distanceFromStartMetres": 343,
+   "services": [
+    {
+     "line": "77",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "77A",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "scafell": null,
+  "green-gable": {
+   "atco": "090002110087",
+   "name": "Youth Hostel",
+   "indicator": "o/s",
+   "locality": "Honister",
+   "point": [
+    -3.19708,
+    54.51164
+   ],
+   "distanceFromStartMetres": 1602,
+   "services": [
+    {
+     "line": "77A",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "gowbarrow-fell-wainwright-summit": {
+   "atco": "090074441301",
+   "name": "Aira Force",
+   "indicator": "opp",
+   "locality": "Matterdale",
+   "point": [
+    -2.92988,
+    54.57084
+   ],
+   "distanceFromStartMetres": 161,
+   "services": [
+    {
+     "line": "508",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "UB1",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "UB2",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "red-screes": {
+   "atco": "090079411647",
+   "name": "Pass Inn",
+   "indicator": "opp",
+   "locality": "Kirkstone",
+   "point": [
+    -2.92541,
+    54.46454
+   ],
+   "distanceFromStartMetres": 49,
+   "services": [
+    {
+     "line": "508",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "binsey": {
+   "atco": "090002361252",
+   "name": "Village Green",
+   "indicator": "o/s",
+   "locality": "Uldale",
+   "point": [
+    -3.16725,
+    54.722
+   ],
+   "distanceFromStartMetres": 2317,
+   "services": [
+    {
+     "line": "553",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "fleetwith-pike": {
+   "atco": "090002193742",
+   "name": "Mountain Rescue Point",
+   "indicator": "at",
+   "locality": "Gatesgarth",
+   "point": [
+    -3.2461,
+    54.52387
+   ],
+   "distanceFromStartMetres": 21,
+   "services": [
+    {
+     "line": "77",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "grisedale-pike": {
+   "atco": "090002990086",
+   "name": "Visitors Centre",
+   "indicator": "in",
+   "locality": "Whinlatter",
+   "point": [
+    -3.229,
+    54.60929
+   ],
+   "distanceFromStartMetres": 309,
+   "services": [
+    {
+     "line": "77",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    },
+    {
+     "line": "77A",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  },
+  "bowfell": {
+   "atco": "090079413665",
+   "name": "Old Dungeon Ghyll Hotel",
+   "indicator": "near",
+   "locality": "Dungeon Ghyll",
+   "point": [
+    -3.10271,
+    54.44422
+   ],
+   "distanceFromStartMetres": 128,
+   "services": [
+    {
+     "line": "516",
+     "operator": "Stagecoach Cumbria and North Lancashire"
+    }
+   ]
+  }
+ }
+}
