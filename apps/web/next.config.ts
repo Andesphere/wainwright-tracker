@@ -1,5 +1,13 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 import { withSentryConfig } from "@sentry/nextjs";
+
+// Guides (content/guides/*.mdx). Plugins are named as strings so Turbopack can load them.
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: ["remark-frontmatter", "remark-gfm"],
+  },
+});
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
@@ -17,6 +25,33 @@ const nextConfig: NextConfig = {
     ],
   },
   transpilePackages: ["@wainwrights/backend", "@wainwrights/catalog"],
+  // The old /blog posts moved to /guides (#29); two merged into one guide.
+  // `{/}?` also catches a trailing slash, which skipTrailingSlashRedirect leaves alone.
+  async redirects() {
+    return [
+      { source: "/blog{/}?", destination: "/guides", permanent: true },
+      {
+        source: "/blog/best-beginner-wainwrights{/}?",
+        destination: "/guides/easiest-wainwrights",
+        permanent: true,
+      },
+      {
+        source: "/blog/easy-wainwright-walks-map{/}?",
+        destination: "/guides/easiest-wainwrights",
+        permanent: true,
+      },
+      {
+        source: "/blog/best-wainwright-app{/}?",
+        destination: "/guides/best-wainwright-app",
+        permanent: true,
+      },
+      {
+        source: "/blog/introducing-the-tracker{/}?",
+        destination: "/",
+        permanent: true,
+      },
+    ];
+  },
   // PostHog through our own domain, so ad blockers leave the anonymous analytics alone.
   async rewrites() {
     return [
@@ -37,7 +72,7 @@ const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withMDX(nextConfig), {
   org: process.env.SENTRY_ORG ?? "andy-partner",
   project: process.env.SENTRY_PROJECT ?? "wainwrights-web",
   authToken: process.env.SENTRY_AUTH_TOKEN,

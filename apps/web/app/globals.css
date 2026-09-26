@@ -3,6 +3,7 @@
 @import "@fontsource-variable/geist";
 @import "../styles/slope.css";
 @import "../styles/landing.css";
+@import "../styles/guides.css";
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant data-open {

@@ -18,7 +18,7 @@ export const APP_STORE_PROVIDER_TOKEN: string | null = null;
 
 /**
  * An App Store link that App Store Connect attributes to a site page group:
- * `ct=web-<group>` (for example web-home, web-blog) plus the provider token.
+ * `ct=web-<group>` (for example web-home, web-guides) plus the provider token.
  */
 export function appStoreLink(pageGroup: string): string {
   const url = new URL(APP_STORE_URL);

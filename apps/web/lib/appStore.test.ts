@@ -10,9 +10,9 @@ import {
 
 describe("App Store links", () => {
   it("tag the listing with the page group as campaign", () => {
-    const url = new URL(appStoreLink("blog"));
+    const url = new URL(appStoreLink("guides"));
     expect(`${url.origin}${url.pathname}`).toBe(APP_STORE_URL);
-    expect(url.searchParams.get("ct")).toBe("web-blog");
+    expect(url.searchParams.get("ct")).toBe("web-guides");
     expect(url.searchParams.get("mt")).toBe("8");
   });
 
@@ -27,8 +27,8 @@ describe("App Store links", () => {
 describe("page groups", () => {
   it.each([
     ["/", "home"],
-    ["/blog", "blog"],
-    ["/blog/best-wainwright-app", "blog"],
+    ["/guides", "guides"],
+    ["/guides/best-wainwright-app", "guides"],
     ["/contact", "contact"],
     ["/app", "app"],
   ])("%s is %s", (pathname, group) => {

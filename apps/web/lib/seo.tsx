@@ -1,7 +1,13 @@
 import type { Metadata, MetadataRoute } from "next";
-import type { BlogPost } from "@/content/blog/posts";
-import { BLOG_POSTS, getBlogPost } from "@/content/blog/posts";
+import { type Author, AUTHORS, authorPath, getAuthor } from "@/content/authors";
 import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/appStore";
+import {
+  type Guide,
+  getGuide,
+  getGuides,
+  guideAuthor,
+  latestUpdate,
+} from "@/lib/guides";
 
 export const SITE_URL = "https://wainwrightsbaggers.com";
 export const SITE_NAME = "Wainwrights Baggers";
@@ -34,8 +40,9 @@ export type SeoRouteKind =
   | "home"
   | "contact"
   | "privacy"
-  | "blog"
-  | "post"
+  | "guides"
+  | "guide"
+  | "author"
   | "app";
 
 export type Breadcrumb = { name: string; path: string };
@@ -54,22 +61,23 @@ export type RouteSeo = {
   /** The trail above and including this page; omitted where there is none. */
   breadcrumbs?: Breadcrumb[];
   noIndex?: boolean;
-  post?: BlogPost;
+  guide?: Guide;
+  author?: Author;
 };
 
 const homeDescription =
   "Track all 214 Wainwright fells on a 3D Lake District map. Free on iPhone and the web, with your round in sync. Pro adds a photo journal.";
 
-const blogDescription =
-  "Wainwright walking guides, tracker tips, Lake District checklist advice and field notes for planning and remembering the 214 fells.";
+const guidesDescription =
+  "Wainwright walking guides for planning and remembering the 214 fells: gentle first fells, checklists, the seven books and the tools for the round.";
 
 const appDescription =
   "Open the Wainwrights Baggers tracker to mark completed fells, add notes and photos, and plan the rest of your Lake District round.";
 
-const BLOG_NAME = "Wainwright Journal";
-const blogCrumbs: Breadcrumb[] = [
+const GUIDES_NAME = "Wainwright Guides";
+const guidesCrumbs: Breadcrumb[] = [
   { name: "Home", path: "/" },
-  { name: BLOG_NAME, path: "/blog" },
+  { name: "Guides", path: "/guides" },
 ];
 
 export function absoluteUrl(path = "/"): string {
@@ -82,14 +90,34 @@ export function normalizePath(slug?: string[]): string {
   return `/${slug.join("/")}`;
 }
 
-function postImage(post: BlogPost): OgImage {
-  if (!post.ogImage) return DEFAULT_OG_IMAGE;
+/** Front matter requires a 1200x630 JPEG card; seo.test.ts reads each file to check. */
+function guideImage(guide: Guide): OgImage {
   return {
-    url: post.ogImage,
+    url: guide.ogImage,
     width: 1200,
     height: 630,
     type: "image/jpeg",
-    alt: post.heroImageAlt,
+    alt: guide.heroImageAlt,
+  };
+}
+
+/** The SEO for an author's profile page; exported so tests can pass a fixture. */
+export function authorRouteSeo(author: Author): RouteSeo {
+  const path = authorPath(author);
+  if (!path) throw new Error(`${author.name} has no profile page`);
+  return {
+    kind: "author",
+    path,
+    author,
+    title: `${author.name}, Wainwright guides author`,
+    description: `${author.name}: ${author.role}. ${author.bio[0] ?? ""}`
+      .trim()
+      .slice(0, 160),
+    image: DEFAULT_OG_IMAGE,
+    lastModified: latestUpdate(
+      getGuides().filter((guide) => guide.author === author.slug),
+    ),
+    breadcrumbs: [...guidesCrumbs, { name: author.name, path }],
   };
 }
 
@@ -103,7 +131,7 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
       title: "Wainwrights Baggers | Map, Checklist & Journal for the 214 Fells",
       description: homeDescription,
       image: DEFAULT_OG_IMAGE,
-      lastModified: "2026-09-25",
+      lastModified: "2026-09-26",
     };
   }
 
@@ -131,17 +159,15 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
     };
   }
 
-  if (path === "/blog") {
+  if (path === "/guides") {
     return {
-      kind: "blog",
+      kind: "guides",
       path,
-      title: "Wainwright Walking Guides & Tracker Tips",
-      description: blogDescription,
+      title: "Wainwright Walking Guides for the 214 Fells",
+      description: guidesDescription,
       image: DEFAULT_OG_IMAGE,
-      lastModified: BLOG_POSTS.map((post) => post.updatedAt)
-        .sort()
-        .at(-1),
-      breadcrumbs: blogCrumbs,
+      lastModified: latestUpdate(getGuides()),
+      breadcrumbs: guidesCrumbs,
     };
   }
 
@@ -156,19 +182,25 @@ export function getRouteSeo(slug?: string[]): RouteSeo {
     };
   }
 
-  const blogMatch = path.match(/^\/blog\/([^/]+)$/);
-  if (blogMatch) {
-    const post = getBlogPost(blogMatch[1]);
-    if (post) {
+  const authorMatch = path.match(/^\/guides\/authors\/([^/]+)$/);
+  if (authorMatch) {
+    const author = getAuthor(authorMatch[1]);
+    if (author && authorPath(author)) return authorRouteSeo(author);
+  }
+
+  const guideMatch = path.match(/^\/guides\/([^/]+)$/);
+  if (guideMatch) {
+    const guide = getGuide(guideMatch[1]);
+    if (guide) {
       return {
-        kind: "post",
+        kind: "guide",
         path,
-        post,
-        title: post.title,
-        description: post.excerpt,
-        image: postImage(post),
-        lastModified: post.updatedAt,
-        breadcrumbs: [...blogCrumbs, { name: post.title, path }],
+        guide,
+        title: guide.title,
+        description: guide.description,
+        image: guideImage(guide),
+        lastModified: guide.updatedAt,
+        breadcrumbs: [...guidesCrumbs, { name: guide.title, path }],
       };
     }
   }
@@ -213,7 +245,7 @@ export function defaultMetadata(): Metadata {
 
 export function buildMetadata(seo: RouteSeo): Metadata {
   const canonical = absoluteUrl(seo.path);
-  const post = seo.kind === "post" ? seo.post : undefined;
+  const guide = seo.kind === "guide" ? seo.guide : undefined;
 
   return {
     title: seo.title,
@@ -242,19 +274,19 @@ export function buildMetadata(seo: RouteSeo): Metadata {
           },
         },
     openGraph: {
-      type: post ? "article" : "website",
+      type: guide ? "article" : seo.kind === "author" ? "profile" : "website",
       siteName: SITE_NAME,
       title: seo.title,
       description: seo.description,
       url: canonical,
       locale: "en_GB",
       images: [openGraphImage(seo.image)],
-      ...(post
+      ...(guide
         ? {
-            publishedTime: post.publishedAt,
-            modifiedTime: post.updatedAt,
-            authors: [post.author],
-            tags: post.keywords,
+            publishedTime: guide.publishedAt,
+            modifiedTime: guide.updatedAt,
+            authors: [guideAuthor(guide).name],
+            section: guide.category,
           }
         : {}),
     },
@@ -355,44 +387,72 @@ function breadcrumbSchema(crumbs: Breadcrumb[]) {
   };
 }
 
-function postAuthor(post: BlogPost) {
-  return { "@type": "Organization", name: post.author, url: SITE_URL };
+function personId(author: Author) {
+  return `${absoluteUrl(authorPath(author)!)}#person`;
 }
 
-function blogSchema() {
+function personSchema(author: Author) {
+  return {
+    "@type": "Person",
+    "@id": personId(author),
+    name: author.name,
+    url: absoluteUrl(authorPath(author)!),
+    description: author.role,
+    ...(author.portrait ? { image: absoluteUrl(author.portrait.src) } : {}),
+  };
+}
+
+/** The brand points at the Organization node; a person is named in full. */
+function authorRef(author: Author) {
+  return author.kind === "person"
+    ? personSchema(author)
+    : { "@id": ORGANIZATION_ID };
+}
+
+function guidesSchema() {
   return {
     "@type": "Blog",
-    "@id": `${SITE_URL}/blog#blog`,
-    url: absoluteUrl("/blog"),
-    name: BLOG_NAME,
-    description: blogDescription,
+    "@id": `${SITE_URL}/guides#blog`,
+    url: absoluteUrl("/guides"),
+    name: GUIDES_NAME,
+    description: guidesDescription,
     publisher: { "@id": ORGANIZATION_ID },
     inLanguage: "en-GB",
-    blogPost: BLOG_POSTS.map((post) => ({
+    blogPost: getGuides().map((guide) => ({
       "@type": "BlogPosting",
-      headline: post.title,
-      url: absoluteUrl(`/blog/${post.slug}`),
-      datePublished: post.publishedAt,
-      dateModified: post.updatedAt,
-      author: postAuthor(post),
+      headline: guide.title,
+      url: absoluteUrl(`/guides/${guide.slug}`),
+      datePublished: guide.publishedAt,
+      dateModified: guide.updatedAt,
+      author: authorRef(guideAuthor(guide)),
     })),
   };
 }
 
-function articleSchema(post: BlogPost, path: string) {
+function articleSchema(guide: Guide, path: string) {
   return {
     "@type": "BlogPosting",
     "@id": `${absoluteUrl(path)}#article`,
     mainEntityOfPage: absoluteUrl(path),
-    headline: post.title,
-    description: post.excerpt,
-    image: absoluteUrl(postImage(post).url),
-    datePublished: post.publishedAt,
-    dateModified: post.updatedAt,
-    author: postAuthor(post),
+    headline: guide.title,
+    description: guide.description,
+    image: absoluteUrl(guide.heroImage),
+    datePublished: guide.publishedAt,
+    dateModified: guide.updatedAt,
+    author: authorRef(guideAuthor(guide)),
     publisher: { "@id": ORGANIZATION_ID },
-    keywords: post.keywords.join(", "),
-    articleSection: post.category,
+    keywords: guide.primaryKeyword,
+    articleSection: guide.category,
+    inLanguage: "en-GB",
+  };
+}
+
+function profileSchema(author: Author, path: string) {
+  return {
+    "@type": "ProfilePage",
+    "@id": `${absoluteUrl(path)}#profile`,
+    url: absoluteUrl(path),
+    mainEntity: personSchema(author),
     inLanguage: "en-GB",
   };
 }
@@ -405,9 +465,11 @@ export function buildJsonLd(seo: RouteSeo) {
     graph.push(webAppSchema());
     if (APP_STORE_LIVE) graph.push(mobileAppSchema());
   }
-  if (seo.kind === "blog") graph.push(blogSchema());
-  if (seo.kind === "post" && seo.post)
-    graph.push(articleSchema(seo.post, seo.path));
+  if (seo.kind === "guides") graph.push(guidesSchema());
+  if (seo.kind === "guide" && seo.guide)
+    graph.push(articleSchema(seo.guide, seo.path));
+  if (seo.kind === "author" && seo.author)
+    graph.push(profileSchema(seo.author, seo.path));
   if (seo.breadcrumbs) graph.push(breadcrumbSchema(seo.breadcrumbs));
 
   return {
@@ -431,11 +493,14 @@ export function sitemapEntries(): MetadataRoute.Sitemap {
     [],
     ["contact"],
     ["privacy"],
-    ["blog"],
-    ...BLOG_POSTS.map((post) => ["blog", post.slug]),
+    ["guides"],
+    ...getGuides().map((guide) => ["guides", guide.slug]),
   ];
-  return slugs.map((slug) => {
-    const seo = getRouteSeo(slug);
-    return { url: absoluteUrl(seo.path), lastModified: seo.lastModified };
-  });
+  const authors = AUTHORS.filter((author) => authorPath(author)).map(
+    authorRouteSeo,
+  );
+  return [...slugs.map((slug) => getRouteSeo(slug)), ...authors].map((seo) => ({
+    url: absoluteUrl(seo.path),
+    lastModified: seo.lastModified,
+  }));
 }
