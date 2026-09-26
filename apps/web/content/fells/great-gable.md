@@ -4,7 +4,7 @@ start: Seathwaite, Borrowdale
 updatedAt: 2026-09-26
 ---
 
-This route climbs Great Gable from the field car park at Seathwaite, at the head of Borrowdale. Parking is paid, the car park has room for about 60 cars, and it sits at about 125 m. The nearest bus stop with a current service is at Honister, 1.6 km away in a straight line and not on this route, served by the 77A.
+This route climbs Great Gable from the field car park at Seathwaite in Borrowdale. Parking is paid, the car park has room for about 60 cars, and it sits at about 125 m. The nearest bus stop with a current service is at Honister, 1.6 km away in a straight line and not on this route, served by the 77A.
 
 The line is 4.6 km long and gains about 780 m. It leaves Seathwaite on a lane and a track, crossing Grains Gill after about 325 m. A public footpath then carries the route for 2.5 km, climbing gradually from about 130 m to 420 m and crossing Mitchell Gill at 2.3 km. A short stretch of rocky bridleway follows, and the route passes Styhead Tarn at about 3.1 km.
 

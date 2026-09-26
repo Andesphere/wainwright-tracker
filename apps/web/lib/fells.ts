@@ -116,6 +116,9 @@ export function heightRank(fell: Wainwright): number {
   );
 }
 
+/** Mean Earth radius in metres. */
+export const EARTH_RADIUS = 6371008.8;
+
 /** Straight-line distance between two summits in metres. */
 export function distanceBetween(a: Wainwright, b: Wainwright): number {
   const rad = Math.PI / 180;
@@ -126,7 +129,7 @@ export function distanceBetween(a: Wainwright, b: Wainwright): number {
     Math.cos(a.latitude * rad) *
       Math.cos(b.latitude * rad) *
       Math.sin(dLon / 2) ** 2;
-  return 2 * 6371008.8 * Math.asin(Math.sqrt(h));
+  return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(h));
 }
 
 /** The `count` Wainwrights whose summits are closest to this one's, nearest first. */

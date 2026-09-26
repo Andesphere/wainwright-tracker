@@ -7,68 +7,43 @@ import checksFile from "@/content/fell-routes/checks.json";
 import osmFile from "@/content/fell-routes/osm.json";
 import transportFile from "@/content/fell-routes/transport.json";
 
-type Coord = [number, number];
+/** Longitude, latitude. */
+export type Coord = [number, number];
+
+// What the pages read. The files hold more (the ways the line follows, the
+// named places it passes, each measurement of the desk check): that is the
+// record behind the ascent text and the PR's desk-check table.
 
 export type RouteStart = {
-  osm: string;
   name: string | null;
   operator: string | null;
   fee: string | null;
   access: string | null;
   parking: string | null;
-  capacity: string | null;
   point: Coord;
-  /** The nearest town, village or hamlet in OpenStreetMap. */
-  nearestPlace: { name: string; kind: string; metres: number } | undefined;
 };
 
-export type RouteWay = {
-  way: number | null;
-  highway: string;
-  name: string | null;
-  sacScale: string | null;
-  access: string | null;
-  surface: string | null;
-  metres: number;
-};
-
-export type OsmRoute = {
+type OsmRoute = {
   start: RouteStart;
-  /** Longitude, latitude from the car park to the summit. */
+  /** From the car park to the summit. */
   line: Coord[];
   distanceMetres: number;
-  hardestSacScale: string | null;
-  permissiveMetres: number;
-  ways: RouteWay[];
-  summit: { trigPillar: boolean; cairn: boolean; shelter: boolean };
-  landmarks: { name: string; kind: string; alongMetres: number }[];
   context: { paths: Coord[][]; roads: Coord[][]; water: Coord[][] };
 };
 
-export type BusStop = {
-  atco: string;
+type BusStop = {
   name: string;
-  indicator: string;
   locality: string;
   point: Coord;
   distanceFromStartMetres: number;
   services: { line: string; operator: string }[];
 };
 
-export type RouteChecks = {
+type RouteChecks = {
   checkedOn: string;
   ascentMetres: number;
   startHeightMetres: number;
   summitGapMetres: number;
-  startGapMetres: number;
-  rightOfWayMetres: number;
-  rightOfWayTypes: Record<string, number>;
-  accessLandMetres: number;
-  roadMetres: number;
-  permissiveOnlyMetres: number;
-  uncoveredMetres: number;
-  uncoveredStretches: [number, number][];
-  profile: number[];
 };
 
 export type FellRoute = OsmRoute & {

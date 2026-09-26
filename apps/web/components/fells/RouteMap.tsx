@@ -4,20 +4,18 @@
 
 import { WAINWRIGHTS } from "@wainwrights/catalog/wainwrights";
 
-import type { FellRoute } from "@/lib/fellRoutes";
-
-type Coord = [number, number];
+import type { Coord, FellRoute } from "@/lib/fellRoutes";
+import { EARTH_RADIUS } from "@/lib/fells";
 
 const WIDTH = 1000;
-const EARTH = 6371008.8;
 
 function frame(route: FellRoute) {
   const lons = route.line.map(([lon]) => lon);
   const lats = route.line.map(([, lat]) => lat);
   const midLat = (Math.min(...lats) + Math.max(...lats)) / 2;
   const k = Math.cos((midLat * Math.PI) / 180);
-  const toX = (lon: number) => (lon * Math.PI * EARTH * k) / 180;
-  const toY = (lat: number) => (lat * Math.PI * EARTH) / 180;
+  const toX = (lon: number) => (lon * Math.PI * EARTH_RADIUS * k) / 180;
+  const toY = (lat: number) => (lat * Math.PI * EARTH_RADIUS) / 180;
   let [minX, maxX] = [toX(Math.min(...lons)), toX(Math.max(...lons))];
   let [minY, maxY] = [toY(Math.min(...lats)), toY(Math.max(...lats))];
   const pad = Math.max(250, 0.15 * Math.max(maxX - minX, maxY - minY));
@@ -56,6 +54,7 @@ export function RouteMap({
   const inside = ([x, y]: readonly [number, number]) =>
     x >= 0 && x <= WIDTH && y >= 0 && y <= height;
 
+  const line = d(route.line);
   const start = project(route.start.point);
   const summit = project(route.line[route.line.length - 1]);
   const bus = route.bus ? project(route.bus.point) : null;
@@ -93,8 +92,8 @@ export function RouteMap({
           <path key={i} d={d(line)} />
         ))}
       </g>
-      <path className="fl-rm-casing" d={d(route.line)} />
-      <path className="fl-rm-route" d={d(route.line)} />
+      <path className="fl-rm-casing" d={line} />
+      <path className="fl-rm-route" d={line} />
 
       {neighbours.map(({ fell, at }) => (
         <g key={fell.id}>

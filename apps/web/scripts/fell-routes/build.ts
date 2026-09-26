@@ -39,6 +39,10 @@ const CACHE =
 const USER_AGENT =
   "WainwrightsBaggers-fell-routes/1.0 (+https://wainwrightsbaggers.com)";
 const TODAY = new Date().toISOString().slice(0, 10);
+// Pin the OpenStreetMap snapshot (an Overpass attic query) to rebuild the
+// committed data: FELL_ROUTES_OSM_DATE=<osmBase from osm.json>. NaPTAN and BODS
+// are live feeds; bus services change with the seasons, so they are not pinned.
+const OSM_DATE = process.env.FELL_ROUTES_OSM_DATE;
 
 const SOURCES = {
   overpass: "https://overpass-api.de/api/interpreter",
@@ -89,10 +93,13 @@ async function download(url: string, init?: RequestInit): Promise<Buffer> {
 }
 
 async function overpass(name: string, query: string) {
-  const file = await cached(name, () =>
+  const pinned = OSM_DATE
+    ? query.replace("[out:json]", `[out:json][date:"${OSM_DATE}"]`)
+    : query;
+  const file = await cached(OSM_DATE ? `${OSM_DATE}-${name}` : name, () =>
     download(SOURCES.overpass, {
       method: "POST",
-      body: new URLSearchParams({ data: query }),
+      body: new URLSearchParams({ data: pinned }),
     }),
   );
   return JSON.parse(readFileSync(file, "utf8")) as {
@@ -1279,7 +1286,7 @@ async function main() {
     "checks.json",
     {
       notice:
-        "Measurements of the OpenStreetMap route lines against OS Terrain 50 (Contains OS data © Crown copyright and database right 2026), LDNPA Public Rights of Way and Natural England CRoW Access Land (© Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right 2026), all under the Open Government Licence v3.0.",
+        "Measurements along the OpenStreetMap route lines (© OpenStreetMap contributors, ODbL: https://opendatacommons.org/licenses/odbl/1-0/; road and permissive stretches come from OSM tags) against OS Terrain 50 (Contains OS data © Crown copyright and database right 2026), LDNPA Public Rights of Way and Natural England CRoW Access Land (© Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right 2026), the last three under the Open Government Licence v3.0. No OGL geometry is stored here, only distances and heights along the OSM line; the file is released under the ODbL.",
       method:
         "Every 10 m along the line: height from OS Terrain 50 (bilinear), a right of way within 20 m, inside access land, or on a public road in OSM. Ascent is the sum of rises between samples.",
       builtOn: TODAY,

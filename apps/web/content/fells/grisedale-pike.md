@@ -6,7 +6,7 @@ updatedAt: 2026-09-26
 
 This route climbs Grisedale Pike from the Forestry Commission's Revelin Moss car park at Whinlatter. Parking is paid and the car park sits at about 310 m. The Whinlatter Visitors Centre bus stop, about 310 m away, is served by the 77 and 77A.
 
-The line is 3.2 km long and gains about 500 m. The first 450 m follow forest tracks, crossing Comb Beck at about 160 m. From there a single path climbs to the ridge and along it, and almost all of the line, 3.1 km, crosses open access land. Only about 90 m is on a public right of way.
+The line is 3.2 km long and gains about 500 m. The first 450 m follow tracks, crossing Comb Beck at about 160 m. From there a single path climbs the rest of the way, and almost all of the line, 3.1 km, crosses open access land. Only about 90 m is on a public right of way.
 
 The path climbs steadily to Hobcarton End, a top it passes at about 2.1 km and 630 m. It then drops a few metres over the next 300 m before the final climb, which rises from about 620 m to the summit at 791 m in the last 850 m. The summit has a cairn on the map. The map gives no difficulty grade for the path.
 

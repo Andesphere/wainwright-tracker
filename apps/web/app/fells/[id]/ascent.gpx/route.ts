@@ -1,6 +1,7 @@
+// The free GPX of a released fell's ascent, ODbL (lib/gpx.ts).
+
 import { RELEASED_FELLS } from "@/content/fells/release";
-import { getFellText } from "@/lib/fellPages";
-import { getFellRoute } from "@/lib/fellRoutes";
+import { getAscent } from "@/lib/fellPages";
 import { requireFell } from "@/lib/fells";
 import { fellGpx } from "@/lib/gpx";
 
@@ -16,11 +17,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const gpx = fellGpx(
-    requireFell(id),
-    getFellRoute(id)!,
-    getFellText(id)!.start,
-  );
+  const { route, text } = getAscent(id)!;
+  const gpx = fellGpx(requireFell(id), route, text.start);
   return new Response(gpx, {
     headers: {
       "Content-Type": "application/gpx+xml; charset=utf-8",

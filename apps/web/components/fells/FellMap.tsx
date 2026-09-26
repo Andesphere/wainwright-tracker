@@ -47,7 +47,9 @@ export function FellMap({
     : highlight
       ? `Map of the 214 Wainwright summits with the ${fellsInBook(highlight).length} fells of ${highlight.title} highlighted`
       : "Map of the 214 Wainwright summits, grouped into Wainwright's seven books";
-  const marked = fell ? project(fell.latitude, fell.longitude) : null;
+  const marked = fell
+    ? { name: fell.name, ...project(fell.latitude, fell.longitude) }
+    : null;
 
   return (
     <svg
@@ -85,7 +87,7 @@ export function FellMap({
           </text>
         );
       })}
-      {marked && fell ? (
+      {marked ? (
         <g>
           <circle
             cx={marked.x.toFixed(1)}
@@ -99,7 +101,7 @@ export function FellMap({
             className="fl-map-label"
             textAnchor="middle"
           >
-            {fell.name}
+            {marked.name}
           </text>
         </g>
       ) : null}

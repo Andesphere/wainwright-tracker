@@ -9,12 +9,12 @@ import { parse as parseYaml } from "yaml";
 import { z } from "zod";
 
 import { RELEASED_FELLS } from "@/content/fells/release";
-import { getFellRoute } from "@/lib/fellRoutes";
+import { type FellRoute, getFellRoute } from "@/lib/fellRoutes";
 import { getFell } from "@/lib/fells";
 
 const FELLS_DIR = path.join(process.cwd(), "content", "fells");
 
-export const fellFrontMatter = z
+const fellFrontMatter = z
   .object({
     /** The meta description: unique across fells. */
     description: z.string().min(80).max(160),
@@ -69,4 +69,12 @@ for (const id of RELEASED_FELLS) {
 /** On the release list: indexable, in the sitemap, with its route and text. */
 export function isReleased(id: string): boolean {
   return (RELEASED_FELLS as readonly string[]).includes(id);
+}
+
+export type Ascent = { route: FellRoute; text: FellText };
+
+/** A released fell's route and text; the checks above guarantee both. */
+export function getAscent(id: string): Ascent | undefined {
+  if (!isReleased(id)) return undefined;
+  return { route: getFellRoute(id)!, text: getFellText(id)! };
 }

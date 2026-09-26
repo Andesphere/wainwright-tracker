@@ -14,7 +14,7 @@ import { GuideBand } from "@/components/guides/GuideBand";
 import { FellFacts, TrackerCta } from "@/components/guides/GuideComponents";
 import { SlopeShell } from "@/components/marketing/SlopeShell";
 import { formatDate } from "@/lib/dates";
-import type { FellText } from "@/lib/fellPages";
+import type { Ascent, FellText } from "@/lib/fellPages";
 import {
   type FellRoute,
   feeText,
@@ -38,7 +38,7 @@ import type { RouteSeo } from "@/lib/seo";
 type FellPageProps = {
   seo: RouteSeo & { fell: Wainwright; book: Book };
   /** Present for released fells only. */
-  ascent?: { route: FellRoute; text: FellText };
+  ascent?: Ascent;
 };
 
 export function FellPage({ seo, ascent }: FellPageProps) {
@@ -198,8 +198,8 @@ function Ascent({
         </figcaption>
       </figure>
 
-      {text.paragraphs.map((paragraph) => (
-        <p key={paragraph.slice(0, 32)}>{paragraph}</p>
+      {text.paragraphs.map((paragraph, index) => (
+        <p key={index}>{paragraph}</p>
       ))}
 
       <p className="fl-gpx">

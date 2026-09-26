@@ -4,14 +4,14 @@
 // Everything else (the line, distance, ascent, bus stop, checks) is computed
 // by build.ts from the open data.
 
-export type RouteStart = {
+export type StartPick = {
   /** OSM car park, "way/<id>" or "node/<id>", tagged amenity=parking. */
   parking: string;
   /** Latitude, longitude points the line must pass, in order. */
   via?: [number, number][];
 };
 
-export const ROUTE_STARTS: Record<string, RouteStart> = {
+export const ROUTE_STARTS: Record<string, StartPick> = {
   // Brown Tongue, Hollow Stones and Lingmell Col, the usual line from Wasdale,
   // rather than the Corridor Route the shortest walk would join.
   "scafell-pike": {

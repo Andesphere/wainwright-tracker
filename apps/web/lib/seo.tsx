@@ -22,7 +22,7 @@ import {
   getFell,
   highestOf,
 } from "@/lib/fells";
-import { getFellText, isReleased } from "@/lib/fellPages";
+import { getAscent, isReleased } from "@/lib/fellPages";
 
 export const SITE_URL = "https://wainwrightsbaggers.com";
 export const SITE_NAME = "Wainwrights Baggers";
@@ -189,8 +189,7 @@ export function fellCard(fell: Wainwright): OgImage {
 export function fellRouteSeo(fell: Wainwright): RouteSeo {
   const path = fellPath(fell);
   const book = bookOf(fell);
-  const released = isReleased(fell.id);
-  const text = released ? getFellText(fell.id) : undefined;
+  const text = getAscent(fell.id)?.text;
   return {
     kind: "fell",
     path,
@@ -204,7 +203,7 @@ export function fellRouteSeo(fell: Wainwright): RouteSeo {
       `${fell.name} is one of the 214 Wainwrights, ${formatHeight(fell)} high, in Book ${book.number} of Wainwright's Pictorial Guides, ${book.title}.`,
     image: fellCard(fell),
     lastModified: text?.updatedAt,
-    noIndex: !released,
+    noIndex: !text,
     breadcrumbs: [
       ...fellsCrumbs,
       { name: book.title, path: bookPath(book) },

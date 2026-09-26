@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Author } from "@/content/authors";
 import { RELEASED_FELLS } from "@/content/fells/release";
+import { isReleased } from "@/lib/fellPages";
 import { BOOKS, BY_HEIGHT } from "@/lib/fells";
 import { getGuides } from "@/lib/guides";
 import {
@@ -57,9 +58,10 @@ const INDEXABLE_PATHS = [
   ...getGuides().map((guide) => ["guides", guide.slug]),
   ["fells"],
   ...BOOKS.map((book) => ["fells", "books", book.slug]),
-  ...BY_HEIGHT.filter((fell) =>
-    (RELEASED_FELLS as readonly string[]).includes(fell.id),
-  ).map((fell) => ["fells", fell.id]),
+  ...BY_HEIGHT.filter((fell) => isReleased(fell.id)).map((fell) => [
+    "fells",
+    fell.id,
+  ]),
 ];
 /** Great End is on the walker-check list (#47), so it stays unreleased. */
 const UNRELEASED_FELL = ["fells", "great-end"];
