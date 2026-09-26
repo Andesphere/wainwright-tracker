@@ -2,7 +2,7 @@
 // longitude, the seven books labelled where their fells cluster. Plain SVG,
 // rendered on the server, so it costs no script and no map tiles.
 
-import { WAINWRIGHTS } from "@wainwrights/catalog/wainwrights";
+import { type Wainwright, WAINWRIGHTS } from "@wainwrights/catalog/wainwrights";
 
 import { BOOKS, type Book, bookOf, fellsInBook } from "@/lib/fells";
 
@@ -34,10 +34,20 @@ function centre(book: Book) {
   );
 }
 
-export function FellMap({ highlight }: { highlight?: Book }) {
-  const label = highlight
-    ? `Map of the 214 Wainwright summits with the ${fellsInBook(highlight).length} fells of ${highlight.title} highlighted`
-    : "Map of the 214 Wainwright summits, grouped into Wainwright's seven books";
+/** All 214 summits; `highlight` picks out a book, `fell` a single summit. */
+export function FellMap({
+  highlight,
+  fell,
+}: {
+  highlight?: Book;
+  fell?: Wainwright;
+}) {
+  const label = fell
+    ? `Map of the 214 Wainwright summits with ${fell.name} marked`
+    : highlight
+      ? `Map of the 214 Wainwright summits with the ${fellsInBook(highlight).length} fells of ${highlight.title} highlighted`
+      : "Map of the 214 Wainwright summits, grouped into Wainwright's seven books";
+  const marked = fell ? project(fell.latitude, fell.longitude) : null;
 
   return (
     <svg
@@ -46,12 +56,13 @@ export function FellMap({ highlight }: { highlight?: Book }) {
       role="img"
       aria-label={label}
     >
-      {WAINWRIGHTS.map((fell) => {
-        const { x, y } = project(fell.latitude, fell.longitude);
-        const on = !highlight || bookOf(fell) === highlight;
+      {WAINWRIGHTS.map((other) => {
+        if (other === fell) return null;
+        const { x, y } = project(other.latitude, other.longitude);
+        const on = !fell && (!highlight || bookOf(other) === highlight);
         return (
           <circle
-            key={fell.id}
+            key={other.id}
             cx={x.toFixed(1)}
             cy={y.toFixed(1)}
             r={on ? 6 : 4}
@@ -61,7 +72,7 @@ export function FellMap({ highlight }: { highlight?: Book }) {
       })}
       {BOOKS.map((book) => {
         const { x, y } = centre(book);
-        const on = !highlight || book === highlight;
+        const on = !fell && (!highlight || book === highlight);
         return (
           <text
             key={book.slug}
@@ -74,6 +85,24 @@ export function FellMap({ highlight }: { highlight?: Book }) {
           </text>
         );
       })}
+      {marked && fell ? (
+        <g>
+          <circle
+            cx={marked.x.toFixed(1)}
+            cy={marked.y.toFixed(1)}
+            r={11}
+            className="fl-dot fl-dot--this"
+          />
+          <text
+            x={marked.x.toFixed(1)}
+            y={(marked.y - 22).toFixed(1)}
+            className="fl-map-label"
+            textAnchor="middle"
+          >
+            {fell.name}
+          </text>
+        </g>
+      ) : null}
     </svg>
   );
 }

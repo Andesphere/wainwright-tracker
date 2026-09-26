@@ -344,6 +344,173 @@
   margin-top: 0;
 }
 
+/* ── Fell pages ─────────────────────────────────────────────────────── */
+.design-slope .gd-prose .fl-map-frame {
+  margin: 0 0 1.4rem;
+}
+.design-slope .fl-dot--this {
+  fill: var(--bracken);
+  stroke: var(--pine);
+  stroke-width: 3;
+}
+.design-slope .gd-prose .fl-note,
+.design-slope .gd-prose .fl-credits p {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--quiet);
+}
+.design-slope .gd-prose .fl-note {
+  margin: 0.8rem 0 0;
+}
+.design-slope .fl-credits {
+  margin-top: 1.4rem;
+}
+.design-slope .gd-prose .fl-credits p {
+  margin: 0 0 0.35rem;
+}
+.design-slope .gd-prose .fl-more {
+  font-family: var(--font-plus-jakarta), sans-serif;
+}
+
+/* The ascent */
+.design-slope .gd-prose .fl-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin: -0.2rem 0 0;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--moss);
+}
+.design-slope .fl-status-label {
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: var(--sage);
+  border: 1px solid var(--line);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pine);
+}
+.design-slope .gd-prose .fl-route-facts {
+  margin: 1.6rem 0 1.4rem;
+}
+.design-slope .fl-route-facts dd {
+  font-size: 1.3rem;
+}
+.design-slope .fl-route-map {
+  padding: 0;
+}
+.design-slope .fl-route-map::after {
+  content: none;
+}
+.design-slope .fl-route-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--cream);
+}
+.design-slope .fl-route-map figcaption {
+  margin: 0;
+  padding: 0.9rem 1.4rem 1rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-plus-jakarta), sans-serif;
+}
+.design-slope .fl-rm-water path {
+  fill: #dbe6e3;
+  stroke: #b9cdc8;
+  stroke-width: 1.2;
+}
+.design-slope .fl-rm-roads path,
+.design-slope .fl-rm-paths path,
+.design-slope .fl-rm-casing,
+.design-slope .fl-rm-route,
+.design-slope .fl-rm-scale path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.design-slope .fl-rm-roads path {
+  stroke: #d8cfb8;
+  stroke-width: 4;
+}
+.design-slope .fl-rm-paths path {
+  stroke: var(--quiet);
+  stroke-opacity: 0.45;
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+}
+.design-slope .fl-rm-casing {
+  stroke: var(--cream);
+  stroke-width: 11;
+}
+.design-slope .fl-rm-route {
+  stroke: var(--moss);
+  stroke-width: 6;
+}
+.design-slope .fl-rm-fell {
+  fill: var(--quiet);
+  stroke: var(--cream);
+  stroke-width: 2;
+}
+.design-slope .fl-rm-name {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  fill: var(--quiet);
+  stroke: var(--cream);
+  stroke-width: 5px;
+  paint-order: stroke;
+}
+.design-slope .fl-rm-marker rect {
+  fill: var(--pine);
+  stroke: var(--cream);
+  stroke-width: 2.5;
+}
+.design-slope .fl-rm-marker--bus rect {
+  fill: var(--leaf);
+}
+.design-slope .fl-rm-marker text {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  fill: var(--cream);
+}
+.design-slope .fl-rm-summit {
+  fill: var(--bracken);
+  stroke: var(--pine);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+.design-slope .fl-rm-scale path {
+  stroke: var(--pine);
+  stroke-width: 3;
+}
+.design-slope .fl-rm-scale text {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  fill: var(--pine);
+}
+.design-slope .gd-prose .fl-gpx {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.2rem;
+  margin: 1.8rem 0 0;
+}
+.design-slope .gd-prose .fl-gpx span {
+  flex: 1 1 18rem;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--moss);
+}
+
 /* ── Narrow screens ─────────────────────────────────────────────────── */
 @media (max-width: 899px) {
   .design-slope .fl-intro,
@@ -362,6 +529,10 @@
   }
   .design-slope .fl-map-label {
     font-size: 34px;
+  }
+  .design-slope .fl-rm-name,
+  .design-slope .fl-rm-scale text {
+    font-size: 30px;
   }
   .design-slope .fl-table th,
   .design-slope .fl-table td {

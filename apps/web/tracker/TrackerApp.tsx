@@ -340,6 +340,16 @@ export function TrackerApp() {
     requestCamera({ fell: id }, Math.min(CARD, large));
   };
 
+  // /app?fell=<id>, the "Bag it" link on a fell page, opens that fell once.
+  const deepLinked = useRef(false);
+  useEffect(() => {
+    if (deepLinked.current) return;
+    deepLinked.current = true;
+    const id = new URLSearchParams(window.location.search).get("fell");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the URL once, after mount
+    if (id && FELLS_BY_ID.has(id)) select(id);
+  });
+
   const clearSelection = () => {
     if (!selectedId) return;
     setSelectedId(null);

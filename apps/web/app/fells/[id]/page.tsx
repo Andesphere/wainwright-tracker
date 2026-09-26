@@ -1,6 +1,8 @@
 import { WAINWRIGHTS } from "@wainwrights/catalog/wainwrights";
 import { notFound } from "next/navigation";
 
+import { getFellText, isReleased } from "@/lib/fellPages";
+import { getFellRoute } from "@/lib/fellRoutes";
 import { buildMetadata, getRouteSeo, JsonLd } from "@/lib/seo";
 import { FellPage } from "@/marketing-pages/FellPage";
 
@@ -28,10 +30,15 @@ export default async function FellRoute(props: FellRouteProps) {
   const seo = await fellSeo(props);
   const { fell, book } = seo;
   if (!fell || !book) notFound();
+  const route = isReleased(fell.id) ? getFellRoute(fell.id) : undefined;
+  const text = route ? getFellText(fell.id) : undefined;
   return (
     <>
       <JsonLd seo={seo} />
-      <FellPage seo={{ ...seo, fell, book }} />
+      <FellPage
+        seo={{ ...seo, fell, book }}
+        ascent={route && text ? { route, text } : undefined}
+      />
     </>
   );
 }

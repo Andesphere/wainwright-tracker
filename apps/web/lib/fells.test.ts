@@ -9,6 +9,8 @@ import {
   getBook,
   formatGridReference,
   heightRank,
+  isThreeThousander,
+  nearestFells,
   ordinal,
   requireFell,
 } from "@/lib/fells";
@@ -17,6 +19,24 @@ describe("fell facts", () => {
   it("ranks Scafell Pike first and Castle Crag last of 214", () => {
     expect(heightRank(requireFell("scafell-pike"))).toBe(1);
     expect(heightRank(requireFell("castle-crag"))).toBe(214);
+  });
+
+  it("finds the five nearest summits, nearest first", () => {
+    const near = nearestFells(requireFell("catbells"));
+    expect(near).toHaveLength(5);
+    expect(near[0].fell.id).toBe("maiden-moor");
+    expect(near.map(({ fell }) => fell.id)).not.toContain("catbells");
+    const distances = near.map(({ metres }) => metres);
+    expect([...distances].sort((a, b) => a - b)).toEqual(distances);
+  });
+
+  it("counts four Wainwrights of 3,000 ft or more", () => {
+    expect(
+      ["scafell-pike", "scafell", "helvellyn", "skiddaw"].map((id) =>
+        isThreeThousander(requireFell(id)),
+      ),
+    ).toEqual([true, true, true, true]);
+    expect(isThreeThousander(requireFell("great-end"))).toBe(false);
   });
 
   it("puts a fell in its Pictorial Guide", () => {
